@@ -1,0 +1,10 @@
+{
+  "title": "Привіт {0}!",
+  "msg": "Ти маєш {f} друзів та {l} вподобайок",
+
+  "DASHBAORD_MSG000": "Дашборд",
+  "DASHBAORD_MSG001": "Активації",
+  "DASHBAORD_MSG002": "Клієнти",
+  "DASHBAORD_MSG003": "Сигнали Тривоги",
+  "DASHBAORD_MSG004": "Realtime Online"
+}

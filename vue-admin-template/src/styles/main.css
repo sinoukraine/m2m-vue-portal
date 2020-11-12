@@ -1,0 +1,28 @@
+.navbar{
+    padding: 0;
+    display: block;
+}
+
+.navbar img{
+    vertical-align: inherit;
+}
+
+.el-menu a:hover,
+.el-dropdown-menu a:hover{
+    text-decoration: none;
+}
+
+.el-form--label-top .el-form-item__label{
+  padding: 0;
+  margin: 0;
+}
+
+.w-100{
+  width: 100%;
+}
+/*#app .main-container{
+  height: 100%;
+}*/
+/*.app-main{
+  height: calc(100vh - 50px);
+}*/
