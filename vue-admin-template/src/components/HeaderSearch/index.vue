@@ -41,17 +41,17 @@ export default {
     }
   },
   computed: {
-    routes() {
+    /*routes() {
       return this.$store.getters.permission_routes
-    }
+    }*/
   },
   watch: {
-    routes() {
+    /*routes() {
       this.searchPool = this.generateRoutes(this.routes)
     },
     searchPool(list) {
       this.initFuse(list)
-    },
+    },*/
     show(value) {
       if (value) {
         document.body.addEventListener('click', this.close)
@@ -62,11 +62,11 @@ export default {
   },
   mounted() {
     //console.log('r',this.routes)
-    let test = [{
+    /*let test = [{
           path: '/dashboard',
           title: '777777777777'
         }]
-    this.searchPool = this.generateRoutes(test)
+    this.searchPool = this.generateRoutes(test)*/
   },
   methods: {
     click() {
@@ -81,15 +81,16 @@ export default {
       this.show = false
     },
     change(val) {
+      console.log('ch', val.title)
       this.$store.dispatch('dashboard/setIMSI', val.title)
-      /*this.$router.push(val.path)
-      this.search = ''
-      this.options = []
-      this.$nextTick(() => {
+      //this.$router.push(val.path)
+      this.search = val.title
+      //this.options = []
+      /*this.$nextTick(() => {
         this.show = false
       })*/
     },
-    initFuse(list) {
+    /*initFuse(list) {
       this.fuse = new Fuse(list, {
         shouldSort: true,
         threshold: 0.4,
@@ -105,10 +106,10 @@ export default {
           weight: 0.3
         }]
       })
-    },
+    },*/
     // Filter out the routes that can be displayed in the sidebar
     // And generate the internationalized title
-    generateRoutes(routes, basePath = '/', prefixTitle = []) {
+    /*generateRoutes(routes, basePath = '/', prefixTitle = []) {
       let res = []
 
       for (const router of routes) {
@@ -139,27 +140,30 @@ export default {
         }
       }
       return res
-    },
+    },*/
     searchIMSI(query) {
-      if(query.length > 3) {
-        this.simListQuery = {
-          limit: 5,
-          sample: query
-        }
-        getSIMList(this.simListQuery).then(response => {
-          let totalDataSessions = 0
-          console.log('resss',response)
-        })
+      const arr = []
+      this.simListQuery = {
+        limit: 5,
+        sample: query
       }
+      getSIMList(this.simListQuery).then(response => {
+        response.data.forEach(element => {
+          arr.push({
+            path: element._id,
+            title: element.info.imsi
+          })
+        })
+        this.options = arr
+        console.log('resss',this.options)
+      })      
     },
     querySearch(query) {
-      if (query !== '') {
-        /*this.options = [{
-          path: '/dashboard',
-          title: query
-        }]*/ //
-        //this.options = this.fuse.search(query)
-        this.searchIMSI(query)
+      if (query !== '') {        
+        if(query.length > 3) {
+          this.searchIMSI(query)
+        }
+        //this.options = this.fuse.search(query)        
       } else {
         this.options = []
       }
@@ -205,5 +209,10 @@ export default {
       margin-left: 10px;
     }
   }
+}
+
+.el-select-dropdown__item.selected {
+    color: #606266;
+    font-weight: 500;
 }
 </style>

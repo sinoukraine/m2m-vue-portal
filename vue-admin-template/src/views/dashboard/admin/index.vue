@@ -9,19 +9,74 @@
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;" class="bar-chart-container">
       <line-chart :chart-data="datacollection" :styles="barStyles" :options="barOptions"></line-chart>
     </el-row>
+    
+    <el-row :gutter="8">
+      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 24}" :xl="{span: 24}" style="padding-right:8px;margin-bottom:30px;">
+        <el-table
+            :key="tableKey"
+            v-loading="listLoading"
+            :data="list"
+            fit
+            highlight-current-row
+            style="width: 100%;border-radius:5px"
+          >
+           <el-table-column label="IMSI" fixed="left" sortable="custom"  align="center" min-width="180px">
+              <template slot-scope="{row}">
+                <span>{{ row.imsi }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Customer" sortable="custom"  width="180px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.customer }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="User" sortable="custom"  width="180px" align="center">
+              <template slot-scope="{row}">
+                <span>m2madmin</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="State" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.state }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="RAG" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span :style="'font-size:2em;color:'+row.rag">&#x025FC;</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Data Usage(MB)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.total }}</span>
+              </template>
+            </el-table-column>
+            
+            <!--:class-name="getSortClass('customer')"<el-table-column label="Flow Usage" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.totalFlowUsage }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="SMS Usage" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.totalSmsUsage }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Days" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.days }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="LastUpdate" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.lastUpdate.slice(0, 10) }}</span>
+              </template>
+            </el-table-column>
+           -->
+          </el-table>
+      </el-col>
+    </el-row>
 
     <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="12">
-        <div class="chart-wrapper">
-          <div class="card-panel card-panel-description">
-          <div class="card-panel-text">
-            <!--Data Sessions-->
-          </div>
-        </div>
-         <!-- <transaction-table />
-         <box-card />-->
-        </div>
-      </el-col>
       <el-col :xs="24" :sm="24" :lg="12">
         <div class="chart-wrapper">
           <pie-chart />
@@ -29,14 +84,6 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="8">
-      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-      </el-col>
-      <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 6}" :xl="{span: 6}" style="margin-bottom:30px;">
-      </el-col>
-      <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 6}" :xl="{span: 6}" style="margin-bottom:30px;">
-      </el-col>
-    </el-row>
   </div>
 </template>
 
@@ -78,6 +125,7 @@ export default {
   },
   data() {
     return {
+      imsi: '',
       simQuery: {
         imsi: ''
       },
@@ -100,6 +148,20 @@ export default {
         loaded: false
       },
       datacollection: null,
+
+      tableKey: 0,
+      list: null,
+      total: 0,
+      listLoading: true,
+      listQuery: {
+        page: 1,
+        limit: 10,
+        date1: '2020-10-29',
+        date2: '2020-11-09',
+        customer: '0',
+        sort: '+code'
+      },
+
       series: [44, 51, 41, 11, 10, 5, 4, 2, 1],
       pieOptions: {
         chart: {
@@ -166,7 +228,7 @@ export default {
         break
       }
       
-      if(this.simQuery.imsi.length){
+      if(this.imsi.length){
         this.fillIMSIData()
       }else{
         this.fillPanelData()
@@ -178,7 +240,7 @@ export default {
       this.simQuery.imsi = imsi
       this.fillIMSIData()
     },
-    fillPanelData(){
+    /*fillTableData(){
       getCDRSList(this.cdrsListQuery).then(response => {
         let totalDataUsage = 0, 
             totalSMSUsage = 0,
@@ -188,6 +250,66 @@ export default {
         const arrData = []
 
         response.data.forEach(element => {
+          totalDataUsage += +element.totalDataUsage
+        })
+      })
+    },*/
+    fillPanelData(){
+      getCDRSList(this.cdrsListQuery).then(response => {
+        let totalDataUsage = 0, 
+            totalSMSUsage = 0,
+            totalFlowUsage = 0
+            
+        const arrLabel = []
+        const arrData = []
+        const arrTable = []
+        
+        response.data.forEach((element, index) => {
+          if(arrTable.length < 5){            
+              const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+              arrTable.push({
+                imsi: element.imsi,
+                customer: element.customer,
+                state: '',
+                rag: '',
+                total: tableDataUsageTotal
+              })  
+            const query = {
+              imsi: element.imsi,
+              states: true,
+              activity: true,
+            }
+            getSIM(query).then(response_1 => {
+              const tableState = response_1.data.extra.states.current
+              let rag = ''
+              arrTable[index].state = tableState
+
+              var currentTime = moment();
+              var oneDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD'); 
+              var threeDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD');
+                
+              const activityArr = response_1.data.extra.activity.samples;
+              if(typeof activityArr == 'undefined'){					
+                  rag = 'rgb(204,204,204)'							
+              }else{														
+                const simActivityTime = moment(activityArr[activityArr.length - 1].endTime, 'YYYY-MM-DD').format('YYYY-MM-DD');													
+                if(simActivityTime >= oneDayAgo){														
+                  rag = 'rgb(57,181,74)'
+                }else if(simActivityTime >= threeDayAgo){														
+                  rag = '#ff8c00'												
+                }else{								
+                  rag = '#CD3333'
+                }                
+                arrTable[index].rag = rag													
+              }
+              
+              if((index == 4 && response.data.length > 4) || (index == response.data.length && response.data.length < 5)){                
+                this.listLoading = false
+                this.list = arrTable
+              }
+            })           
+          }
+
           totalDataUsage += +element.totalDataUsage
           totalSMSUsage += +element.totalSmsUsage          
           totalFlowUsage += +element.totalFlowUsage
@@ -202,6 +324,7 @@ export default {
           }
         })
 
+                 
         this.panelData = {
           totalDataUsage: (totalDataUsage/1000000).toFixed(0),
           totalSMSUsage: totalSMSUsage,
@@ -210,7 +333,7 @@ export default {
         }        
         
         this.fillData({labels: arrLabel, dataUsage: arrData})
-      })      
+      })    
     },
     fillIMSIData(){
       getSIM(this.simQuery).then(response => {
@@ -265,6 +388,12 @@ export default {
           this.fillData({labels: arrLabel, dataUsage: arrData})
         })  
       })      
+    },    
+    sortChange(data) {
+      const { prop, order } = data
+      if (prop === 'code') {
+        this.sortByID(order)
+      }
     },
     handleSetLineChartData(type) {
       //this.lineChartData = lineChartData[type]
@@ -290,13 +419,8 @@ export default {
       },
   },
   mounted () {    
+    this.imsi = this.$store.state.dashboard.imsi
     this.searchByPeriod('weekly')
-    //this.fillPanelData()
-    //this.fillData()
-
-    //var chart = new ApexCharts(document.querySelector("#chart"), options);
-
-    //chart.render();
   },
   created () {   
     this.$store.watch(

@@ -42,9 +42,16 @@ export async function getSIMStates(query) {
 
 export async function getSIM(query) {
   if (query.imsi !== '') {
+    let addStates = '', addActivity = ''
+    if (query.states) {
+      addStates = '&extra[]=states'
+    }
+    if (query.activity) {
+      addActivity = '&extra[]=activity'
+    }
     const imsi = query.imsi
     const options = {
-      url: SIM_LIST + '/' + imsi + '?simIdentifier=IMSI',
+      url: SIM_LIST + '/' + imsi + '?simIdentifier=IMSI' + addStates + addActivity,
       method: 'get'
     }
     return new Promise((resolve, reject) => {

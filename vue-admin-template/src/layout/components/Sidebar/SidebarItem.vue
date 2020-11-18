@@ -93,3 +93,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+  .el-menu-item.is-active{
+    color: #fff !important;
+  }
+
+  #app .sidebar-container .nest-menu .el-submenu > .el-submenu__title:hover, #app .sidebar-container .el-submenu .el-menu-item:hover {
+    background-color: #1b2836 !important;
+  }
+</style>
