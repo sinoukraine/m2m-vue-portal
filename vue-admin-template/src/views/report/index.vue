@@ -340,7 +340,7 @@
 </template>
 
 <script>
-import { getDailyUsageReportList, getCustomerList, fetchPv, createArticle, updateArticle, deleteArticle } from '@/api/article'
+import { getCDRSList, getCustomerList, fetchPv, createArticle, updateArticle, deleteArticle } from '@/api/sim'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -388,7 +388,7 @@ export default {
     typeFilter(type) {
       return categoryTypeKeyValue[type]
     }
-  },
+  },  
   data() {
     return {
       selectedCustomer: '0',
@@ -524,7 +524,7 @@ export default {
         })
       })
 
-      getDailyUsageReportList(this.listQuery).then(response => {
+      getCDRSList(this.listQuery).then(response => {
         this.total = response.data.length
         setTimeout(() => {
           this.listLoading = false

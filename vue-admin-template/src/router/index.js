@@ -51,29 +51,15 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Home', icon: 'international' }
+      meta: { title: 'Home', icon: 'home' }
     }]
   },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'SMS', icon: 'message' },
-      }
-    ]
-  },
-
   {
     path: '/example',
     component: Layout,
     redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'SIM Manage', icon: 'sim' },
+    name: 'SIM Manage',
+    meta: { title: 'SIM Manage', icon: 'sim-manage' },
     children: [
       {
         path: 'table',
@@ -89,6 +75,45 @@ export const constantRoutes = [
       }
     ]
   },
+
+  {
+    path: '/form',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Customer manage',
+        component: () => import('@/views/form/index'),
+        meta: { title: 'Customer manage', icon: 'customer-manage' },
+      }
+    ]
+  },
+
+  {
+    path: '/form',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'History',
+        component: () => import('@/views/form/index'),
+        meta: { title: 'History', icon: 'history' },
+      }
+    ]
+  },
+  {
+    path: '/form',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Form',
+        component: () => import('@/views/form/index'),
+        meta: { title: 'SMS', icon: 'sms' },
+      }
+    ]
+  },
+ 
   {
     path: '/report',
     component: Layout,
@@ -97,7 +122,33 @@ export const constantRoutes = [
         path: 'index',
         name: 'Report',
         component: () => import('@/views/report/index'),
-        meta: { title: 'Report', icon: 'report' }
+        meta: { title: 'Report', icon: 'reports' }
+      }
+    ]
+  },
+  
+  {
+    path: '/form',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Commands',
+        component: () => import('@/views/form/index'),
+        meta: { title: 'Commands', icon: 'commands' },
+      }
+    ]
+  },
+  
+  {
+    path: '/form',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'CSP Manage',
+        component: () => import('@/views/form/index'),
+        meta: { title: 'CSP Manage', icon: 'csp' },
       }
     ]
   },

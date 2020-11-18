@@ -8,6 +8,7 @@ import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
 
+
 import App from './App'
 import store from './store'
 import router from './router'
@@ -21,6 +22,10 @@ import 'vue-toast-notification/dist/theme-default.css'
 //import 'vue-toast-notification/dist/theme-sugar.css';
  
 Vue.use(VueToast)
+
+import moment from 'moment'
+
+Vue.prototype.moment = moment
 
 /**
  * If you don't want to use mock-server

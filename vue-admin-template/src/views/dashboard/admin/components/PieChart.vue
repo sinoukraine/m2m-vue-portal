@@ -6,6 +6,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
+import { getSIMStates } from '@/api/sim'
 
 export default {
   mixins: [resize],
@@ -20,7 +21,7 @@ export default {
     },
     height: {
       type: String,
-      default: '300px'
+      default: '350px'
     }
   },
   data() {
@@ -30,7 +31,16 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.initChart()
+      getSIMStates(null).then(response => {
+        let arr = []
+        response.data.forEach(element => {
+          arr.push({
+            value: element.count,
+            name: element.simStatus
+          })
+        })
+        this.initChart({arr})
+      })
     })
   },
   beforeDestroy() {
@@ -41,7 +51,7 @@ export default {
     this.chart = null
   },
   methods: {
-    initChart() {
+    initChart(data) {
       this.chart = echarts.init(this.$el, 'macarons')
 
       this.chart.setOption({
@@ -52,7 +62,7 @@ export default {
         legend: {
           left: 'center',
           bottom: '10',
-          data: ['Protect', 'Loc8', 'Track', 'Watch'] //, 'Deleted'
+         // data: data.labels //['Suspended', 'Deleteing', 'OnStock', 'Productive', 'Deleted', 'Test', 'TestEnd', 'TestProductive'] //, 'Deleted'
         },
         series: [
           {
@@ -61,13 +71,17 @@ export default {
             roseType: 'radius',
             radius: [15, 95],
             center: ['45%', '38%'],
-            data: [
-              { value: 320, name: 'Protect' },
-              { value: 240, name: 'Loc8' },
-              { value: 149, name: 'Track' },
-              { value: 100, name: 'Watch' },
-              /*{ value: 59, name: 'Deleted' }*/
-            ],
+            data: data.arr, /*[
+              { value: 320, name: 'Suspended' },
+              { value: 240, name: 'Deleteing' },
+              { value: 149, name: 'OnStock' },
+              { value: 100, name: 'Productive' },
+              { value: 70, name: 'Deleted' },
+              { value: 40, name: 'Test' },
+              { value: 29, name: 'TestEnd' },
+              { value: 4, name: 'TestProductive' },
+              { value: 59, name: 'Deleted' }
+            ]*/ 
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }

@@ -17,6 +17,11 @@
   margin: 0;
 }
 
+
+#app .el-radio-button__inner {
+  background: transparent !important;
+}
+
 .w-100{
   width: 100%;
 }

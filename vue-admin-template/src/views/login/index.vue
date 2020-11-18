@@ -165,6 +165,7 @@ $cursor: #fff;
       &:-webkit-autofill {
         box-shadow: 0 0 0px 1000px $bg inset !important;
         -webkit-text-fill-color: $cursor !important;
+        
       }
     }
   }
@@ -256,4 +257,5 @@ $light_gray:#eee;
   margin-bottom:30px;
   padding: 14px 20px;
 }
+
 </style>
