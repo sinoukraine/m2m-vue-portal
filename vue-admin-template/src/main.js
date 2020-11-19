@@ -27,6 +27,14 @@ import moment from 'moment'
 
 Vue.prototype.moment = moment
 
+import '@/utils/jquery-global.js';
+import '@/utils/jquery.vmap/jqvmap.css';
+import '@/utils/jquery.vmap/jquery.vmap.js';
+import '@/utils/jquery.vmap/jquery.vmap.south-africa.js';
+
+import {Tooltip} from 'element-ui'
+Vue.use(Tooltip)
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api

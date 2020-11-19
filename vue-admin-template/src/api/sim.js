@@ -5,9 +5,11 @@ axios.defaults.timeout = 360000 //2147483647
 import { getToken } from '@/utils/auth' // get token from cookie
 
 const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
-const CDRS_LIST = API_DOMIAN + 'cdrs'
+const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
+const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
 const SIM_LIST = API_DOMIAN + 'sims'
 const SIM_STATES = API_DOMIAN + 'sims/states'
+const CDRS_LIST = API_DOMIAN + 'cdrs'
 const CUSTOMER_LIST = API_DOMIAN + 'counterparties'
 
 function getRequestOptions(options) {
@@ -24,6 +26,21 @@ function getRequestOptions(options) {
 
   return axiosRequestOptions
 }
+
+export async function getSIMCountry(query) {
+  const options = {
+     url: SIM_COUNTRY + '&lat=' + query.lat + '&lon=' + query.lon + '',
+     method: 'get'
+   }
+   return new Promise((resolve, reject) => {
+     axios.request(getRequestOptions(options)).then(
+       (result) => {
+         resolve(result)
+       }).catch(e => {
+       reject(e)
+     })
+   })
+ }
 
 export async function getSIMStates(query) {
  const options = {
@@ -110,6 +127,24 @@ export async function getCDRSList(query) {
       reject(e)
     })
   })
+}
+
+export async function getSIMCoordinates(query) {
+  if (query.id !== '') {
+    const id = query.id
+    const options = {
+      url: SIM_LIST + '/' + id + '/coordinates',
+      method: 'get'
+    }
+    return new Promise((resolve, reject) => {
+      axios.request(getRequestOptions(options)).then(
+        (result) => {
+          resolve(result)
+        }).catch(e => {
+        reject(e)
+      })
+    })
+  }
 }
 
 export async function getCDRS(query) {

@@ -9,9 +9,9 @@
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;" class="bar-chart-container">
       <line-chart :chart-data="datacollection" :styles="barStyles" :options="barOptions"></line-chart>
     </el-row>
-    
-    <el-row :gutter="8">
-      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 24}" :xl="{span: 24}" style="padding-right:8px;margin-bottom:30px;">
+
+    <el-row :gutter="40">
+      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom:30px;">
         <el-table
             :key="tableKey"
             v-loading="listLoading"
@@ -20,12 +20,17 @@
             highlight-current-row
             style="width: 100%;border-radius:5px"
           >
-           <el-table-column label="IMSI" fixed="left" sortable="custom"  align="center" min-width="180px">
+           <el-table-column label="№"   align="center" width="160px">
+              <template slot-scope="{row}">
+                <span>{{ row.num }}</span>
+              </template>
+            </el-table-column>
+           <el-table-column label="IMSI"    align="center" width="180px">
               <template slot-scope="{row}">
                 <span>{{ row.imsi }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Customer" sortable="custom"  width="180px" align="center">
+            <!--<el-table-column label="Customer" sortable="custom"  width="180px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
@@ -44,42 +49,27 @@
               <template slot-scope="{row}">
                 <span :style="'font-size:2em;color:'+row.rag">&#x025FC;</span>
               </template>
-            </el-table-column>
-            <el-table-column label="Data Usage(MB)" width="160px" align="center">
+            </el-table-column>-->
+            <el-table-column label="Value"  min-width="160px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.total }}</span>
               </template>
             </el-table-column>
-            
-            <!--:class-name="getSortClass('customer')"<el-table-column label="Flow Usage" width="160px" align="center">
-              <template slot-scope="{row}">
-                <span>{{ row.totalFlowUsage }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="SMS Usage" width="160px" align="center">
-              <template slot-scope="{row}">
-                <span>{{ row.totalSmsUsage }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="Days" width="160px" align="center">
-              <template slot-scope="{row}">
-                <span>{{ row.days }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="LastUpdate" width="160px" align="center">
-              <template slot-scope="{row}">
-                <span>{{ row.lastUpdate.slice(0, 10) }}</span>
-              </template>
-            </el-table-column>
-           -->
           </el-table>
       </el-col>
-    </el-row>
-
-    <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="12">
         <div class="chart-wrapper">
           <pie-chart />
+        </div>
+      </el-col>
+    </el-row>
+    
+    <el-row :gutter="8" style="background:#fff;border-radius: 5px;margin: 0">
+      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 24}" :xl="{span: 24}" style="padding:0">
+        <div key="key-vmap" class="card col-100 large-30 no-margin margin-bottom">
+          <div class="card-content center">
+            <div id="vmap" class="width-100 margin-top radius-5" style="width: 100%;height: 70vh;" data-plugin="vectorMap" data-map="world_en"></div>
+          </div>
         </div>
       </el-col>
     </el-row>
@@ -89,7 +79,7 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { getCDRSList, getSIM, getCDRS } from '@/api/sim'
+import { getCDRSList, getSIM, getCDRS, getSIMCountry, getSIMCoordinates } from '@/api/sim'
 /*
 import LineChart from './components/LineChart'
 import RaddarChart from './components/RaddarChart'
@@ -126,6 +116,7 @@ export default {
   data() {
     return {
       imsi: '',
+      countries: [],
       simQuery: {
         imsi: ''
       },
@@ -229,9 +220,9 @@ export default {
       }
       
       if(this.imsi.length){
-        this.fillIMSIData()
+        this.fillIMSIData(period)
       }else{
-        this.fillPanelData()
+        this.fillIMSIListData(period)
       }
     },
     searchByIMSI(imsi) { 
@@ -254,7 +245,25 @@ export default {
         })
       })
     },*/
-    fillPanelData(){
+    fillIMSIListData(period = 'daily'){      
+      let gdpData = {}
+      let TooltipStatData = {}
+      this.countries = []
+      let keys = [
+          ["id", "001"],
+          ["pg", "002"],
+          ["mx", "003"],
+          ["ee", "004"],
+          ["dz", "005"],
+          ["au", "Australia"],
+          ["za", "South Africa"],
+          ["gd", "Grenada"],
+          //["au", "British Virgin Islands"],
+          ["us", "United States of America"],
+          ["gb", "United Kingdom"],
+          ["do", "Dominican Republic"],
+          ["cl", "Chile"],
+      ]
       getCDRSList(this.cdrsListQuery).then(response => {
         let totalDataUsage = 0, 
             totalSMSUsage = 0,
@@ -265,16 +274,18 @@ export default {
         const arrTable = []
         
         response.data.forEach((element, index) => {
-          if(arrTable.length < 5){            
-              const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
-              arrTable.push({
-                imsi: element.imsi,
-                customer: element.customer,
-                state: '',
-                rag: '',
-                total: tableDataUsageTotal
-              })  
-            const query = {
+          if(arrTable.length < 7){     
+            
+            const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+            arrTable.push({
+              num: index + 1,
+              imsi: element.imsi,
+              //customer: element.customer,
+              //state: '',
+              //rag: '',
+              total: tableDataUsageTotal
+            })  
+            /*const query = {
               imsi: element.imsi,
               states: true,
               activity: true,
@@ -303,11 +314,146 @@ export default {
                 arrTable[index].rag = rag													
               }
               
-              if((index == 4 && response.data.length > 4) || (index == response.data.length && response.data.length < 5)){                
+              if((index == 5 && response.data.length > 5) || (index == response.data.length && response.data.length < 5)){                
                 this.listLoading = false
                 this.list = arrTable
               }
-            })           
+            })*/      
+            if((index == 6 && response.data.length > 6) || (index == response.data.length && response.data.length < 6)){                
+              this.listLoading = false
+              this.list = arrTable
+            }    
+          }
+
+          //vmap
+
+          if(index < 50){
+                   
+            const query_1 = {
+              imsi: element.imsi,
+              states: false,
+              activity: false,
+            }
+            getSIM(query_1).then(response_1 => {
+              const query_2 = {
+                id: response_1.data._id
+              }
+              getSIMCoordinates(query_2).then(response_2 => {
+                const query_3 = {
+                  lat: response_2.data.geometry.coordinates[1],
+                  lon: response_2.data.geometry.coordinates[0]
+                }
+                getSIMCountry(query_3).then(response_3 => {
+                  const country = response_3.data.address.country
+                  const countryIndex = this.countries.findIndex( ({ Key }) => Key === country )
+                  
+                  if(countryIndex != -1){
+                    this.countries[countryIndex].Count ++
+                  }else{
+                    this.countries.push({
+                      Key: country,
+                      Count: 1
+                    })
+                  }
+                  //console.log(this.countries)
+
+                  if((index == 49 && response.data.length > 49) || (index == response.data.length && response.data.length < 49)){  
+                  //  if(index == (response.data.length - 1)){                
+                    
+        for (let i = 0; i <keys.length ; i++) {
+          let country = this.countries.find( ({ Key }) => Key === keys[i][1] );
+          if(country){
+            gdpData[keys[i][0]] = country.Count
+            TooltipStatData[keys[i][0]]= country.Count
+          }
+        }       
+        
+        var max = 0,
+                    min = Number.MAX_VALUE,
+                    cc,
+                    startColor = [248, 142, 134],//76, 175, 80
+                    endColor = [122, 33, 27],
+                    colors = {},
+                    hex;
+
+    //find maximum and minimum values
+                for (cc in gdpData)
+                {
+                    if (parseFloat(gdpData[cc]) > max)
+                    {
+                        max = parseFloat(gdpData[cc]);
+                    }
+                    if (parseFloat(gdpData[cc]) < min)
+                    {
+                        min = parseFloat(gdpData[cc]);
+                    }
+                }
+
+                //set colors according to values of GDP
+                for (cc in gdpData)
+                {                  
+                    if (gdpData[cc] > 0)
+                    {
+                        colors[cc] = '#28a4df';
+                        /*colors[cc] = '#';
+                        for (var i = 0; i<3; i++)
+                        {
+                            hex = Math.round(startColor[i]
+                                + (endColor[i]
+                                - startColor[i])
+                                * (gdpData[cc] / (max - min))).toString(16);
+
+                            if (hex.length == 1)
+                            {
+                                hex = '0'+hex;
+                            }
+
+                            colors[cc] += (hex.length == 1 ? '0' : '') + hex;
+                        }*/
+                    }else{
+                      colors[cc] = '#e2e8f3';
+                    }
+                }
+
+/*let infoTooltip = this.$app.tooltip.create({
+      targetEl: '#vmap',
+      trigger: 'click'
+    })*/
+    
+    this.VectorMap = jQuery('#vmap').vectorMap({
+                    map: 'world_en',
+                    backgroundColor: '#fff',
+                    enableZoom: true,
+                    showTooltip: true,
+                    colors: colors,
+                    hoverOpacity: 0.7,
+                    hoverColor: false,
+                    selectedColor: false,
+                    onRegionOver: function (element, code, region) {
+                        //console.log(element)
+                        /*let textTemplate = `
+                            <p class="no-margin-top size-16">${region}</p>
+                            <p class="no-margin-bottom size-12">-1: ${TooltipStatData[code][0]}</p>
+                            <p class="no-margin-bottom size-12">_2: ${TooltipStatData[code][1]}</p>
+                            <p class="no-margin-bottom size-12">-3: ${TooltipStatData[code][2]}</p>
+                            <p class="no-margin-bottom size-12">-4: ${TooltipStatData[code][3]}</p>
+                            <p class="no-margin-bottom size-12">_5: ${TooltipStatData[code][4]}</p>
+                        `;*/
+                        //alert(7)
+                        //infoTooltip.show().setText(textTemplate).show();
+                    },
+                    onRegionOut: function (element, code, region) {
+                        //infoTooltip.hide();
+                    },
+                    onLabelShow: function(event, label, code){
+                        event.preventDefault();
+                    },
+
+                });
+                  }  
+                })
+              })
+            })
           }
 
           totalDataUsage += +element.totalDataUsage
@@ -323,8 +469,9 @@ export default {
             arrData[indexLabel] = +arrData[indexLabel] + (+element.totalDataUsage / 1000000)
           }
         })
+  
 
-                 
+                
         this.panelData = {
           totalDataUsage: (totalDataUsage/1000000).toFixed(0),
           totalSMSUsage: totalSMSUsage,
@@ -332,10 +479,12 @@ export default {
           loaded: true
         }        
         
-        this.fillData({labels: arrLabel, dataUsage: arrData})
+        if(period !== 'daily') {
+          this.fillChartData({labels: arrLabel, dataUsage: arrData})
+        }
       })    
     },
-    fillIMSIData(){
+    fillIMSIData(period = 'daily'){
       getSIM(this.simQuery).then(response => {
         this.cdrsQuery = {
           id: response.data._id,
@@ -384,8 +533,10 @@ export default {
             totalFlowUsage: totalFlowUsage,
             loaded: true
           }        
-          
-          this.fillData({labels: arrLabel, dataUsage: arrData})
+                    
+          if(period !== 'daily') {
+            this.fillChartData({labels: arrLabel, dataUsage: arrData})
+          }
         })  
       })      
     },    
@@ -398,7 +549,7 @@ export default {
     handleSetLineChartData(type) {
       //this.lineChartData = lineChartData[type]
     },
-    fillData (data) {      
+    fillChartData (data) {      
         this.datacollection = {
           labels: data.labels, //['04.11', '05.11', '06.11', '07.11', '08.11', '09.11', '10.11', '11.11', '12.11', '13.11', '14.10', '15.11', '16.11', '17.11'],
           datasets: [
@@ -421,6 +572,42 @@ export default {
   mounted () {    
     this.imsi = this.$store.state.dashboard.imsi
     this.searchByPeriod('weekly')
+/*
+    let gdpData = {};
+    let TooltipStatData = {};
+    let keys = [
+        ["id", "001"],
+        ["pg", "002"],
+        ["mx", "003"],
+        ["ee", "004"],
+        ["dz", "005"],
+        ["au", "Australia"],
+        ["za", "South Africa"],
+    ];
+    for (let i = 0; i <keys.length ; i++) {
+                    let country = this.countries.find( ({ Key }) => Key === keys[i][1] );
+                    if(country){
+                        gdpData[keys[i][0]] = country.Count[0];
+                        TooltipStatData[keys[i][0]]= country.Count;
+                    }
+                }
+                
+                for (let i = 0; i <keys.length ; i++) {
+                    let province = summData[0].Subs.find( ({ Key }) => Key === keys[i][1] );
+                    if(province){
+                        gdpData[keys[i][0]] = province.Stats[0];
+                        TooltipStatData[keys[i][0]]= province.Stats;
+                    }
+                }
+                gdpData[keys[0][0]] = 70;
+                gdpData[keys[1][0]] = 0;
+                gdpData[keys[2][0]] = 0;
+                gdpData[keys[3][0]] = 0;
+                gdpData[keys[4][0]] = 0;
+
+                TooltipStatData[keys[0][0]]= '8';*/
+
+    
   },
   created () {   
     this.$store.watch(
@@ -463,9 +650,16 @@ export default {
 
   .chart-wrapper {
     background: #fff;
-    padding: 50px 50px 0;
-    margin-bottom: 32px;
-    
+    padding: 33px 50px 0;
+    margin-bottom: 32px;    
+  }
+
+  .bar-chart-container .chart-wrapper{
+    min-height: 70vh;
+  }
+
+  .radius-5{
+    border-radius: 5px;
   }
 }
 
@@ -477,6 +671,12 @@ export default {
 </style>
 
 <style>
+
+.jqvmap-zoomin, .jqvmap-zoomout {
+    background: #28a4df !important;
+    width: 18px !important;
+    height: 18px !important;
+}
   .bar-chart-container{
     border-radius: 5px;
   }
