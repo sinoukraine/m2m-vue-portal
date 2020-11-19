@@ -63,8 +63,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../../styles/variables.scss';
 .navbar {
-  height: 75px;
+  height: $navbarHeight;
   overflow: hidden;
   position: relative;
   background: #fff;
@@ -91,6 +92,8 @@ export default {
     float: right;
     height: 100%;
     line-height: 75px;
+    display: flex;
+    align-items: center;
 
     &:focus {
       outline: none;
@@ -102,7 +105,7 @@ export default {
       height: 100%;
       font-size: 18px;
       color: #5a5e66;
-      vertical-align: text-bottom;
+      vertical-align: top;
 
       &.hover-effect {
         cursor: pointer;
@@ -118,7 +121,7 @@ export default {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 15px;
+        /*margin-top: 15px;*/
         position: relative;
 
         .user-avatar {
@@ -126,13 +129,15 @@ export default {
           width: 40px;
           height: 40px;
           border-radius: 10px;
+          vertical-align: middle;
         }
 
         .el-icon-caret-bottom {
           cursor: pointer;
           position: absolute;
           right: -20px;
-          top: 25px;
+          top: 50%;
+          transform: translateY(-50%);
           font-size: 12px;
         }
       }

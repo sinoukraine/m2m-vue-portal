@@ -55,16 +55,16 @@ export const constantRoutes = [
     }]
   },
   {
-    path: '/example',
+    path: '/sim-manage',
     component: Layout,
-    redirect: '/example/table',
+    redirect: '/',
     name: 'SIM Manage',
     meta: { title: 'SIM Manage', icon: 'sim-manage' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
+        path: 'sim-list',
+        name: 'SimList',
+        component: () => import('@/views/sim-manage/sim-list'),
         meta: { title: 'SIM List', icon: 'sim' }
       },
       {
@@ -113,7 +113,7 @@ export const constantRoutes = [
       }
     ]
   },
- 
+
   {
     path: '/report',
     component: Layout,
@@ -126,7 +126,7 @@ export const constantRoutes = [
       }
     ]
   },
-  
+
   {
     path: '/form',
     component: Layout,
@@ -139,7 +139,7 @@ export const constantRoutes = [
       }
     ]
   },
-  
+
   {
     path: '/form',
     component: Layout,
