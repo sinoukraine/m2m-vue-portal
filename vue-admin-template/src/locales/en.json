@@ -1,3 +1,20 @@
 {
+  "ACTIVATION": "Activation",
+  "STATE": "State",
+  "MOVE_SIM": "Move SIM",
+  "CSP": "CSP",
+  "AGENT": "Agent",
+  "SOLUTION": "Solution",
+  "ICCID": "ICCID",
+  "MSISDN": "MSISDN",
+  "BUSINESS_UNIT": "Business Unit",
+  "RAG": "RAG",
+  "CUSTOMER": "Customer",
+  "DATA_SESSION": "Data Session",
+  "DATA_USAGE": "Data Usage",
+  "SMS_USAGE": "SMS Usage",
+  "ZERO_SESSION": "Zero Session",
+  "IMSI": "IMSI",
+
   "FINISH": "Finish"
 }

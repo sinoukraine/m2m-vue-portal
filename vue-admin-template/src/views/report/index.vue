@@ -388,7 +388,7 @@ export default {
     typeFilter(type) {
       return categoryTypeKeyValue[type]
     }
-  },  
+  },
   data() {
     return {
       selectedCustomer: '0',
@@ -731,12 +731,13 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../../styles/variables.scss';
   .rotate-90{
     transform: rotate(90deg);
   }
   .chat-container{
     position: relative;
-    height: calc(100vh - 50px);
+    height: calc(100vh - #{$navbarHeight});
     width: 100%;
   }
     .chat-sidebar{

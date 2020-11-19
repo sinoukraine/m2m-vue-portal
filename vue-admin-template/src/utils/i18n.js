@@ -46,8 +46,8 @@ export function loadLanguageAsync(lang='en') {
   }
 
   // If the language hasn't been loaded yet
-  //return import('@/locales/'+lang+'.json').then(
-  return fetch('http://test.m2mdata.co/service/language/json?token=00000000-0000-0000-0000-000000000000&q='+lang).then(
+  return import(`@/locales/${ lang }.json`).then(
+  //return fetch('http://test.m2mdata.co/service/language/json?token=00000000-0000-0000-0000-000000000000&q='+lang).then(
     async response => {
       let messages = response && response.status === 200? await response.json():false;
       console.log(messages)
