@@ -15,6 +15,17 @@
   "SMS_USAGE": "SMS Usage",
   "ZERO_SESSION": "Zero Session",
   "IMSI": "IMSI",
+  "DELETED": "Deleted",
+  "DELETING":"Deleting",
+  "ON_STOCK": "On Stock",
+  "PRODUCTIVE": "Productive",
+  "SUSPENDED": "Suspended",
+  "TEST": "Test",
+  "TEST_END": "Test End",
+  "TEST_PRODUCTIVE": "Test Productive",
+  "ACTIONS": "Actions",
 
+  "MINIMIZE_PANEL": "Minimize Panel",
+  "SEARCH": "Search",
   "FINISH": "Finish"
 }
