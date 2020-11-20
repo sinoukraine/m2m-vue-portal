@@ -12,14 +12,20 @@ $subMenuHover:#001528;
 $sideBarWidth: 210px;
 $navbarHeight: 75px;
 
-$baseMargin: 8px;
-$basePadding: 8px;
+$baseMargin: 10px;
+$basePadding: 10px;
 
 $baseButtonBorderRadius: 5px;
 $baseButtonBoxShadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
+$baseDividerColor: rgb(235, 238, 245);
 
 $themeColor: #409EFF;
+$panelWidth: 260px;
+$panelToolbarHeight: 80px;
+$panelColor: #fff;
 
+$labelColor: #9a9a9a;
+$labelSize: 12px;
 
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
@@ -36,8 +42,11 @@ $themeColor: #409EFF;
 
   baseMargin: $baseMargin;
   basePadding: $basePadding;
+  baseDividerColor: $baseDividerColor;
 
   baseButtonBorderRadius: $baseButtonBorderRadius;
   baseButtonBoxShadow: $baseButtonBoxShadow;
   themeColor: $themeColor;
+  panelWidth: $panelWidth;
+  panelToolbarHeight: $panelToolbarHeight;
 }

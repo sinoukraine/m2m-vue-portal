@@ -1,10 +1,84 @@
+@import './variables.scss';
+
 .display-flex{
   display: flex!important;
+}
+.display-none{
+  display: none!important;
 }
 .justify-content-between{
   justify-content: space-between!important;
 }
+.align-items-center{
+  align-items: center!important;
+}
 
 .white-space-nowrap{
   white-space: nowrap!important;
+}
+.overflofx-hidden{
+  overflow-x: hidden!important;
+}
+.color-red{
+  color: rgb(212, 121, 129);
+}
+.bg-color-red{
+  background-color: rgb(212, 121, 129);
+}
+.color-yellow{
+  color: rgb(255, 184, 128);
+}
+.bg-color-yellow{
+  background-color: rgb(255, 184, 128);
+}
+.color-green{
+  color: rgb(65, 190, 162);
+}
+.bg-color-green{
+  background-color: rgb(65, 190, 162);
+}
+
+.width-100{
+  width: 100% !important;
+}
+
+.margin-x2{
+  margin: calc(#{$baseMargin} * 2);
+}
+.margin-vertical-x2{
+  margin-top: calc(#{$baseMargin} * 2);
+  margin-bottom: calc(#{$baseMargin} * 2);
+}
+.margin-horizontal-x2{
+  margin-left: calc(#{$baseMargin} * 2);
+  margin-right: calc(#{$baseMargin} * 2);
+}
+.no-margin-bottom{
+  margin-bottom: 0!important;
+}
+
+.padding{
+  padding: $basePadding
+}
+.padding-horizontal{
+  padding-left: $basePadding;
+  padding-right: $basePadding;
+}
+.padding-vertical{
+  padding-top: $basePadding;
+  padding-bottom: $basePadding;
+}
+.padding-x2{
+  padding: calc(#{$basePadding} * 2);
+}
+.padding-vertical-x2{
+  padding-top: calc(#{$basePadding} * 2);
+  padding-bottom: calc(#{$basePadding} * 2);
+}
+.padding-horizontal-x2{
+  padding-left: calc(#{$basePadding} * 2);
+  padding-right: calc(#{$basePadding} * 2);
+}
+.no-padding{
+  padding: 0!important;
 }

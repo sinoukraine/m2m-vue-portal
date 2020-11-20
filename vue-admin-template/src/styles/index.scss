@@ -62,8 +62,149 @@ div:focus {
 }
 
 // main-container global css
+
+.page-fixed-height{
+  position: relative;
+  height: calc(100vh - #{$navbarHeight});
+  width: 100%;
+}
+.panel{
+  height: calc(100vh - #{$navbarHeight});
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 0 0 0 transparent;
+  width: $panelWidth!important;
+
+  transition: all .3s;
+  &.panel-right{
+
+  }
+}
+
+
+
+.with-panel-wrapper{
+  position: relative;
+  height: calc(100vh - #{$navbarHeight});
+  width: 100%;
+
+  &.panel-opened{
+    .el-container{
+      margin-right: $panelWidth;
+    }
+    .panel.panel-right{
+      right: 0;
+
+    }
+    .panel{
+      .panel-open{
+        display: none!important;
+      }
+    }
+  }
+  .el-container{
+    margin-right: calc(#{$baseMargin} * 2);
+  }
+
+  .panel{
+    width: $panelWidth;
+    height: 100%;
+    position: absolute;
+    z-index: 999;
+    right: calc( 0px - calc(#{$panelWidth} - calc(#{$baseMargin} * 2)));
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0px 0px 9.8px 0.2px rgba(151, 164, 193, 0.2);
+
+    transition: all .3s;
+
+    .panel-hide{
+      cursor: pointer;
+    }
+    .panel-open{
+      display: block;
+      position: absolute;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 11;
+      background: rgba(255,255,255, .7);
+      cursor: pointer;
+    }
+
+    .panel-container{
+      height: calc(100% - #{$panelToolbarHeight});
+      position: relative;
+      font-size: 14px;
+      overflow: auto;
+    }
+    .panel-toolbar{
+      width: 100%;
+      position: absolute;
+      margin: 0;
+      z-index: 10;
+      box-sizing: border-box;
+      left: 0;
+      height: $panelToolbarHeight;
+      background: $panelColor;
+
+      &.panel-toolbar-bottom{
+        bottom: 0;
+        top: auto;
+
+        &:before {
+          content: "";
+          position: absolute;
+          background-color: $baseDividerColor;
+          display: block;
+          z-index: 15;
+          top: 0;
+          right: auto;
+          bottom: auto;
+          left: 0;
+          height: 1px;
+          width: 100%;
+          transform-origin: 50% 0;
+          transform: scaleY(calc(1/var(--f7-device-pixel-ratio)));
+        }
+      }
+      &.panel-toolbar-top{
+        top: 0;
+        bottom: auto;
+
+        &:before {
+          content: "";
+          position: absolute;
+          background-color: $baseDividerColor;
+          display: block;
+          z-index: 15;
+          top: auto;
+          right: auto;
+          bottom: 0;
+          left: 0;
+          height: 1px;
+          width: 100%;
+          transform-origin: 50% 0;
+          transform: scaleY(calc(1/var(--f7-device-pixel-ratio)));
+        }
+      }
+    }
+   /* .panel-toolbar.panel-toolbar-bottom+.panel-container{
+      padding-bottom: $panelToolbarHeight;
+    }
+    .panel-toolbar.panel-toolbar-top+.panel-container{
+      padding-top: $panelToolbarHeight;
+    }*/
+  }
+}
+
+
 .app-container {
   padding: 20px 0;
+  transition: all .3s;
+}
+.content-divider{
+  width: 100%;
+  height: 1px;
+  background: $baseDividerColor;
 }
 
 .filter-container{
@@ -126,6 +267,28 @@ div:focus {
   box-shadow: $baseButtonBoxShadow;
 }
 
+.el-form-item__label{
+  color: $labelColor;
+  font-size: $labelSize;
+  font-weight: normal;
+
+}
+.el-checkbox__label{
+  white-space: normal;
+  vertical-align: middle;
+}
+.el-form--label-top{
+  .el-form-item__label{
+    padding-bottom: 0;
+  }
+}
+
+.rag{
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
 
 @media only screen and (max-width: 576px) {
   .el-dialog{
