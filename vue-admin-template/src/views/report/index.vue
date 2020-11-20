@@ -521,6 +521,7 @@ export default {
         this.categoryTypeOptions2.push({ code: '0', name: 'All' })
         response.data.forEach(element => {
           this.categoryTypeOptions2.push({ code: element._id, name: element.info.name })
+          console.log(element.info.name)
         })
       })
 

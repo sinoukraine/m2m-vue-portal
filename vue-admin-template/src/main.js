@@ -16,12 +16,10 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 
-import VueToast from 'vue-toast-notification'
-// Import one of available themes
-import 'vue-toast-notification/dist/theme-default.css'
-//import 'vue-toast-notification/dist/theme-sugar.css';
-
-Vue.use(VueToast)
+import { ToastPlugin } from '@syncfusion/ej2-vue-notifications';
+import { ButtonPlugin } from '@syncfusion/ej2-vue-buttons';
+Vue.use(ToastPlugin);
+Vue.use(ButtonPlugin);
 
 import moment from 'moment'
 
@@ -32,9 +30,8 @@ import '@/utils/jquery.vmap/jqvmap.css';
 import '@/utils/jquery.vmap/jquery.vmap.js';
 import '@/utils/jquery.vmap/jquery.vmap.south-africa.js';
 
-import {Tooltip} from 'element-ui'
-Vue.use(Tooltip)
-
+import VTooltip from 'v-tooltip'
+Vue.use(VTooltip)
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api

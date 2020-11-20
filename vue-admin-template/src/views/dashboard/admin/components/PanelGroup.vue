@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="40" class="panel-group">
-    <el-col :xs="24" :sm="24" :lg="12" class="card-panel-col">
+    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
       <div class="card-panel d-flex justify-content-between bg-green">
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">
@@ -30,7 +30,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="24" :lg="12" class="card-panel-col">
+    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
     <div class="card-panel d-flex justify-content-between bg-violet" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">
@@ -60,7 +60,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="24" :lg="12" class="card-panel-col">
+    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
     <div class="card-panel d-flex justify-content-between bg-orange" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">
@@ -90,7 +90,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="24" :lg="12" class="card-panel-col">
+    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
     <div class="card-panel d-flex justify-content-between bg-red" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">

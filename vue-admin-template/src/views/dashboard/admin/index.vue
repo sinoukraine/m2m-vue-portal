@@ -69,6 +69,9 @@
         <div key="key-vmap" class="card col-100 large-30 no-margin margin-bottom">
           <div class="card-content center">
             <div id="vmap" class="width-100 margin-top radius-5" style="width: 100%;height: 70vh;" data-plugin="vectorMap" data-map="world_en"></div>
+            <!--<ejs-toast ref='defaultRef' title='File Downloading' content='<div class="progress"><span style="width: 80%"></span></div>' :position='position' showCloseButton=true target='#toast_target' newestOnTop=true showProgressBar=true></ejs-toast>
+            <br/><br/>
+            <div id='toast_target'></div>-->
           </div>
         </div>
       </el-col>
@@ -115,6 +118,10 @@ export default {
   },
   data() {
     return {
+      position: { X: 'Center' },
+      msgTooltip: '',
+      mapLoading: true,
+      countriesHARD: [],
       imsi: '',
       countries: [],
       simQuery: {
@@ -229,6 +236,31 @@ export default {
       this.clearData()
       
       this.simQuery.imsi = imsi
+      /*
+
+const query_1 = {
+              imsi: imsi,
+              states: false,
+              activity: false,
+            }
+            getSIM(query_1).then(response_1 => {
+              const query_2 = {
+                id: response_1.data._id
+              }
+              getSIMCoordinates(query_2).then(response_2 => {
+                const query_3 = {
+                  lat: response_2.data.geometry.coordinates[1],
+                  lon: response_2.data.geometry.coordinates[0]
+                }
+                getSIMCountry(query_3).then(response_3 => {
+                  const country = response_3.data.address.country
+                  console.log(country)
+                })
+              })
+            })
+     
+
+     */
       this.fillIMSIData()
     },
     /*fillTableData(){
@@ -250,19 +282,26 @@ export default {
       let TooltipStatData = {}
       this.countries = []
       let keys = [
-          ["id", "001"],
-          ["pg", "002"],
-          ["mx", "003"],
-          ["ee", "004"],
-          ["dz", "005"],
+          //["id", "001"],
+          //["pg", "002"],
+          //["mx", "003"],
+          //["ee", "004"],
+          //["dz", "005"],
+          //["au", "British Virgin Islands"],
           ["au", "Australia"],
           ["za", "South Africa"],
           ["gd", "Grenada"],
-          //["au", "British Virgin Islands"],
           ["us", "United States of America"],
           ["gb", "United Kingdom"],
           ["do", "Dominican Republic"],
           ["cl", "Chile"],
+          ["ua", "Ukraine"],
+          ["cn", "China"],
+          ["ca", "Canada"],
+          ["zm", "Zambia"],
+          ["ru", "Russian Federation"],
+          ["es", "Spain"]
+
       ]
       getCDRSList(this.cdrsListQuery).then(response => {
         let totalDataUsage = 0, 
@@ -327,39 +366,29 @@ export default {
 
           //vmap
 
-          if(index < 50){
-                   
-            const query_1 = {
-              imsi: element.imsi,
-              states: false,
-              activity: false,
-            }
-            getSIM(query_1).then(response_1 => {
-              const query_2 = {
-                id: response_1.data._id
-              }
-              getSIMCoordinates(query_2).then(response_2 => {
-                const query_3 = {
-                  lat: response_2.data.geometry.coordinates[1],
-                  lon: response_2.data.geometry.coordinates[0]
-                }
-                getSIMCountry(query_3).then(response_3 => {
-                  const country = response_3.data.address.country
-                  const countryIndex = this.countries.findIndex( ({ Key }) => Key === country )
-                  
-                  if(countryIndex != -1){
-                    this.countries[countryIndex].Count ++
-                  }else{
-                    this.countries.push({
-                      Key: country,
-                      Count: 1
-                    })
-                  }
-                  //console.log(this.countries)
+          if(+element.totalDataUsage>0){
+            const countryHARDIndex = this.countriesHARD.findIndex( ({ name }) => name === element.customer )
+            if(countryHARDIndex != -1){              
+              const country = this.countriesHARD[countryHARDIndex].country
+              const countryIndex = this.countries.findIndex( ({ Key }) => Key === country )     
 
-                  if((index == 49 && response.data.length > 49) || (index == response.data.length && response.data.length < 49)){  
+              if(countryIndex != -1){
+                this.countries[countryIndex].Count ++
+              }else{
+                this.countries.push({
+                  Key: country,
+                  Count: 1
+                })
+              }
+            }
+            
+          }else if(this.mapLoading){
+                this.mapLoading = false
+                  
+                  
                   //  if(index == (response.data.length - 1)){                
                     
+          console.log(keys)
         for (let i = 0; i <keys.length ; i++) {
           let country = this.countries.find( ({ Key }) => Key === keys[i][1] );
           if(country){
@@ -439,6 +468,8 @@ export default {
                             <p class="no-margin-bottom size-12">-4: ${TooltipStatData[code][3]}</p>
                             <p class="no-margin-bottom size-12">_5: ${TooltipStatData[code][4]}</p>
                         `;*/
+                        this.msgTooltip = "777"
+                        //this.$refs.defaultRef.show();
                         //alert(7)
                         //infoTooltip.show().setText(textTemplate).show();
                     },
@@ -450,10 +481,40 @@ export default {
                     },
 
                 });
+            }
+          if(index < 50){
+                /*   
+            const query_1 = {
+              imsi: element.imsi,
+              states: false,
+              activity: false,
+            }
+            getSIM(query_1).then(response_1 => {
+              const query_2 = {
+                id: response_1.data._id
+              }
+              getSIMCoordinates(query_2).then(response_2 => {
+                const query_3 = {
+                  lat: response_2.data.geometry.coordinates[1],
+                  lon: response_2.data.geometry.coordinates[0]
+                }
+                getSIMCountry(query_3).then(response_3 => {
+                  const country = response_3.data.address.country
+                  const countryIndex = this.countries.findIndex( ({ Key }) => Key === country )
+                  
+                  if(countryIndex != -1){
+                    this.countries[countryIndex].Count ++
+                  }else{
+                    this.countries.push({
+                      Key: country,
+                      Count: 1
+                    })
+                  }
+                  if((index == 49 && response.data.length > 49) || (index == response.data.length && response.data.length < 49)){
                   }  
                 })
               })
-            })
+            })*/
           }
 
           totalDataUsage += +element.totalDataUsage
@@ -610,6 +671,85 @@ export default {
     
   },
   created () {   
+    this.countriesHARD = [
+      {name: "ATGA - TEMP SUSPENSION", country: "Australia"},
+      {name: "ATGA Admin", country: "Australia"},
+      {name: "ATGA LIVE", country: "Australia"},
+      {name: "ATGA LOC8", country: "Australia"},
+      {name: "ATGA PROTECT", country: "Australia"},
+      {name: "Acp global ", country: ""},
+      {name: "Agile Tracking Solutions", country: ""},
+      {name: "Autoline Ukraine", country: "Ukraine"},
+      {name: "Automotive integration", country: "Australia"},
+      {name: "Autoz TAC", country: "China"},
+      {name: "BSRN Holdings", country: ""},
+      {name: "BoatFix", country: "United States of America"},
+      {name: "Borderless", country: "Zambia"},
+      {name: "CA All customer", country: ""},
+      {name: "CUBEVOICE", country: "Australia"},
+      {name: "Charged Install Live", country: "Canada"},
+      {name: "Charged Install Loc8", country: "Canada"},
+      {name: "Charged Install Services", country: "Canada"},
+      {name: "Cloudnet", country: "Australia"},
+      {name: "Ctrack", country: ""},
+      {name: "DSPERFORMANCE", country: ""},
+      {name: "Datamobile AG", country: ""},
+      {name: "DoBuyDirect", country: "United States of America"},
+      {name: "Fox Electronics", country: "Zambia"},
+      {name: "GPS TRACKING WA", country: "Australia"},
+      {name: "ISPYGPS", country: "Australia"},
+      {name: "Jacob Pallister", country: ""},
+      {name: "Jet-Xpress", country: ""},
+      {name: "Jimmy", country: ""},
+      {name: "LisandroSaez", country: ""},
+      {name: "M2MDATA API", country: ""},
+      {name: "MARINE TG LOC8", country: ""},
+      {name: "MARINETG TRACK", country: ""},
+      {name: "Marine TG", country: ""},
+      {name: "Marks Account", country: ""},
+      {name: "Michael Gemmoll", country: ""},
+      {name: "NZ Quiktrak", country: ""},
+      {name: "Nutech", country: "Canada"},
+      {name: "Oryx Systems", country: ""},
+      {name: "Oryx cctv", country: "South Africa"},
+      {name: "PVS", country: "United Kingdom"},
+      {name: "Private APN", country: ""},
+      {name: "QTrak", country: ""},
+      {name: "Quiktrak Latino America SpA", country: ""},
+      {name: "QuiktrakZambia", country: "Zambia"},
+      {name: "Russia Quiktrak", country: "Russia"},
+      {name: "Scymyn", country: ""},
+      {name: "Secure2Go", country: ""},
+      {name: "Seguratainer", country: ""},
+      {name: "Selftrack", country: ""},
+      {name: "SelftrackChile", country: "Chile"},
+      {name: "Siguelo", country: ""},
+      {name: "Sinopacific Admin", country: ""},
+      {name: "Sinopacific Africa", country: ""},
+      {name: "Staywired Solutions", country: ""},
+      {name: "Stolen Emergency", country: ""},
+      {name: "Sub account", country: ""},
+      {name: "TERMINATED", country: ""},
+      {name: "THETRACKINGCENTRE", country: "Australia"},
+      {name: "Tekamo Inc", country: "Canada"},
+      {name: "The Tracking Centre Live", country: "Australia"},
+      {name: "Thomas Faherty", country: ""},
+      {name: "UFind Live", country: "Australia"},
+      {name: "UFind Protect", country: "Australia"},
+      {name: "Ufind easy park", country: "Australia"},
+      {name: "Veetrac", country: "South Africa"},
+      {name: "Vehicle Fleet Solutions", country: ""},
+      {name: "Vitalgps", country: ""},
+      {name: "WardenGPS", country: "United States of America"},
+      {name: "albertspain", country: "Spain"},
+      {name: "anzac marine", country: ""},
+      {name: "autofidelity", country: "Australia"},
+      {name: "cartrackcanada", country: "Canada"},
+      {name: "dobuydirect-QL8", country: ""},
+      {name: "innoveq", country: ""},
+      {name: "isstrack", country: "Australia"},
+      {name: "m2mdata", country: ""}
+    ]
     this.$store.watch(
       (state)=>{
         return this.$store.state.dashboard.imsi // could also put a Getter here
@@ -684,4 +824,5 @@ export default {
   .chart-wrapper{
     border-radius: 5px;
   }
+
 </style>
