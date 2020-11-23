@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="40" class="panel-group">
-    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
       <div class="card-panel d-flex justify-content-between bg-green">
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">
@@ -16,21 +16,21 @@
           <!--<i class="el-icon-s-cooperation card-panel-icon" />-->
         </div>
         <div class="card-panel-icon-wrapper display-flex card-bottom">
-          <div class="card-inline card-panel-left">            
+          <div class="card-inline card-panel-left">
             <div v-if="loading">
               <img src="loading.gif" width="50">
             </div>
-            <div v-else>              
+            <div v-else>
               <count-to :start-val="0" :end-val="0" :duration="2600" class="card-panel-num" />
             </div>
           </div>
-          <div class="card-inline card-panel-right">            
+          <div class="card-inline card-panel-right">
             <svg-icon class-name="data-session" icon-class="data-session" />
           </div>
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
     <div class="card-panel d-flex justify-content-between bg-violet" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">
@@ -50,7 +50,7 @@
             <div v-if="loading">
               <img src="loading.gif" width="50">
             </div>
-            <div v-else>              
+            <div v-else>
               <count-to :start-val="0" :end-val="+total.totalDataUsage" :duration="2600" class="card-panel-num" />
             </div>
           </div>
@@ -60,7 +60,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
     <div class="card-panel d-flex justify-content-between bg-orange" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">
@@ -80,17 +80,17 @@
             <div v-if="loading">
               <img src="loading.gif" width="50">
             </div>
-            <div v-else>              
+            <div v-else>
               <count-to :start-val="0" :end-val="+total.totalSMSUsage" :duration="2600" class="card-panel-num" />
             </div>
           </div>
-          <div class="card-inline card-panel-right">            
+          <div class="card-inline card-panel-right">
             <svg-icon class-name="sms-usage" icon-class="sms-usage" />
           </div>
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="24" :lg="12" :xl="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
     <div class="card-panel d-flex justify-content-between bg-red" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left">
@@ -110,11 +110,11 @@
             <div v-if="loading">
               <img src="loading.gif" width="50">
             </div>
-            <div v-else>              
+            <div v-else>
               <count-to :start-val="0" :end-val="+total.totalFlowUsage" :duration="2600" class="card-panel-num" />
             </div>
           </div>
-          <div class="card-inline card-panel-right">            
+          <div class="card-inline card-panel-right">
             <svg-icon class-name="flow-usage" icon-class="flow-usage" />
           </div>
         </div>
@@ -129,7 +129,7 @@ import CountTo from 'vue-count-to'
 export default {
   components: {
     CountTo
-  },  
+  },
   props: ['total'],
   data() {
     return {
@@ -141,7 +141,7 @@ export default {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
     },
-    handlePeriod(val){ 
+    handlePeriod(val){
       this.$emit('change', val)
       this.$store.dispatch('dashboard/setPeriod', val)
     }
@@ -157,8 +157,8 @@ export default {
       {
         deep:true
       }
-    )    
-  },  
+    )
+  },
   watch: {
     total: function(val) {
       if(val.loaded==true) {
@@ -245,6 +245,9 @@ export default {
       padding: 16px;
       transition: all 0.38s ease-out;
       border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .card-panel-icon {
@@ -306,8 +309,8 @@ export default {
 }
 
 .card-inline {
-  display: inline-block;
-  min-width: calc(50% - 0px);
+  /*display: inline-block;
+  min-width: calc(50% - 0px);*/
 }
 
 .card-panel-left {
@@ -316,14 +319,15 @@ export default {
 
 .card-panel-right {
   text-align: right;
+  white-space: nowrap;
 }
 
 .card-top .card-panel-left {
-  padding-bottom: 20px;
+  /*padding-bottom: 20px;*/
 }
 
 .card-bottom .card-panel-left {
-  
+
 }
 
 .card-bottom .svg-icon{
