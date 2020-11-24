@@ -417,13 +417,23 @@ const query_1 = {
                         min = parseFloat(gdpData[cc]);
                     }
                 }
-
+   
                 //set colors according to values of GDP
                 for (cc in gdpData)
-                {                  
-                    if (gdpData[cc] > 0)
+                {             
+                  console.log('cc',gdpData[cc])  
+                    if (gdpData[cc] > 0 && gdpData[cc] <= 100)
                     {
-                        colors[cc] = '#28a4df';
+                      colors[cc] = 'rgb(46, 199, 201)'; //'#28a4df';
+                    } else if (gdpData[cc] > 100 && gdpData[cc] <= 500)
+                    {
+                      colors[cc] = 'rgb(216, 122, 128)';
+                    } else if (gdpData[cc] > 500 && gdpData[cc] <= 2000)
+                    {
+                      colors[cc] = 'rgb(255, 185, 128)';
+                    } else if (gdpData[cc] > 2000)
+                    {
+                      colors[cc] = 'rgb(216, 122, 128)';
                         /*colors[cc] = '#';
                         for (var i = 0; i<3; i++)
                         {
