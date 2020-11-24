@@ -632,7 +632,7 @@ const query_1 = {
   },
   mounted () {    
     this.imsi = this.$store.state.dashboard.imsi
-    this.searchByPeriod('weekly')
+    this.searchByPeriod('monthly')
 /*
     let gdpData = {};
     let TooltipStatData = {};
