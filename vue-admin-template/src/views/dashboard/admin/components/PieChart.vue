@@ -26,7 +26,7 @@ export default {
   },
   data() {
     return {
-      chart: null
+      chart: null,
     }
   },
   mounted() {
@@ -53,8 +53,8 @@ export default {
   methods: {
     initChart(data) {
       this.chart = echarts.init(this.$el, 'macarons')
-
       this.chart.setOption({
+                        
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -63,7 +63,7 @@ export default {
           left: 'center',
           bottom: '10',
          // data: data.labels //['Suspended', 'Deleteing', 'OnStock', 'Productive', 'Deleted', 'Test', 'TestEnd', 'TestProductive'] //, 'Deleted'
-        },
+        },       
         series: [
           {
             name: 'Activated Solution',

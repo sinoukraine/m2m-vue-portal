@@ -6,19 +6,58 @@
       :total="panelData"
       @change="searchByPeriod" />
 
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;" class="bar-chart-container">
-      <line-chart :chart-data="datacollection" :styles="barStyles" :options="barOptions"></line-chart>
+    <el-row class="chart-container bar-chart-container">
+      <div class="w-100 d-flex">
+        <div class="card-inline card-panel-left font-16 bold color-grey">
+          Data Usage
+        </div>
+        <div class="card-inline card-panel-right d-flex">
+
+          <el-radio-group v-model="switchChartPeriod" v-on:input="handleChartPeriod" >
+            <el-radio-button label="Daily" type="outline"/>
+            <el-radio-button label="Weekly" type="outline"/>
+            <el-radio-button label="Monthly" type="outline"/>
+          </el-radio-group>
+          <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click">
+            <div class="menu-wrapper">
+              <img src="menu.svg" class="menu-dropdown">
+            </div>
+            <el-dropdown-menu slot="dropdown" @command="handleChartReport">
+                <el-dropdown-item command="datachart">Data Usage</el-dropdown-item>
+                <el-dropdown-item command="smschart">SMS Usage</el-dropdown-item>
+                <el-dropdown-item command="flowchart">Flow Usage</el-dropdown-item>                
+            </el-dropdown-menu>
+          </el-dropdown>
+          <!---->
+        </div>
+      </div>
+      <line-chart :chart-data="datacollection" :styles="barStyles" :options="barOptions" 
+            v-loading="listLoading"></line-chart>
     </el-row>
 
     <el-row :gutter="40">
-      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom:30px;">
-        <el-table
+      <el-col :xs="24" :sm="24" :lg="24" style="margin-bottom:30px;">
+        <div class="w-100 d-flex" style="padding: 30px;background-color: #ffffff;border-top-left-radius: 5px;border-top-right-radius: 5px;">
+        <div class="card-inline card-panel-left font-16 bold color-grey">
+          Top 10 Metrics
+        </div>
+        <div class="card-inline card-panel-right d-flex">
+
+          <el-radio-group v-model="switchTablePeriod" v-on:input="handleTablePeriod" >
+            <el-radio-button label="Last day" type="outline"/>
+            <el-radio-button label="Week" type="outline"/>
+            <el-radio-button label="Month" type="outline"/>
+          </el-radio-group>
+        </div>
+      </div>
+      <el-table
             :key="tableKey"
             v-loading="listLoading"
             :data="list"
             fit
+            border
             highlight-current-row
-            style="width: 100%;border-radius:5px"
+            style="width: 100%;"
           >
            <el-table-column label="№"   align="center" width="160px">
               <template slot-scope="{row}">
@@ -30,12 +69,12 @@
                 <span>{{ row.imsi }}</span>
               </template>
             </el-table-column>
-            <!--<el-table-column label="Customer" sortable="custom"  width="180px" align="center">
+            <el-table-column label="Customer" sortable="custom"  width="180px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="User" sortable="custom"  width="180px" align="center">
+            <!--<el-table-column label="User" sortable="custom"  width="180px" align="center">
               <template slot-scope="{row}">
                 <span>m2madmin</span>
               </template>
@@ -50,29 +89,69 @@
                 <span :style="'font-size:2em;color:'+row.rag">&#x025FC;</span>
               </template>
             </el-table-column>-->
-            <el-table-column label="Value"  min-width="160px" align="center">
+            <el-table-column label="Data Usage"  min-width="160px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.total }}</span>
               </template>
             </el-table-column>
+            <el-table-column label="SMS Usage"  min-width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.sms }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Flow Usage"  min-width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.flow }}</span>
+              </template>
+            </el-table-column>
           </el-table>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="12">
-        <div class="chart-wrapper">
-          <pie-chart />
-        </div>
       </el-col>
     </el-row>
     
-    <el-row :gutter="8" style="background:#fff;border-radius: 5px;margin: 0">
-      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 24}" :xl="{span: 24}" style="padding:0">
-        <div key="key-vmap" class="card col-100 large-30 no-margin margin-bottom">
+    <el-row :gutter="40">
+      <el-col :xs="24" :sm="24" :lg="12"  style="">
+        
+        <div key="key-vmap" class="card col-100 large-30 no-margin margin-bottom" style="background-color: #ffffff;border-radius: 5px;">
+          <div class="w-100 d-flex" style="padding: 30px">
+            <div class="card-inline card-panel-left font-16 bold color-grey">
+              Data Usage
+            </div>
+            <div class="card-inline card-panel-right d-flex">
+
+              <el-radio-group v-model="switchChartPeriod" v-on:input="handleChartPeriod" >
+                <el-radio-button label="Daily" type="outline"/>
+                <el-radio-button label="Weekly" type="outline"/>
+                <el-radio-button label="Monthly" type="outline"/>
+              </el-radio-group>
+              <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click">
+                <div class="menu-wrapper">
+                  <img src="menu.svg" class="menu-dropdown">
+                </div>
+                <el-dropdown-menu slot="dropdown" @command="handleChartReport">
+                    <el-dropdown-item command="datachart">Data Usage</el-dropdown-item>
+                    <el-dropdown-item command="smschart">SMS Usage</el-dropdown-item>
+                    <el-dropdown-item command="flowchart">Flow Usage</el-dropdown-item>                
+                </el-dropdown-menu>
+              </el-dropdown>
+              <!---->
+            </div>
+          </div>
           <div class="card-content center">
-            <div id="vmap" class="width-100 margin-top radius-5" style="width: 100%;height: 70vh;" data-plugin="vectorMap" data-map="world_en"></div>
+            <div id="vmap" class="margin-top radius-5" style="height: 320px;" data-plugin="vectorMap" data-map="world_en"></div>
             <!--<ejs-toast ref='defaultRef' title='File Downloading' content='<div class="progress"><span style="width: 80%"></span></div>' :position='position' showCloseButton=true target='#toast_target' newestOnTop=true showProgressBar=true></ejs-toast>
             <br/><br/>
             <div id='toast_target'></div>-->
           </div>
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="24" :lg="12">
+        <div class="chart-wrapper">
+          <div class="w-100 d-flex">
+            <div class="card-inline card-panel-left font-16 bold color-grey" style="margin: 4px;margin-left: -20px;">
+              SIM Inventory
+            </div>
+          </div>
+          <pie-chart />
         </div>
       </el-col>
     </el-row>
@@ -118,6 +197,8 @@ export default {
   },
   data() {
     return {
+      switchChartPeriod: 'Monthly',
+      switchTablePeriod: 'Month',
       position: { X: 'Center' },
       msgTooltip: '',
       mapLoading: true,
@@ -191,15 +272,27 @@ export default {
               }
             }]
         },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            callbacks: {
+              label: function(tooltipItem) {
+                      return tooltipItem.yLabel;
+              }
+            }
+        },
         responsive: true,
         maintainAspectRatio: false
       },
     }
   },
-  watch: {
-    
-  },
-  methods: {
+  methods: {    
+    handleChartPeriod(val){
+      console.log('chper', val)
+      //this.$emit('change', val)
+      //this.$store.dispatch('dashboard/setPeriod', val)
+    },
     clearData(){      
       this.total = {
         totalDataUsage: 0,
@@ -222,7 +315,7 @@ export default {
           this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')     
         break
         case 'monthly':   
-          this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-18, 'days').format('YYYY-MM-DD')     
+          this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-25, 'days').format('YYYY-MM-DD')     
         break
       }
       
@@ -313,16 +406,20 @@ const query_1 = {
         const arrTable = []
         
         response.data.forEach((element, index) => {
-          if(arrTable.length < 7){     
-            
+          if(arrTable.length < 10){     
+            console.log(element)
             const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+            const tableSMSUsageTotal = element.totalSmsUsage=='undefined'?0:(+element.totalSmsUsage)
+            const tableFlowUsageTotal = (+element.totalFlowUsage)
             arrTable.push({
               num: index + 1,
               imsi: element.imsi,
-              //customer: element.customer,
+              customer: element.customer,
               //state: '',
               //rag: '',
-              total: tableDataUsageTotal
+              total: tableDataUsageTotal,
+              sms: tableSMSUsageTotal,
+              flow: tableFlowUsageTotal
             })  
             /*const query = {
               imsi: element.imsi,
@@ -385,19 +482,15 @@ const query_1 = {
           }else if(this.mapLoading){
                 this.mapLoading = false
                   
-                  
-                  //  if(index == (response.data.length - 1)){                
-                    
-          console.log(keys)
-        for (let i = 0; i <keys.length ; i++) {
-          let country = this.countries.find( ({ Key }) => Key === keys[i][1] );
-          if(country){
-            gdpData[keys[i][0]] = country.Count
-            TooltipStatData[keys[i][0]]= country.Count
-          }
-        }       
-        
-        var max = 0,
+                for (let i = 0; i <keys.length ; i++) {
+                  let country = this.countries.find( ({ Key }) => Key === keys[i][1] );
+                  if(country){
+                    gdpData[keys[i][0]] = country.Count
+                    TooltipStatData[keys[i][0]]= country.Count
+                  }
+                }       
+                
+                var max = 0,
                     min = Number.MAX_VALUE,
                     cc,
                     startColor = [248, 142, 134],//76, 175, 80
@@ -405,7 +498,7 @@ const query_1 = {
                     colors = {},
                     hex;
 
-    //find maximum and minimum values
+                //find maximum and minimum values
                 for (cc in gdpData)
                 {
                     if (parseFloat(gdpData[cc]) > max)
@@ -421,7 +514,6 @@ const query_1 = {
                 //set colors according to values of GDP
                 for (cc in gdpData)
                 {             
-                  console.log('cc',gdpData[cc])  
                     if (gdpData[cc] > 0 && gdpData[cc] <= 100)
                     {
                       colors[cc] = 'rgb(46, 199, 201)'; //'#28a4df';
@@ -454,12 +546,12 @@ const query_1 = {
                     }
                 }
 
-/*let infoTooltip = this.$app.tooltip.create({
-      targetEl: '#vmap',
-      trigger: 'click'
-    })*/
-    
-    this.VectorMap = jQuery('#vmap').vectorMap({
+                /*let infoTooltip = this.$app.tooltip.create({
+                  targetEl: '#vmap',
+                  trigger: 'click'
+                })*/
+                
+                this.VectorMap = jQuery('#vmap').vectorMap({
                     map: 'world_en',
                     backgroundColor: '#fff',
                     enableZoom: true,
@@ -492,8 +584,8 @@ const query_1 = {
 
                 });
             }
-          if(index < 50){
-                /*   
+            if(index < 50){
+              /*   
             const query_1 = {
               imsi: element.imsi,
               states: false,
@@ -530,15 +622,34 @@ const query_1 = {
           totalDataUsage += +element.totalDataUsage
           totalSMSUsage += +element.totalSmsUsage          
           totalFlowUsage += +element.totalFlowUsage
-          
-          const labelDate = element.lastUpdate.slice(0,10)
-          const indexLabel = arrLabel.indexOf(labelDate)
-          if(indexLabel == -1) {
-            arrLabel.push(labelDate)
-            arrData.push((+element.totalDataUsage / 1000000))
-          }else{            
-            arrData[indexLabel] = +arrData[indexLabel] + (+element.totalDataUsage / 1000000)
+
+          const today = new Date()
+          const todayDate = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')   
+          const daysUsageCount = +element.days
+
+          for(let i = 0; i < daysUsageCount; i++) {
+            const averageDate = moment(today, 'YYYY-MM-DD').add(-(i.toString()), 'days').format('YYYY-MM-DD')            
+            const averageData = ((+element.totalDataUsage / 1000000)/daysUsageCount).toFixed(3)            
+            //const labelDate = averageDate //element.lastUpdate.slice(0,10)
+            const indexLabel = arrLabel.indexOf(averageDate)
+            if(indexLabel == -1) {
+              arrLabel.push(averageDate)
+              arrData.push(+averageData)
+            }else{            
+              const concatData = /*(typeof arrData[indexLabel] == 'string')?0:*/ +arrData[indexLabel]
+              arrData[indexLabel] = (+concatData + (+averageData)).toFixed(3) 
+            }
           }
+
+          if(index == (response.data.length - 1)){            
+            if(period !== 'daily') {
+              
+              this.fillChartData({labels: arrLabel, dataUsage: arrData})
+            }
+            //console.log(arrData)
+          }
+
+
         })
   
 
@@ -550,9 +661,6 @@ const query_1 = {
           loaded: true
         }        
         
-        if(period !== 'daily') {
-          this.fillChartData({labels: arrLabel, dataUsage: arrData})
-        }
       })    
     },
     fillIMSIData(period = 'daily'){
@@ -680,7 +788,20 @@ const query_1 = {
 
     
   },
-  created () {   
+  created() {
+    this.$store.watch(
+      (state)=>{
+        return this.$store.state.dashboard.period // could also put a Getter here
+      },
+      (newValue, oldValue)=>{
+        this.switchChartPeriod = newValue
+        this.switchTablePeriod = newValue
+      },
+      {
+        deep:true
+      }
+    )
+  
     this.countriesHARD = [
       {name: "ATGA - TEMP SUSPENSION", country: "Australia"},
       {name: "ATGA Admin", country: "Australia"},
@@ -777,7 +898,8 @@ const query_1 = {
     barStyles () {
       return {
         position: 'relative',
-        height: '50vh'
+        height: '50vh',
+        marginTop: '30px',
       }
     }
   }
@@ -813,6 +935,11 @@ const query_1 = {
   }
 }
 
+.menu-container{
+  padding-left: 30px;
+}
+
+
 @media (max-width:1024px) {
   .chart-wrapper {
     padding: 8px;
@@ -822,8 +949,35 @@ const query_1 = {
 
 <style>
 
+.el-radio-button__inner{
+  background: transparent;
+  color: #606266;
+}
+
+.el-radio-button__inner:hover{
+  background: rgba(255, 255, 255, .1);
+  color: #606266;
+}
+
+.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+    background-color: #28a5e0;
+    -webkit-box-shadow: -1px 0 0 0 #fff;
+    box-shadow: -1px 0 0 0 #fff;
+}
+
+.is-active .el-radio-button__inner{
+  background: #28a5e0;
+  border: 1px solid #28a5e0;
+  color: #ffffff;
+}
+
+.chart-container{
+  background:#fff;
+  padding: 30px;
+  margin-bottom:32px;
+}
 .jqvmap-zoomin, .jqvmap-zoomout {
-    background: #28a4df !important;
+    background: #fff !important;
     width: 18px !important;
     height: 18px !important;
 }
@@ -835,4 +989,43 @@ const query_1 = {
     border-radius: 5px;
   }
 
+  .w-100{
+    width: 100%;
+  }
+
+  .d-flex{
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+  }
+
+  .pointer{
+    cursor: pointer;
+  }
+
+  .bold {
+    font-weight: 600; 
+  }
+
+  .color-grey{
+    color: #606266;
+  }
+
+  .el-radio-button__inner{
+    padding: 6px 8px 8px !important;
+  }
+
+  .el-table {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
 </style>

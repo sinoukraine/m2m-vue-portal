@@ -1,17 +1,27 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
-      <div class="card-panel d-flex justify-content-between bg-green">
+      <div class="card-panel justify-content-between bg-green">
         <div class="card-panel-icon-wrapper card-top">
-          <div class="card-inline card-panel-left">
+          <div class="card-inline card-panel-left font-16">
             Data Sessions
           </div>
           <div class="card-inline card-panel-right">
-            <el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+              <div class="avatar-wrapper">
+                <img src="menu_white.svg" class="menu-dropdown">
+              </div>
+              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+                  <el-dropdown-item command="daily">Daily</el-dropdown-item>
+                  <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+              </el-dropdown-menu>
+            </el-dropdown>
+            <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
               <el-radio-button label="daily" type="outline"/>
               <el-radio-button label="weekly" type="outline"/>
               <el-radio-button label="monthly" type="outline"/>
-            </el-radio-group>
+            </el-radio-group>-->
           </div>
           <!--<i class="el-icon-s-cooperation card-panel-icon" />-->
         </div>
@@ -25,23 +35,33 @@
             </div>
           </div>
           <div class="card-inline card-panel-right">
-            <svg-icon class-name="data-session" icon-class="data-session" />
+            <!--<svg-icon class-name="data-session" icon-class="data-session" />-->
           </div>
         </div>
       </div>
     </el-col>
     <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
-    <div class="card-panel d-flex justify-content-between bg-violet" >
+    <div class="card-panel justify-content-between bg-violet" >
         <div class="card-panel-icon-wrapper card-top">
-          <div class="card-inline card-panel-left">
-            Data Usage(MB)
+          <div class="card-inline card-panel-left font-16">
+            Data Usage
           </div>
           <div class="card-inline card-panel-right">
-            <el-radio-group v-model="switchPeriod" v-on:input="handlePeriod">
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+              <div class="avatar-wrapper">
+                <img src="menu_white.svg" class="menu-dropdown">
+              </div>
+              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+                  <el-dropdown-item command="daily">Daily</el-dropdown-item>
+                  <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+              </el-dropdown-menu>
+            </el-dropdown>
+            <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
               <el-radio-button label="daily" type="outline"/>
               <el-radio-button label="weekly" type="outline"/>
               <el-radio-button label="monthly" type="outline"/>
-            </el-radio-group>
+            </el-radio-group>-->
           </div>
           <!--<i class="el-icon-s-cooperation card-panel-icon" />-->
         </div>
@@ -55,23 +75,33 @@
             </div>
           </div>
           <div class="card-inline card-panel-right">
-            <svg-icon class-name="data-usage" icon-class="data-usage" />
+            <!--<svg-icon class-name="data-usage" icon-class="data-usage" />-->
           </div>
         </div>
       </div>
     </el-col>
     <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
-    <div class="card-panel d-flex justify-content-between bg-orange" >
+    <div class="card-panel justify-content-between bg-orange" >
         <div class="card-panel-icon-wrapper card-top">
-          <div class="card-inline card-panel-left">
+          <div class="card-inline card-panel-left font-16">
             SMS Usage
           </div>
           <div class="card-inline card-panel-right">
-            <el-radio-group v-model="switchPeriod" v-on:input="handlePeriod">
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+              <div class="avatar-wrapper">
+                <img src="menu_white.svg" class="menu-dropdown">
+              </div>
+              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+                  <el-dropdown-item command="daily">Daily</el-dropdown-item>
+                  <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+              </el-dropdown-menu>
+            </el-dropdown>
+            <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
               <el-radio-button label="daily" type="outline"/>
               <el-radio-button label="weekly" type="outline"/>
               <el-radio-button label="monthly" type="outline"/>
-            </el-radio-group>
+            </el-radio-group>-->
           </div>
           <!--<i class="el-icon-s-cooperation card-panel-icon" />-->
         </div>
@@ -85,23 +115,33 @@
             </div>
           </div>
           <div class="card-inline card-panel-right">
-            <svg-icon class-name="sms-usage" icon-class="sms-usage" />
+            <!--<svg-icon class-name="sms-usage" icon-class="sms-usage" />-->
           </div>
         </div>
       </div>
     </el-col>
     <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
-    <div class="card-panel d-flex justify-content-between bg-red" >
+    <div class="card-panel justify-content-between bg-red" >
         <div class="card-panel-icon-wrapper card-top">
-          <div class="card-inline card-panel-left">
+          <div class="card-inline card-panel-left font-16">
             Flow Usage
           </div>
           <div class="card-inline card-panel-right">
-            <el-radio-group v-model="switchPeriod" v-on:input="handlePeriod">
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+              <div class="avatar-wrapper">
+                <img src="menu_white.svg" class="menu-dropdown">
+              </div>
+              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+                  <el-dropdown-item command="daily">Daily</el-dropdown-item>
+                  <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+              </el-dropdown-menu>
+            </el-dropdown>
+            <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
               <el-radio-button label="daily" type="outline"/>
               <el-radio-button label="weekly" type="outline"/>
               <el-radio-button label="monthly" type="outline"/>
-            </el-radio-group>
+            </el-radio-group>-->
           </div>
           <!--<i class="el-icon-s-cooperation card-panel-icon" />-->
         </div>
@@ -115,7 +155,7 @@
             </div>
           </div>
           <div class="card-inline card-panel-right">
-            <svg-icon class-name="flow-usage" icon-class="flow-usage" />
+            <!--<svg-icon class-name="flow-usage" icon-class="flow-usage" />-->
           </div>
         </div>
       </div>
@@ -134,19 +174,17 @@ export default {
   data() {
     return {
       loading: true,
-      switchPeriod: 'weekly'
+      //switchPeriod: 'weekly'
     }
   },
   methods: {
-    handleSetLineChartData(type) {
-      this.$emit('handleSetLineChartData', type)
-    },
     handlePeriod(val){
+      console.log('per', val)
       this.$emit('change', val)
       this.$store.dispatch('dashboard/setPeriod', val)
     }
   },
-  created() {
+  /*created() {
     this.$store.watch(
       (state)=>{
         return this.$store.state.dashboard.period // could also put a Getter here
@@ -158,7 +196,7 @@ export default {
         deep:true
       }
     )
-  },
+  },*/
   watch: {
     total: function(val) {
       if(val.loaded==true) {
@@ -191,8 +229,10 @@ export default {
   }
 
   .card-panel {
-    min-height: 108px;
+    min-height: 120px;
     cursor: pointer;
+    padding: 5px 15px 10px 12px;
+    font-weight:  600;
     font-size: 12px;
     position: relative;
     overflow: hidden;
@@ -298,51 +338,7 @@ export default {
     }
   }
 }
-</style>
 
-<style>
-
-/* custom */
-
-.el-radio-group {
-  min-width: 140px;
-}
-
-.card-inline {
-  /*display: inline-block;
-  min-width: calc(50% - 0px);*/
-}
-
-.card-panel-left {
-  text-align: left;
-}
-
-.card-panel-right {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.card-top .card-panel-left {
-  /*padding-bottom: 20px;*/
-}
-
-.card-bottom .card-panel-left {
-
-}
-
-.card-bottom .svg-icon{
-  width: 30px;
-  height: 30px;
-  opacity: 0.7;
-}
-
-.card-panel-num {
-  font-size: 28px;
-}
-
-.display-flex {
-  display: flex;
-}
 
 .bg-green {
   background-color: rgb(64, 191, 162);
@@ -401,5 +397,60 @@ export default {
   border: 1px solid #fff;
   color: rgb(64, 191, 162);
 }
+</style>
+
+<style>
+
+/* custom */
+
+.menu-dropdown{
+  width: 20px;
+}
+
+.el-radio-group {
+  min-width: 140px;
+}
+
+.card-inline {
+  /*display: inline-block;
+  min-width: calc(50% - 0px);*/
+}
+
+.card-panel-left {
+  text-align: left;
+}
+
+.font-16{  
+  font-size: 16px;
+}
+
+.card-panel-right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.card-top .card-panel-left {
+  /*padding-bottom: 20px;*/
+}
+
+.card-bottom .card-panel-left {
+
+}
+
+.card-bottom .svg-icon{
+  width: 30px;
+  height: 30px;
+  opacity: 0.7;
+}
+
+.card-panel-num {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.display-flex {
+  display: flex;
+}
+
 </style>
 
