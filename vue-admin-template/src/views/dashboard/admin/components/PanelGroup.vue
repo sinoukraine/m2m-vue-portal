@@ -7,11 +7,11 @@
             Data Sessions
           </div>
           <div class="card-inline card-panel-right">
-            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
               <div class="avatar-wrapper">
                 <img src="menu_white.svg" class="menu-dropdown">
               </div>
-              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+              <el-dropdown-menu slot="dropdown" >
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
@@ -47,11 +47,11 @@
             Data Usage
           </div>
           <div class="card-inline card-panel-right">
-            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
               <div class="avatar-wrapper">
                 <img src="menu_white.svg" class="menu-dropdown">
               </div>
-              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+              <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
@@ -87,11 +87,11 @@
             SMS Usage
           </div>
           <div class="card-inline card-panel-right">
-            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
               <div class="avatar-wrapper">
                 <img src="menu_white.svg" class="menu-dropdown">
               </div>
-              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+              <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
@@ -127,11 +127,11 @@
             Flow Usage
           </div>
           <div class="card-inline card-panel-right">
-            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+            <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
               <div class="avatar-wrapper">
                 <img src="menu_white.svg" class="menu-dropdown">
               </div>
-              <el-dropdown-menu slot="dropdown" @command="handlePeriod">
+              <el-dropdown-menu slot="dropdown" >
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
@@ -179,7 +179,7 @@ export default {
   },
   methods: {
     handlePeriod(val){
-      console.log('per', val)
+      this.loading = true
       this.$emit('change', val)
       this.$store.dispatch('dashboard/setPeriod', val)
     }

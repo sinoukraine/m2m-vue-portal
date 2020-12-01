@@ -4,31 +4,31 @@
       @handleSetLineChartData="handleSetLineChartData"-->
     <panel-group 
       :total="panelData"
-      @change="searchByPeriod" />
+      @change="searchTotalByPeriod" />
 
     <el-row class="chart-container bar-chart-container">
       <div class="w-100 d-flex">
         <div class="card-inline card-panel-left font-16 bold color-grey">
-          Data Usage
+          {{chartReport}}
         </div>
         <div class="card-inline card-panel-right d-flex">
-
+          
           <el-radio-group v-model="switchChartPeriod" v-on:input="handleChartPeriod" >
-            <el-radio-button label="Daily" type="outline"/>
-            <el-radio-button label="Weekly" type="outline"/>
-            <el-radio-button label="Monthly" type="outline"/>
+            <!--<el-radio-button label="Daily" type="outline"/>-->
+            <el-radio-button label="Week" type="outline"/>
+            <el-radio-button label="Month" type="outline"/>
           </el-radio-group>
-          <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click">
+          <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click" @command="handleChartReport">
             <div class="menu-wrapper">
               <img src="menu.svg" class="menu-dropdown">
             </div>
-            <el-dropdown-menu slot="dropdown" @command="handleChartReport">
-                <el-dropdown-item command="datachart">Data Usage</el-dropdown-item>
-                <el-dropdown-item command="smschart">SMS Usage</el-dropdown-item>
-                <el-dropdown-item command="flowchart">Flow Usage</el-dropdown-item>                
+            <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="Data Usage">Data Usage</el-dropdown-item>
+                <el-dropdown-item command="SMS Usage">SMS Usage</el-dropdown-item>
+                <el-dropdown-item command="Flow Usage">Flow Usage</el-dropdown-item>                
             </el-dropdown-menu>
           </el-dropdown>
-          <!---->
+          
         </div>
       </div>
       <line-chart :chart-data="datacollection" :styles="barStyles" :options="barOptions" 
@@ -108,16 +108,24 @@
       </el-col>
     </el-row>
     
-    <el-row :gutter="40">
-      <el-col :xs="24" :sm="24" :lg="12"  style="">
+    <el-row :gutter="40" >
+      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom:32px">
         
         <div key="key-vmap" class="card col-100 large-30 no-margin margin-bottom" style="background-color: #ffffff;border-radius: 5px;">
           <div class="w-100 d-flex" style="padding: 30px">
             <div class="card-inline card-panel-left font-16 bold color-grey">
-              Data Usage
+              
             </div>
             <div class="card-inline card-panel-right d-flex">
-
+              <span :style="'font-size:2em;color:rgb(46, 199, 201)'">&#11044;</span> 
+              <span class="font-12 color-grey" style="padding: 0 15px">0 - 100</span>
+              <span :style="'font-size:2em;color:rgb(254, 235, 129)'">&#11044;</span>
+              <span class="font-12 color-grey" style="padding: 0 15px">100 - 500</span> 
+              <span :style="'font-size:2em;color:rgb(255, 185, 128)'">&#11044;</span>
+              <span class="font-12 color-grey" style="padding: 0 15px">500 - 2000</span> 
+              <span :style="'font-size:2em;color:rgb(216, 122, 128)'">&#11044;</span>
+              <span class="font-12 color-grey" style="padding: 0 15px">2000 +</span> 
+<!--
               <el-radio-group v-model="switchChartPeriod" v-on:input="handleChartPeriod" >
                 <el-radio-button label="Daily" type="outline"/>
                 <el-radio-button label="Weekly" type="outline"/>
@@ -133,7 +141,7 @@
                     <el-dropdown-item command="flowchart">Flow Usage</el-dropdown-item>                
                 </el-dropdown-menu>
               </el-dropdown>
-              <!---->
+              -->
             </div>
           </div>
           <div class="card-content center">
@@ -197,7 +205,10 @@ export default {
   },
   data() {
     return {
-      switchChartPeriod: 'Monthly',
+      chartReport: 'Data Usage',
+      chartDays: 30,
+      chartArray: {},
+      switchChartPeriod: 'Month',
       switchTablePeriod: 'Month',
       position: { X: 'Center' },
       msgTooltip: '',
@@ -287,9 +298,19 @@ export default {
       },
     }
   },
-  methods: {    
+  methods: {   
     handleChartPeriod(val){
-      console.log('chper', val)
+      this.searchChartByPeriod(val)
+      //this.$emit('change', val)
+      //this.$store.dispatch('dashboard/setPeriod', val)
+    },
+    handleChartReport(val){
+      this.searchChartByReport(val)
+    },
+    handleTablePeriod(val){
+      console.log('ta', val)
+      this.searchTableByPeriod(val)
+       
       //this.$emit('change', val)
       //this.$store.dispatch('dashboard/setPeriod', val)
     },
@@ -302,28 +323,139 @@ export default {
         loaded: false
       }
     },
-    searchByPeriod(period) {     
+    searchTotalByPeriod(period) {     
       this.clearData()
+      let days = 0
       const today = new Date()
       this.cdrsListQuery.date2 = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
 
       switch(period){
-        case 'daily':   
-          this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')     
+        case 'daily':          
+          days = 1               
         break
         case 'weekly':   
-          this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')     
+          days = 7 
         break
-        case 'monthly':   
-          this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-25, 'days').format('YYYY-MM-DD')     
+        case 'monthly': 
+          days = 30     
         break
       }
+      this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD')
       
       if(this.imsi.length){
-        this.fillIMSIData(period)
+        this.fillIMSIData(days)
       }else{
-        this.fillIMSIListData(period)
+        this.fillIMSIListData(days)
       }
+    },
+    searchChartByReport(report) {     
+      //this.clearData()
+      const days = this.chartDays
+      this.chartReport = report  
+      let data = []
+      switch(report){
+        case 'SMS Usage':          
+          data = this.chartArray.sms.map(a => a)
+        break
+        case 'Flow Usage':           
+          data = this.chartArray.flow.map(a => a)    
+        break
+        default:         
+          data = this.chartArray.data.map(a => a)
+      }    
+      let labels = this.chartArray.labels.map(a => a)
+      const newChartArrayCount = 30 - days
+      for(let i = 0; i < newChartArrayCount; i++) {          
+        labels.pop()
+        data.pop()
+      }
+      
+      this.fillChartData({labels: labels, dataUsage: data})
+    },
+    searchTableByPeriod(period) {
+      let days = 0
+      this.listLoading = true
+      const today = new Date()
+      switch(period){
+        case 'Last day':   
+          days = 1 
+        break
+        case 'Week':   
+          days = 7 
+        break
+        case 'Month': 
+          days = 30     
+        break
+      }
+
+      const query = {
+        page: 1,
+        limit: 10,
+        date1: moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
+        date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
+        imsi: '',
+        customer: '0',
+      }
+    
+      getCDRSList(query).then(response => {
+        let totalDataUsage = 0, 
+            totalSMSUsage = 0,
+            totalFlowUsage = 0
+            
+        const arrTable = []
+        
+        response.data.forEach((element, index) => {   
+            const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+            const tableSMSUsageTotal = element.totalSmsUsage=='undefined'?0:(+element.totalSmsUsage)
+            const tableFlowUsageTotal = (+element.totalFlowUsage)
+            arrTable.push({
+              num: index + 1,
+              imsi: element.imsi,
+              customer: element.customer,
+              //state: '',
+              //rag: '',
+              total: tableDataUsageTotal,
+              sms: tableSMSUsageTotal,
+              flow: tableFlowUsageTotal
+            }) 
+        })     
+        
+        
+        this.list = arrTable
+        this.listLoading = false   
+      })
+    },
+    searchChartByPeriod(period) {     
+      //this.clearData()
+      let days = 0
+      switch(period){
+        case 'Week':   
+          days = 7 
+        break
+        case 'Month': 
+          days = 30     
+        break
+      }
+      this.chartDays = days  
+      let data = []
+      switch(this.chartReport){
+        case 'SMS Usage':          
+          data = this.chartArray.sms.map(a => a)
+        break
+        case 'Flow Usage':           
+          data = this.chartArray.flow.map(a => a)    
+        break
+        default:         
+          data = this.chartArray.data.map(a => a)
+      }    
+      let labels = this.chartArray.labels.map(a => a)
+      const newChartArrayCount = 30 - days
+      for(let i = 0; i < newChartArrayCount; i++) {          
+        labels.pop()
+        data.pop()
+      }
+      
+      this.fillChartData({labels: labels, dataUsage: data})
     },
     searchByIMSI(imsi) { 
       this.clearData()
@@ -370,7 +502,7 @@ const query_1 = {
         })
       })
     },*/
-    fillIMSIListData(period = 'daily'){      
+    fillIMSIListData(period = 1){      
       let gdpData = {}
       let TooltipStatData = {}
       this.countries = []
@@ -403,11 +535,12 @@ const query_1 = {
             
         const arrLabel = []
         const arrData = []
+        const arrSMS = []
+        const arrFlow = []
         const arrTable = []
         
         response.data.forEach((element, index) => {
           if(arrTable.length < 10){     
-            console.log(element)
             const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
             const tableSMSUsageTotal = element.totalSmsUsage=='undefined'?0:(+element.totalSmsUsage)
             const tableFlowUsageTotal = (+element.totalFlowUsage)
@@ -519,7 +652,7 @@ const query_1 = {
                       colors[cc] = 'rgb(46, 199, 201)'; //'#28a4df';
                     } else if (gdpData[cc] > 100 && gdpData[cc] <= 500)
                     {
-                      colors[cc] = 'rgb(216, 122, 128)';
+                      colors[cc] = 'rgb(254, 235, 129)';
                     } else if (gdpData[cc] > 500 && gdpData[cc] <= 2000)
                     {
                       colors[cc] = 'rgb(255, 185, 128)';
@@ -623,33 +756,57 @@ const query_1 = {
           totalSMSUsage += +element.totalSmsUsage          
           totalFlowUsage += +element.totalFlowUsage
 
-          const today = new Date()
-          const todayDate = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')   
-          const daysUsageCount = +element.days
+          if(!this.chartArray.hasOwnProperty('data')){
+            const current = new Date(element.lastUpdate)
+            const currentDate = moment(current, 'YYYY-MM-DD').format('YYYY-MM-DD')   
+            const daysUsageCount = +element.days
 
-          for(let i = 0; i < daysUsageCount; i++) {
-            const averageDate = moment(today, 'YYYY-MM-DD').add(-(i.toString()), 'days').format('YYYY-MM-DD')            
-            const averageData = ((+element.totalDataUsage / 1000000)/daysUsageCount).toFixed(3)            
-            //const labelDate = averageDate //element.lastUpdate.slice(0,10)
-            const indexLabel = arrLabel.indexOf(averageDate)
-            if(indexLabel == -1) {
-              arrLabel.push(averageDate)
-              arrData.push(+averageData)
-            }else{            
-              const concatData = /*(typeof arrData[indexLabel] == 'string')?0:*/ +arrData[indexLabel]
-              arrData[indexLabel] = (+concatData + (+averageData)).toFixed(3) 
+            for(let i = 0; i < daysUsageCount; i++) {
+              const averageDate = moment(current, 'YYYY-MM-DD').add(-(i.toString()), 'days').format('YYYY-MM-DD')            
+              const averageData = ((+element.totalDataUsage / 1000000)/daysUsageCount).toFixed(3)  
+              const averageSMS = (+element.totalSmsUsage)/daysUsageCount  
+              const averageFlow = (+element.totalFlowUsage)/daysUsageCount      
+              //const labelDate = averageDate //element.lastUpdate.slice(0,10)
+              const indexLabel = arrLabel.indexOf(averageDate)
+              if(indexLabel == -1) {
+                arrLabel.push(averageDate)
+                arrData.push(+averageData)
+                arrSMS.push(averageSMS)
+                arrFlow.push(averageFlow)
+              }else{            
+                const concatData = +arrData[indexLabel]
+                const concatSMS = +arrSMS[indexLabel]
+                const concatFlow = +arrFlow[indexLabel]
+                arrData[indexLabel] = (+concatData + (+averageData)).toFixed(3) 
+                arrSMS[indexLabel] = (+concatSMS + (+averageSMS))
+                arrFlow[indexLabel] = (+concatFlow + (+averageFlow))
+              }
+            }
+
+            if(index == (response.data.length - 1)){            
+              if(period !== 1) {
+                const today = new Date()
+                const todayDate = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+                const emptyDateCount = period - arrLabel.length
+                for(let i = emptyDateCount; i >=0 ; i--) {
+                  const emptyDate = moment(today, 'YYYY-MM-DD').add(-(i.toString()), 'days').format('YYYY-MM-DD')            
+                  arrLabel.unshift(emptyDate)
+                  arrData.unshift(0)
+                  arrSMS.unshift(0)
+                  arrFlow.unshift(0)
+                }
+                this.chartArray = {
+                  labels: arrLabel,
+                  data: arrData,
+                  sms: arrSMS,
+                  flow: arrFlow
+                }
+                this.fillChartData({labels: arrLabel, dataUsage: arrData})
+              }
+              //console.log(arrData)
             }
           }
-
-          if(index == (response.data.length - 1)){            
-            if(period !== 'daily') {
-              
-              this.fillChartData({labels: arrLabel, dataUsage: arrData})
-            }
-            //console.log(arrData)
-          }
-
-
+          
         })
   
 
@@ -663,7 +820,7 @@ const query_1 = {
         
       })    
     },
-    fillIMSIData(period = 'daily'){
+    fillIMSIData(period = 1){
       getSIM(this.simQuery).then(response => {
         this.cdrsQuery = {
           id: response.data._id,
@@ -713,7 +870,7 @@ const query_1 = {
             loaded: true
           }        
                     
-          if(period !== 'daily') {
+          if(period !== 1) {
             this.fillChartData({labels: arrLabel, dataUsage: arrData})
           }
         })  
@@ -750,7 +907,7 @@ const query_1 = {
   },
   mounted () {    
     this.imsi = this.$store.state.dashboard.imsi
-    this.searchByPeriod('monthly')
+    this.searchTotalByPeriod('monthly')
 /*
     let gdpData = {};
     let TooltipStatData = {};
@@ -894,7 +1051,8 @@ const query_1 = {
       }
     )
   },
-  computed: {
+  computed: {     
+    
     barStyles () {
       return {
         position: 'relative',
@@ -922,7 +1080,7 @@ const query_1 = {
 
   .chart-wrapper {
     background: #fff;
-    padding: 33px 50px 0;
+    padding: 40px 50px 0;
     margin-bottom: 32px;    
   }
 
@@ -1027,5 +1185,9 @@ const query_1 = {
     border-bottom-right-radius: 5px;
     -webkit-box-shadow: none;
     box-shadow: none;
+  }
+
+  .font-12{
+    font-size: 12px;
   }
 </style>

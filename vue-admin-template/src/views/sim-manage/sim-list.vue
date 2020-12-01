@@ -305,7 +305,7 @@ export default {
   },*/
   methods: {
     getList() {
-      this.list = [
+      /*this.list = [
         {
           imsi: '123',
           iccid: '123',
@@ -337,8 +337,8 @@ export default {
           smsUsage: '123',
           zeroSession: '123',
         },
-      ]
-      this.listLoading = false;
+      ]*/
+      //this.listLoading = false;
     },
 
     sortChange(data) {
