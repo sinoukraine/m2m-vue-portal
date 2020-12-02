@@ -539,6 +539,20 @@ const query_1 = {
         const arrFlow = []
         const arrTable = []
         
+        
+        if(!this.chartArray.hasOwnProperty('data')){
+          const today = new Date()
+          const todayDate = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+
+          for(let i = 30; i >=0 ; i--) {
+            const emptyDate = moment(today, 'YYYY-MM-DD').add(-(i.toString()), 'days').format('YYYY-MM-DD')            
+            arrLabel.unshift(emptyDate)
+            arrData.unshift(0)
+            arrSMS.unshift(0)
+            arrFlow.unshift(0)
+          }
+        }
+                
         response.data.forEach((element, index) => {
           if(arrTable.length < 10){     
             const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
@@ -768,12 +782,7 @@ const query_1 = {
               const averageFlow = (+element.totalFlowUsage)/daysUsageCount      
               //const labelDate = averageDate //element.lastUpdate.slice(0,10)
               const indexLabel = arrLabel.indexOf(averageDate)
-              if(indexLabel == -1) {
-                arrLabel.push(averageDate)
-                arrData.push(+averageData)
-                arrSMS.push(averageSMS)
-                arrFlow.push(averageFlow)
-              }else{            
+              if(indexLabel !== -1) {            
                 const concatData = +arrData[indexLabel]
                 const concatSMS = +arrSMS[indexLabel]
                 const concatFlow = +arrFlow[indexLabel]
@@ -785,16 +794,8 @@ const query_1 = {
 
             if(index == (response.data.length - 1)){            
               if(period !== 1) {
-                const today = new Date()
-                const todayDate = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
-                const emptyDateCount = period - arrLabel.length
-                for(let i = emptyDateCount; i >=0 ; i--) {
-                  const emptyDate = moment(today, 'YYYY-MM-DD').add(-(i.toString()), 'days').format('YYYY-MM-DD')            
-                  arrLabel.unshift(emptyDate)
-                  arrData.unshift(0)
-                  arrSMS.unshift(0)
-                  arrFlow.unshift(0)
-                }
+                
+                //const emptyDateCount = period - arrLabel.length
                 this.chartArray = {
                   labels: arrLabel,
                   data: arrData,
