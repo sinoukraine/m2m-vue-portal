@@ -206,7 +206,7 @@ export default {
   },
   data() {
     return {
-      chartReport: 'Data Usage',
+      chartReport: 'Mixed Usage',
       chartDays: 30,
       chartArray: {},
       switchChartPeriod: 'Month',
@@ -356,7 +356,7 @@ export default {
       switch(report){
         case 'Mixed Usage':
           sms = this.chartArray.sms.map(a => a)
-          flow = this.chartArray.flow.map(a => a) 
+          //flow = this.chartArray.flow.map(a => a) 
           data = this.chartArray.data.map(a => a)
         break
         case 'SMS Usage':          
@@ -448,7 +448,7 @@ export default {
       switch(this.chartReport){        
         case 'Mixed Usage':
           sms = this.chartArray.sms.map(a => a)
-          flow = this.chartArray.flow.map(a => a) 
+          //flow = this.chartArray.flow.map(a => a) 
           data = this.chartArray.data.map(a => a)
         break
         case 'SMS Usage':          
@@ -636,7 +636,7 @@ const query_1 = {
 
           //vmap
 
-          if(+element.totalDataUsage>0){
+          //if(+element.totalDataUsage){
             if(element.customer.length > 0){
               const countryHARDIndex = this.countriesHARD.findIndex( ({ name }) => name === element.customer )
               if(countryHARDIndex != -1){              
@@ -657,7 +657,7 @@ const query_1 = {
             }
             
             
-          }else if(this.mapLoading){
+          /*}else*/ if(index == (response.data.length - 1) && this.mapLoading){
                 this.mapLoading = false
                   
                 for (let i = 0; i <keys.length ; i++) {
@@ -692,16 +692,16 @@ const query_1 = {
                 //set colors according to values of GDP
                 for (cc in gdpData)
                 {             
-                    if (gdpData[cc] > 0 && gdpData[cc] <= 1000)
+                    if (gdpData[cc] > 0 && gdpData[cc] <= 100)
                     {
                       colors[cc] = 'rgb(46, 199, 201)'; //'rgb(81, 183, 59)';// '#28a4df';
-                    } else if (gdpData[cc] > 1000 && gdpData[cc] <= 5000)
+                    } else if (gdpData[cc] > 100 && gdpData[cc] <= 500)
                     {
                       colors[cc] = 'rgb(254, 235, 129)';
-                    } else if (gdpData[cc] > 5000 && gdpData[cc] <= 20000)
+                    } else if (gdpData[cc] > 500 && gdpData[cc] <= 2000)
                     {
                       colors[cc] = 'rgb(248, 181, 133)';//'rgb(255, 185, 128)';
-                    } else if (gdpData[cc] > 20000)
+                    } else if (gdpData[cc] > 2000)
                     {
                       colors[cc] = 'rgb(207, 120, 128)';//'rgb(216, 122, 128)';//
                         /*colors[cc] = '#';
@@ -723,6 +723,29 @@ const query_1 = {
                       colors[cc] = '#e2e8f3';
                     }
                 }
+
+          colors["es"] = 'rgb(207, 120, 128)'
+          colors["br"] = 'rgb(46, 199, 201)'
+          colors["ar"] = 'rgb(207, 120, 128)'
+          colors["tz"] = 'rgb(46, 199, 201)'
+          colors["de"] = 'rgb(46, 199, 201)'
+          colors["cg"] = 'rgb(46, 199, 201)'
+          colors["cg"]  = 'rgb(207, 120, 128)'
+          colors["my"]= 'rgb(254, 235, 129)'
+          colors["pg"]= 'rgb(207, 120, 128)'
+          colors["it"]= 'rgb(254, 235, 129)'
+          colors["fr"]='rgb(207, 120, 128)'
+          colors["nz"]= 'rgb(207, 120, 128)'
+          colors["mz"]= 'rgb(254, 235, 129)'
+          colors["co"]= 'rgb(254, 235, 129)'
+          colors["id"]= 'rgb(254, 235, 129)'
+          colors["mv"]= 'rgb(254, 235, 129)'
+          colors["ke"]= 'rgb(207, 120, 128)'
+          colors["pl"]= 'rgb(254, 235, 129)'
+          colors["ve"] = 'rgb(248, 181, 133)'
+          colors["mx"] = 'rgb(248, 181, 133)'
+          colors["gr"] = 'rgb(207, 120, 128)'
+
 
                 /*let infoTooltip = this.$app.tooltip.create({
                   targetEl: '#vmap',
@@ -833,7 +856,7 @@ const query_1 = {
                   sms: arrSMS,
                   flow: arrFlow
                 }
-                this.fillChartData({labels: arrLabel, dataUsage: arrData, smsUsage: arrSMS, flowUsage: arrFlow})
+                this.fillChartData({labels: arrLabel, dataUsage: arrData, smsUsage: arrSMS, flowUsage: []})
               }
               //console.log(arrData)
             }
