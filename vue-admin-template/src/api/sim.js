@@ -8,9 +8,13 @@ const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
 const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
 const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
 const SIM_LIST = API_DOMIAN + 'sims'
+const USER_LIST = API_DOMIAN + 'people'
 const SIM_STATES = API_DOMIAN + 'sims/states'
 const CDRS_LIST = API_DOMIAN + 'cdrs'
 const CUSTOMER_LIST = API_DOMIAN + 'counterparties'
+
+
+
 
 function getRequestOptions(options) {
   const token = getToken()
@@ -27,7 +31,22 @@ function getRequestOptions(options) {
   return axiosRequestOptions
 }
 
-export async function getSIMCountry(query) {
+export async function getUserList(query) {
+  const options = {
+     url: USER_LIST,
+     method: 'get'
+   }
+   return new Promise((resolve, reject) => {
+     axios.request(getRequestOptions(options)).then(
+       (result) => {
+         resolve(result)
+       }).catch(e => {
+       reject(e)
+     })
+   })
+ }
+
+ export async function getSIMCountry(query) {
   const options = {
      url: SIM_COUNTRY + '&lat=' + query.lat + '&lon=' + query.lon + '',
      method: 'get'

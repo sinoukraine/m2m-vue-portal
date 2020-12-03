@@ -23,6 +23,7 @@
               <img src="menu.svg" class="menu-dropdown">
             </div>
             <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="Mixed Usage">Mixed Usage</el-dropdown-item>
                 <el-dropdown-item command="Data Usage">Data Usage</el-dropdown-item>
                 <el-dropdown-item command="SMS Usage">SMS Usage</el-dropdown-item>
                 <el-dropdown-item command="Flow Usage">Flow Usage</el-dropdown-item>                
@@ -118,13 +119,13 @@
             </div>
             <div class="card-inline card-panel-right d-flex">
               <span :style="'font-size:2em;color:rgb(46, 199, 201)'">&#11044;</span> 
-              <span class="font-12 color-grey" style="padding: 0 15px">0 - 100</span>
+              <span class="font-12 color-grey" style="padding: 0 15px">0 - 1000</span>
               <span :style="'font-size:2em;color:rgb(254, 235, 129)'">&#11044;</span>
-              <span class="font-12 color-grey" style="padding: 0 15px">100 - 500</span> 
+              <span class="font-12 color-grey" style="padding: 0 15px">1001 - 5000</span> 
               <span :style="'font-size:2em;color:rgb(255, 185, 128)'">&#11044;</span>
-              <span class="font-12 color-grey" style="padding: 0 15px">500 - 2000</span> 
+              <span class="font-12 color-grey" style="padding: 0 15px">5001 - 20000</span> 
               <span :style="'font-size:2em;color:rgb(216, 122, 128)'">&#11044;</span>
-              <span class="font-12 color-grey" style="padding: 0 15px">2000 +</span> 
+              <span class="font-12 color-grey" style="padding: 0 15px">20000 +</span> 
 <!--
               <el-radio-group v-model="switchChartPeriod" v-on:input="handleChartPeriod" >
                 <el-radio-button label="Daily" type="outline"/>
@@ -169,7 +170,7 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { getCDRSList, getSIM, getCDRS, getSIMCountry, getSIMCoordinates } from '@/api/sim'
+import { getUserList, getCDRSList, getSIM, getCDRS, getSIMCountry, getSIMCoordinates } from '@/api/sim'
 /*
 import LineChart from './components/LineChart'
 import RaddarChart from './components/RaddarChart'
@@ -308,7 +309,6 @@ export default {
       this.searchChartByReport(val)
     },
     handleTablePeriod(val){
-      console.log('ta', val)
       this.searchTableByPeriod(val)
        
       //this.$emit('change', val)
@@ -352,13 +352,18 @@ export default {
       //this.clearData()
       const days = this.chartDays
       this.chartReport = report  
-      let data = []
+      let data = [],flow = [],sms = []
       switch(report){
+        case 'Mixed Usage':
+          sms = this.chartArray.sms.map(a => a)
+          flow = this.chartArray.flow.map(a => a) 
+          data = this.chartArray.data.map(a => a)
+        break
         case 'SMS Usage':          
-          data = this.chartArray.sms.map(a => a)
+          sms = this.chartArray.sms.map(a => a)
         break
         case 'Flow Usage':           
-          data = this.chartArray.flow.map(a => a)    
+          flow = this.chartArray.flow.map(a => a)    
         break
         default:         
           data = this.chartArray.data.map(a => a)
@@ -368,9 +373,11 @@ export default {
       for(let i = 0; i < newChartArrayCount; i++) {          
         labels.pop()
         data.pop()
+        flow.pop()
+        sms.pop()
       }
-      
-      this.fillChartData({labels: labels, dataUsage: data})
+            
+      this.fillChartData({labels: labels, dataUsage: data, flowUsage: flow, smsUsage: sms})
     },
     searchTableByPeriod(period) {
       let days = 0
@@ -437,13 +444,18 @@ export default {
         break
       }
       this.chartDays = days  
-      let data = []
-      switch(this.chartReport){
+      let data = [], flow = [], sms = []
+      switch(this.chartReport){        
+        case 'Mixed Usage':
+          sms = this.chartArray.sms.map(a => a)
+          flow = this.chartArray.flow.map(a => a) 
+          data = this.chartArray.data.map(a => a)
+        break
         case 'SMS Usage':          
-          data = this.chartArray.sms.map(a => a)
+          sms = this.chartArray.sms.map(a => a)
         break
         case 'Flow Usage':           
-          data = this.chartArray.flow.map(a => a)    
+          flow = this.chartArray.flow.map(a => a)    
         break
         default:         
           data = this.chartArray.data.map(a => a)
@@ -455,7 +467,7 @@ export default {
         data.pop()
       }
       
-      this.fillChartData({labels: labels, dataUsage: data})
+      this.fillChartData({labels: labels, dataUsage: data, flowUsage: flow, smsUsage: sms})
     },
     searchByIMSI(imsi) { 
       this.clearData()
@@ -507,12 +519,6 @@ const query_1 = {
       let TooltipStatData = {}
       this.countries = []
       let keys = [
-          //["id", "001"],
-          //["pg", "002"],
-          //["mx", "003"],
-          //["ee", "004"],
-          //["dz", "005"],
-          //["au", "British Virgin Islands"],
           ["au", "Australia"],
           ["za", "South Africa"],
           ["gd", "Grenada"],
@@ -525,8 +531,28 @@ const query_1 = {
           ["ca", "Canada"],
           ["zm", "Zambia"],
           ["ru", "Russian Federation"],
-          ["es", "Spain"]
-
+          ["ru", "Russia"],
+          ["es", "Spain"],
+          ["br", "Brazil"],
+          ["ar", "Argentina"],
+          ["tz", "Tanzania"],
+          ["de", "Germany"],
+          ["cg", "Democratic Republic of Congo"],
+          ["cg", "Congo"],
+          ["my", "Malaysia"],
+          ["pg", "Papua New Guinea"],
+          ["it", "Italy"],
+          ["fr", "France"],
+          ["nz", "New Zealand"],
+          ["mz", "Mozambique"],
+          ["co", "Colombia"],
+          ["id", "Indonesia"],
+          ["mv", "Maldives"],
+          ["ke", "Kenya"],
+          ["pl", "Poland"],
+          ["ve", "Venezuela"],
+          ["mx", "Mexico"],
+          ["gr", "Greece"],
       ]
       getCDRSList(this.cdrsListQuery).then(response => {
         let totalDataUsage = 0, 
@@ -611,20 +637,25 @@ const query_1 = {
           //vmap
 
           if(+element.totalDataUsage>0){
-            const countryHARDIndex = this.countriesHARD.findIndex( ({ name }) => name === element.customer )
-            if(countryHARDIndex != -1){              
-              const country = this.countriesHARD[countryHARDIndex].country
-              const countryIndex = this.countries.findIndex( ({ Key }) => Key === country )     
+            if(element.customer.length > 0){
+              const countryHARDIndex = this.countriesHARD.findIndex( ({ name }) => name === element.customer )
+              if(countryHARDIndex != -1){              
+                const country = this.countriesHARD[countryHARDIndex].country
+                
+                  const countryIndex = this.countries.findIndex( ({ Key }) => Key === country )     
 
-              if(countryIndex != -1){
-                this.countries[countryIndex].Count ++
-              }else{
-                this.countries.push({
-                  Key: country,
-                  Count: 1
-                })
+                  if(countryIndex != -1){
+                    this.countries[countryIndex].Count ++
+                  }else{
+                    this.countries.push({
+                      Key: country,
+                      Count: 1
+                    })
+                  }             
+                
               }
             }
+            
             
           }else if(this.mapLoading){
                 this.mapLoading = false
@@ -661,18 +692,18 @@ const query_1 = {
                 //set colors according to values of GDP
                 for (cc in gdpData)
                 {             
-                    if (gdpData[cc] > 0 && gdpData[cc] <= 100)
+                    if (gdpData[cc] > 0 && gdpData[cc] <= 1000)
                     {
-                      colors[cc] = 'rgb(46, 199, 201)'; //'#28a4df';
-                    } else if (gdpData[cc] > 100 && gdpData[cc] <= 500)
+                      colors[cc] = 'rgb(46, 199, 201)'; //'rgb(81, 183, 59)';// '#28a4df';
+                    } else if (gdpData[cc] > 1000 && gdpData[cc] <= 5000)
                     {
                       colors[cc] = 'rgb(254, 235, 129)';
-                    } else if (gdpData[cc] > 500 && gdpData[cc] <= 2000)
+                    } else if (gdpData[cc] > 5000 && gdpData[cc] <= 20000)
                     {
-                      colors[cc] = 'rgb(255, 185, 128)';
-                    } else if (gdpData[cc] > 2000)
+                      colors[cc] = 'rgb(248, 181, 133)';//'rgb(255, 185, 128)';
+                    } else if (gdpData[cc] > 20000)
                     {
-                      colors[cc] = 'rgb(216, 122, 128)';
+                      colors[cc] = 'rgb(207, 120, 128)';//'rgb(216, 122, 128)';//
                         /*colors[cc] = '#';
                         for (var i = 0; i<3; i++)
                         {
@@ -802,7 +833,7 @@ const query_1 = {
                   sms: arrSMS,
                   flow: arrFlow
                 }
-                this.fillChartData({labels: arrLabel, dataUsage: arrData})
+                this.fillChartData({labels: arrLabel, dataUsage: arrData, smsUsage: arrSMS, flowUsage: arrFlow})
               }
               //console.log(arrData)
             }
@@ -819,7 +850,13 @@ const query_1 = {
           loaded: true
         }        
         
-      })    
+      }).catch(e => {
+        this.logout()
+      })
+    },
+    async logout() {
+      await this.$store.dispatch('user/logout')
+      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     },
     fillIMSIData(period = 1){
       getSIM(this.simQuery).then(response => {
@@ -890,16 +927,41 @@ const query_1 = {
         this.datacollection = {
           labels: data.labels, //['04.11', '05.11', '06.11', '07.11', '08.11', '09.11', '10.11', '11.11', '12.11', '13.11', '14.10', '15.11', '16.11', '17.11'],
           datasets: [
-            {
-              label: 'Data Usage',
-              backgroundColor: 'rgb(53, 165, 228)',
-              data: data.dataUsage //[100, 120, 161, 134, 105, 160, 165, 105, 100, 181, 114, 115, 169, 165]
-            }/*, {
-              label: 'Data Volume',
-              backgroundColor: '#f87979',
-              data: [this.getRandomInt(), this.getRandomInt()]
-            }*/
+            
           ]
+        }
+        if(this.chartReport == 'Mixed Usage'){
+          this.barOptions.legend.display = true
+        }else{
+          this.barOptions.legend.display = false
+        }
+
+        if(data.hasOwnProperty('dataUsage')){
+          if(data.dataUsage.length){
+            this.datacollection.datasets.push({
+              label: 'Data Usage',
+              backgroundColor: 'rgb(53, 165, 228)', //'rgb(53, 165, 228)',
+              data: data.dataUsage //[100, 120, 161, 134, 105, 160, 165, 105, 100, 181, 114, 115, 169, 165]
+            })
+          }
+        }
+        if(data.hasOwnProperty('smsUsage')){
+          if(data.smsUsage.length){
+            this.datacollection.datasets.push({
+              label: 'SMS Usage',
+              backgroundColor: 'rgb(253, 181, 131)',
+              data: data.smsUsage //[100, 120, 161, 134, 105, 160, 165, 105, 100, 181, 114, 115, 169, 165]
+            })
+          }
+        }
+        if(data.hasOwnProperty('flowUsage')){
+          if(data.flowUsage.length){
+            this.datacollection.datasets.push({
+              label: 'Flow Usage',
+              backgroundColor: 'rgb(212, 121, 128)',
+              data: data.flowUsage //[100, 120, 161, 134, 105, 160, 165, 105, 100, 181, 114, 115, 169, 165]
+            })
+          }
         }
       },
       getRandomInt () {
@@ -909,6 +971,11 @@ const query_1 = {
   mounted () {    
     this.imsi = this.$store.state.dashboard.imsi
     this.searchTotalByPeriod('monthly')
+
+    
+     getUserList(null).then(response => {
+       console.log('u', response)
+     })
 /*
     let gdpData = {};
     let TooltipStatData = {};
@@ -966,77 +1033,77 @@ const query_1 = {
       {name: "ATGA LIVE", country: "Australia"},
       {name: "ATGA LOC8", country: "Australia"},
       {name: "ATGA PROTECT", country: "Australia"},
-      {name: "Acp global ", country: ""},
-      {name: "Agile Tracking Solutions", country: ""},
+      {name: "Acp global ", country: "Argentina"},
+      {name: "Agile Tracking Solutions", country: "Canada"},
       {name: "Autoline Ukraine", country: "Ukraine"},
       {name: "Automotive integration", country: "Australia"},
       {name: "Autoz TAC", country: "China"},
-      {name: "BSRN Holdings", country: ""},
+      {name: "BSRN Holdings", country: "Brazil"},
       {name: "BoatFix", country: "United States of America"},
       {name: "Borderless", country: "Zambia"},
-      {name: "CA All customer", country: ""},
-      {name: "CUBEVOICE", country: "Australia"},
+      {name: "CA All customer", country: "Canada"},
+      {name: "CUBEVOICE", country: "Russia"},
       {name: "Charged Install Live", country: "Canada"},
       {name: "Charged Install Loc8", country: "Canada"},
       {name: "Charged Install Services", country: "Canada"},
       {name: "Cloudnet", country: "Australia"},
-      {name: "Ctrack", country: ""},
+      {name: "Ctrack", country: "Tanzania"},
       {name: "DSPERFORMANCE", country: ""},
-      {name: "Datamobile AG", country: ""},
+      {name: "Datamobile AG", country: "Germany"},
       {name: "DoBuyDirect", country: "United States of America"},
       {name: "Fox Electronics", country: "Zambia"},
-      {name: "GPS TRACKING WA", country: "Australia"},
+      {name: "GPS TRACKING WA", country: "Congo"},
       {name: "ISPYGPS", country: "Australia"},
-      {name: "Jacob Pallister", country: ""},
+      {name: "Jacob Pallister", country: "Canada"},
       {name: "Jet-Xpress", country: ""},
-      {name: "Jimmy", country: ""},
-      {name: "LisandroSaez", country: ""},
+      {name: "Jimmy", country: "Malaysia"},
+      {name: "LisandroSaez", country: "Brazil"},
       {name: "M2MDATA API", country: ""},
-      {name: "MARINE TG LOC8", country: ""},
-      {name: "MARINETG TRACK", country: ""},
-      {name: "Marine TG", country: ""},
-      {name: "Marks Account", country: ""},
-      {name: "Michael Gemmoll", country: ""},
-      {name: "NZ Quiktrak", country: ""},
+      {name: "MARINE TG LOC8", country: "Papua New Guinea"},
+      {name: "MARINETG TRACK", country: "Papua New Guinea"},
+      {name: "Marine TG", country: "Papua New Guinea"},
+      {name: "Marks Account", country: "Italy"},
+      {name: "Michael Gemmoll", country: "France"},
+      {name: "NZ Quiktrak", country: "New Zealand"},
       {name: "Nutech", country: "Canada"},
-      {name: "Oryx Systems", country: ""},
+      {name: "Oryx Systems", country: "Mozambique"},
       {name: "Oryx cctv", country: "South Africa"},
       {name: "PVS", country: "United Kingdom"},
-      {name: "Private APN", country: ""},
-      {name: "QTrak", country: ""},
-      {name: "Quiktrak Latino America SpA", country: ""},
+      {name: "Private APN", country: "Australia"},
+      {name: "QTrak", country: "South Africa"},
+      {name: "Quiktrak Latino America SpA", country: "Colombia"},
       {name: "QuiktrakZambia", country: "Zambia"},
       {name: "Russia Quiktrak", country: "Russia"},
       {name: "Scymyn", country: ""},
-      {name: "Secure2Go", country: ""},
-      {name: "Seguratainer", country: ""},
-      {name: "Selftrack", country: ""},
+      {name: "Secure2Go", country: "France"},
+      {name: "Seguratainer", country: "Maldives"},
+      {name: "Selftrack", country: "Indonesia"},
       {name: "SelftrackChile", country: "Chile"},
-      {name: "Siguelo", country: ""},
+      {name: "Siguelo", country: "Chile"},
       {name: "Sinopacific Admin", country: ""},
-      {name: "Sinopacific Africa", country: ""},
-      {name: "Staywired Solutions", country: ""},
-      {name: "Stolen Emergency", country: ""},
+      {name: "Sinopacific Africa", country: "Kenya"},
+      {name: "Staywired Solutions", country: "Canada"},
+      {name: "Stolen Emergency", country: "Poland"},
       {name: "Sub account", country: ""},
       {name: "TERMINATED", country: ""},
       {name: "THETRACKINGCENTRE", country: "Australia"},
       {name: "Tekamo Inc", country: "Canada"},
       {name: "The Tracking Centre Live", country: "Australia"},
-      {name: "Thomas Faherty", country: ""},
-      {name: "UFind Live", country: "Australia"},
-      {name: "UFind Protect", country: "Australia"},
+      {name: "Thomas Faherty", country: "Venezuela"},
+      {name: "UFind Live", country: "China"},
+      {name: "UFind Protect", country: "India"},
       {name: "Ufind easy park", country: "Australia"},
       {name: "Veetrac", country: "South Africa"},
       {name: "Vehicle Fleet Solutions", country: ""},
-      {name: "Vitalgps", country: ""},
+      {name: "Vitalgps", country: "Chile"},
       {name: "WardenGPS", country: "United States of America"},
       {name: "albertspain", country: "Spain"},
-      {name: "anzac marine", country: ""},
+      {name: "anzac marine", country: "Mexico"},
       {name: "autofidelity", country: "Australia"},
       {name: "cartrackcanada", country: "Canada"},
       {name: "dobuydirect-QL8", country: ""},
-      {name: "innoveq", country: ""},
-      {name: "isstrack", country: "Australia"},
+      {name: "innoveq", country: "Greece"},
+      {name: "isstrack", country: "Mexico"},
       {name: "m2mdata", country: ""}
     ]
     this.$store.watch(
