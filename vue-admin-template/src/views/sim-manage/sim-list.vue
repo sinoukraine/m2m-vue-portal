@@ -2,7 +2,92 @@
   <el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">    
     <el-container class="page-fixed-height padding-vertical-x2">
       <el-main v-if="isProfile" class="no-padding">
-        x
+        <div class="mixin-components-container" style="padding: 0 20px">
+          <el-row>
+            <el-card class="box-card">              
+              <div style="margin-bottom:50px;">
+                <el-form ref="dataForm"  label-position="top" label-width="70px">
+                  <el-row :gutter="16">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="IMSI" prop="category">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-input  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="ICCID" prop="key">
+                        <el-input  />
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-row :gutter="16">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="MSISDN" prop="category">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-input  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="IMEI" prop="key">
+                        <el-input  />
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-row :gutter="16">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="Bussiness Unit" prop="category">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-option  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="CSP" prop="key">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-option  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-row :gutter="16">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="State" prop="category">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-option  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="Solution" prop="key">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-option  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-row :gutter="16">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="Agent" prop="category">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-option  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="Customer" prop="key">
+                        <el-select class="filter-item w-100" placeholder="Please select">
+                          <el-option  />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </el-form>
+              </div>
+            </el-card>
+          </el-row>
+        </div>
       </el-main>
       <el-main  v-else class="no-padding">
         <div class="filter-container ">

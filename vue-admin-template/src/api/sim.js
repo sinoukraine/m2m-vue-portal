@@ -7,14 +7,13 @@ import { getToken } from '@/utils/auth' // get token from cookie
 
 const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
 const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
+const DEMO = 'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
 const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
 const SIM_LIST = API_DOMIAN + 'sims'
 const USER_LIST = API_DOMIAN + 'people'
 const SIM_STATES = API_DOMIAN + 'sims/states'
 const CDRS_LIST = API_DOMIAN + 'cdrs'
 const CUSTOMER_LIST = API_DOMIAN + 'counterparties'
-
-
 
 
 function getRequestOptions(options) {
@@ -31,6 +30,17 @@ function getRequestOptions(options) {
 
   return axiosRequestOptions
 }
+
+export async function getDemo() {  
+   return new Promise((resolve, reject) => {
+     axios.get(DEMO).then(
+       (result) => {
+         resolve(result)
+       }).catch(e => {
+       reject(e)
+     })
+   })
+ }
 
 export async function getUserList(query) {
   const options = {

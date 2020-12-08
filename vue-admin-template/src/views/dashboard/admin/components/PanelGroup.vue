@@ -14,7 +14,8 @@
               <el-dropdown-menu slot="dropdown" >
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
-                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>   
+                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>                
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
@@ -31,7 +32,8 @@
               <img src="loading.gif" width="50">
             </div>
             <div v-else>
-              <count-to :start-val="0" :end-val="0" :duration="2600" class="card-panel-num" />
+              <count-to :start-val="0" :end-val="+total.totalDataSessions" :duration="2600" class="card-panel-num" />  
+              
             </div>
           </div>
           <div class="card-inline card-panel-right">
@@ -54,7 +56,8 @@
               <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
-                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>      
+                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>            
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
@@ -72,6 +75,9 @@
             </div>
             <div v-else>
               <count-to :start-val="0" :end-val="+total.totalDataUsage" :duration="2600" class="card-panel-num" />
+              <span class="card-panel-num">
+                KB
+              </span>
             </div>
           </div>
           <div class="card-inline card-panel-right">
@@ -94,7 +100,8 @@
               <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
-                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>    
+                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>              
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
@@ -124,7 +131,7 @@
     <div class="card-panel justify-content-between bg-red" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left font-16">
-            Flow Usage
+            Average
           </div>
           <div class="card-inline card-panel-right">
             <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
@@ -134,7 +141,8 @@
               <el-dropdown-menu slot="dropdown" >
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
-                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>                
+                  <el-dropdown-item command="monthly">Monthly</el-dropdown-item>    
+                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>              
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
@@ -151,7 +159,10 @@
               <img src="loading.gif" width="50">
             </div>
             <div v-else>
-              <count-to :start-val="0" :end-val="+total.totalFlowUsage" :duration="2600" class="card-panel-num" />
+              <count-to :start-val="0" :end-val="+total.totalDuration" :duration="2600" class="card-panel-num" />
+              <span class="card-panel-num">
+                KB/H
+              </span>
             </div>
           </div>
           <div class="card-inline card-panel-right">

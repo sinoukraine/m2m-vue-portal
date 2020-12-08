@@ -22,6 +22,10 @@ export default {
     height: {
       type: String,
       default: '350px'
+    },
+    pie: {
+      type: Array,
+      default: []
     }
   },
   data() {
@@ -29,8 +33,20 @@ export default {
       chart: null,
     }
   },
-  mounted() {
-    this.$nextTick(() => {
+  watch: {
+    pie: function(val) {
+      const arr = []
+      val.forEach(element => {
+        arr.push({
+          value: element.JTOV_SIM_NUMBERS,
+          name: element.DEVICE_STATUS_CODE
+        })
+      })
+      this.initChart(arr)
+    },
+  },
+  mounted() {    
+      /*      
       getSIMStates(null).then(response => {
         let arr = []
         response.data.forEach(element => {
@@ -40,8 +56,7 @@ export default {
           })
         })
         this.initChart({arr})
-      })
-    })
+      })*/
   },
   beforeDestroy() {
     if (!this.chart) {
@@ -53,8 +68,7 @@ export default {
   methods: {
     initChart(data) {
       this.chart = echarts.init(this.$el, 'macarons')
-      this.chart.setOption({
-                        
+      this.chart.setOption({                        
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -66,12 +80,12 @@ export default {
         },       
         series: [
           {
-            name: 'Activated Solution',
+            name: 'SIM Inventory',
             type: 'pie',
             roseType: 'radius',
             radius: [15, 95],
-            center: ['45%', '38%'],
-            data: data.arr, /*[
+            center: ['50%', '38%'],
+            data: data, /*[
               { value: 320, name: 'Suspended' },
               { value: 240, name: 'Deleteing' },
               { value: 149, name: 'OnStock' },

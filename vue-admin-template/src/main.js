@@ -28,7 +28,7 @@ Vue.prototype.moment = moment
 import '@/utils/jquery-global.js';
 import '@/utils/jquery.vmap/jqvmap.css';
 import '@/utils/jquery.vmap/jquery.vmap.js';
-import '@/utils/jquery.vmap/jquery.vmap.south-africa.js';
+import '@/utils/jquery.vmap/jquery.vmap.world.js';
 
 import VTooltip from 'v-tooltip'
 Vue.use(VTooltip)
