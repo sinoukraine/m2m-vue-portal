@@ -1,6 +1,7 @@
 import request from '@/utils/request'
+import { API_METHODS } from "@/utils/helpers"
 import axios from 'axios'
-axios.defaults.timeout = 360000 //2147483647
+axios.defaults.timeout = 2147483647 //2147483647
 
 import { getToken } from '@/utils/auth' // get token from cookie
 
@@ -21,7 +22,7 @@ function getRequestOptions(options) {
   const axiosRequestOptions = {
     url: options.url,
     method: options.method,
-    timeout: 360000
+    timeout: 2147483647
   }
   axiosRequestOptions.headers = {
     'content-type': 'application/json',
@@ -76,6 +77,42 @@ export async function getSIMStates(query) {
   })
 }
 
+export async function getSIMAsync(query) {
+  if (query.imsi !== '') {
+    let addStates = '', addActivity = '', addIdentifier = '', findBy = '', addCustomer = ''
+    
+    if (query.imsi) {      
+      findBy = query.imsi
+      addIdentifier = '?simIdentifier=IMSI&'
+    }else{
+      findBy = query.id
+      addIdentifier = '?'
+    }
+    if (query.ancestors) {
+      addCustomer = 'populate[]=ancestors&'
+    }
+    if (query.activity) {
+      addActivity = 'extra[]=activity&'
+    }
+    if (query.states) {
+      addStates = 'extra[]=states&'
+    }
+    const options = {
+      url: SIM_LIST + '/' + findBy + addIdentifier + addStates + addActivity + addCustomer,
+      method: 'get'
+    }
+    try {
+      const response = await axios.request(getRequestOptions(options))
+      return response
+    } catch (e) {
+      const title = 'Error'
+      const message = 'An CORS issue has been detected, please try again later or contact our support team'
+      this.$alert(message, title, {type: 'error'})
+      throw e
+    }
+  }
+}
+
 export async function getSIM(query) {
   if (query.imsi !== '') {
     let addStates = '', addActivity = ''
@@ -102,15 +139,21 @@ export async function getSIM(query) {
 }
 
 export async function getSIMList(query) {
-  let addLimit = '', addSample = ''
-  if (query.limit !== 0) {
+  let addLimit = '', addSample = '', addPage = '', addPageSize = ''
+  if (query.limit !== undefined) {
     addLimit = '&limit=' + query.limit
   }
-  if (query.sample !== '') {
+  if (query.sample !== undefined) {
     addSample = '&sample=' + query.sample
   }
+  if (query.page !== undefined) {
+    addPage = '&page=' + query.page
+  }
+  if (query.pageSize !== undefined) {
+    addPageSize = '&pageSize=' + query.pageSize
+  }
   const options = {
-    url: SIM_LIST + '?scope=sub' + addLimit + '' + addSample + '',
+    url: SIM_LIST + '?scope=sub' + addLimit + '' + addSample + '' + addPage + '' + addPageSize + '',
     method: 'get'
   }
   return new Promise((resolve, reject) => {
@@ -123,15 +166,62 @@ export async function getSIMList(query) {
   })
 }
 
+
+export async function getSIMListAsync(query) {
+  let addLimit = '', addSample = '', addPage = '', addPageSize = ''
+  if (query.limit !== undefined) {
+    addLimit = '&limit=' + query.limit
+  }
+  if (query.sample !== undefined) {
+    addSample = '&sample=' + query.sample
+  }
+  if (query.page !== undefined) {
+    addPage = '&page=' + query.page
+  }
+  if (query.pageSize !== undefined) {
+    addPageSize = '&pageSize=' + query.pageSize
+  }
+  const options = {
+    url: SIM_LIST + '?scope=sub' + addLimit + '' + addSample + '' + addPage + '' + addPageSize + '',
+    method: 'get'
+  }
+  try {
+    const response = await axios.request(getRequestOptions(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    this.$alert(message, title, {type: 'error'})
+    throw e
+  }
+}
+
+export async function getCDRSAsync(query) {  
+  const id = query.id
+  const options = {
+    url: SIM_LIST + '/' + id + '/cdrs?includeSessions=true&startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z',
+    method: 'get'
+  }
+  try {
+    const response = await axios.request(getRequestOptions(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    
+    throw e
+  }
+}
+
 export async function getCDRSList(query) {
   let addCustomer = '', addLimit = ''
-  if (query.customer !== '0') {
+  if (query.customer !== undefined ) {
     addCustomer = '&customerId=' + query.customer
   }
-  if (query.imsi !== '') {
+  if (query.imsi !== undefined) {
     //addIMSI = '&sample=' + query.imsi
   }
-  if (query.limit !== 0) {
+  if (query.limit !== undefined) {
     addLimit = '&limit=' + query.limit
   }
   const options = {
@@ -146,6 +236,43 @@ export async function getCDRSList(query) {
       reject(e)
     })
   })
+}
+
+export async function getCDRSListAsync(query) {
+  let addCustomer = '', addLimit = ''
+  if (query.customer !== undefined ) {
+    addCustomer = '&customerId=' + query.customer
+  }
+  if (query.imsi !== undefined) {
+    //addIMSI = '&sample=' + query.imsi
+  }
+  if (query.limit !== undefined) {
+    addLimit = '&limit=' + query.limit
+  }
+  const options = {
+    url: CDRS_LIST + '?startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z' + addLimit + '' + addCustomer + '',
+    method: 'get'
+  }
+  try {
+    const response = await axios.request(getRequestOptions(options))
+    return response
+    if(response.data.MajorCode !== '001' && response.data.MajorCode !== '004'){
+      i18n.setLocaleMessage(lang, response.data)
+      loadedLanguages.push(lang)
+      setI18nLanguage(lang)
+      return true
+    }else{
+      //store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  } catch (e) {
+    //store.commit('app/SET_ERROR', e)
+    //commit('SET_ERROR', e)
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    this.$alert(message, title, {type: 'error'})
+    throw e
+  }
 }
 
 export async function getSIMCoordinates(query) {

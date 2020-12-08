@@ -65,7 +65,16 @@ export const constantRoutes = [
         path: 'sim-list',
         name: 'SimList',
         component: () => import('@/views/sim-manage/sim-list'),
-        meta: { title: 'SIM List', icon: 'sim' }
+        meta: { title: 'SIM List', icon: 'sim' },
+        children: [
+          {
+            path: '/sim-list/:id', 
+            name: 'SIM Profile',
+            component: () => import('@/views/sim-manage/sim-profile'),
+            meta: { title: 'SIM Profile', child: true, icon: 'sim' },
+            hidden: true
+          }
+        ]
       },
       {
         path: 'tree',
@@ -75,40 +84,50 @@ export const constantRoutes = [
       }
     ]
   },
-
+  /*{ 
+    path: '/sim-list/:id', 
+    component: Layout,
+    children: [
+      {
+        path: '/sim-list/:id', 
+        name: 'SIM Profile',
+        component: () => import('@/views/sim-manage/sim-profile'),
+        meta: { title: 'SIM List', childTitle: 'SIM Profile', icon: 'sim' }
+      }
+    ]
+  },*/
   {
-    path: '/form',
+    path: '/customer',
     component: Layout,
     children: [
       {
         path: 'index',
         name: 'Customer manage',
-        component: () => import('@/views/form/index'),
+        component: () => import('@/views/customer/index'),
         meta: { title: 'Customer manage', icon: 'customer-manage' },
       }
     ]
   },
-
   {
-    path: '/form',
+    path: '/history',
     component: Layout,
     children: [
       {
         path: 'index',
         name: 'History',
-        component: () => import('@/views/form/index'),
+        component: () => import('@/views/history/index'),
         meta: { title: 'History', icon: 'history' },
       }
     ]
   },
   {
-    path: '/form',
+    path: '/sms',
     component: Layout,
     children: [
       {
         path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
+        name: 'SMS',
+        component: () => import('@/views/sms/index'),
         meta: { title: 'SMS', icon: 'sms' },
       }
     ]
@@ -128,26 +147,26 @@ export const constantRoutes = [
   },
 
   {
-    path: '/form',
+    path: '/commands',
     component: Layout,
     children: [
       {
         path: 'index',
         name: 'Commands',
-        component: () => import('@/views/form/index'),
+        component: () => import('@/views/commands/index'),
         meta: { title: 'Commands', icon: 'commands' },
       }
     ]
   },
 
   {
-    path: '/form',
+    path: '/csp',
     component: Layout,
     children: [
       {
         path: 'index',
         name: 'CSP Manage',
-        component: () => import('@/views/form/index'),
+        component: () => import('@/views/csp/index'),
         meta: { title: 'CSP Manage', icon: 'csp' },
       }
     ]

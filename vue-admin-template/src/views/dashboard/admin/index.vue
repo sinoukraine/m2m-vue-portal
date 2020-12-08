@@ -17,7 +17,7 @@
           <el-radio-group v-model="switchChartPeriod" @input="handleChartPeriod" >
             <!--<el-radio-button label="Daily" type="outline"/>-->
             <el-radio-button label="Week" type="outline"/>
-            <el-radio-button label="Month" type="outline"/>
+            <el-radio-button label="This Month" type="outline"/>
           </el-radio-group>
           <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click" @command="handleChartReport">
             <div class="menu-wrapper">
@@ -212,7 +212,7 @@ export default {
   data() {
     return {
       chartReport: 'Mixed Usage',
-      chartDays: 30,
+      chartDays: 8,
       chartArray: {},
       switchChartPeriod: 'Month',
       switchTablePeriod: 'Month',
@@ -229,12 +229,8 @@ export default {
         id: ''
       },
       cdrsListQuery: {
-        page: 1,
-        limit: 0,
         date1: '2020-10-29',
         date2: '2020-11-09',
-        imsi: '',
-        customer: '0'
       },
       panelData: {
         totalDataUsage: 0,
@@ -250,12 +246,8 @@ export default {
       total: 0,
       listLoading: true,
       listQuery: {
-        page: 1,
-        limit: 10,
         date1: '2020-10-29',
         date2: '2020-11-09',
-        customer: '0',
-        sort: '+code'
       },
 
       series: [44, 51, 41, 11, 10, 5, 4, 2, 1],
@@ -504,12 +496,18 @@ export default {
           days = 30
           break
       }
-      this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD')
+
+      if(days == 30){         
+        var nowFull = moment(); 		
+        this.cdrsListQuery.date1 = nowFull.clone().startOf('month').format('YYYY-MM-DD')        
+      }else{      
+        this.cdrsListQuery.date1 = moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD')
+      }
 
       if (this.imsi.length){
         this.fillIMSIData(days)
       } else {
-        this.fillIMSIListData(days)
+        this.loadCDRSList(days)
       }
     },
     searchChartByReport(report) {
@@ -533,7 +531,10 @@ export default {
           data = this.chartArray.data.map(a => a)
       }
       const labels = this.chartArray.labels.map(a => a)
-      const newChartArrayCount = 30 - days
+      const newChartArrayCount = 1
+     
+     
+
       for (let i = 0; i < newChartArrayCount; i++) {
         labels.pop()
         data.pop()
@@ -554,8 +555,8 @@ export default {
         case 'Week':
           days = 7
           break
-        case 'Month':
-          days = 30
+        case 'Month':          
+            days = 30
           break
       }
 
@@ -564,8 +565,6 @@ export default {
         limit: 10,
         date1: moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
         date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
-        imsi: '',
-        customer: '0'
       }
 
       getCDRSList(query).then(response => {
@@ -603,8 +602,8 @@ export default {
         case 'Week':
           days = 7
           break
-        case 'Month':
-          days = 30
+        case 'This Month':           
+          days = 8
           break
       }
       this.chartDays = days
@@ -625,7 +624,7 @@ export default {
           data = this.chartArray.data.map(a => a)
       }
       const labels = this.chartArray.labels.map(a => a)
-      const newChartArrayCount = 30 - days
+      const newChartArrayCount = 8 - days
       for (let i = 0; i < newChartArrayCount; i++) {
         labels.pop()
         data.pop()
@@ -678,7 +677,7 @@ const query_1 = {
         })
       })
     },*/
-    fillIMSIListData(period = 1){
+    async loadCDRSList(period = 1){
       const gdpData = {}
       const TooltipStatData = {}
       this.countries = []
@@ -724,6 +723,19 @@ const query_1 = {
         ['sa', 'Saudi Arabia'],
         ['ae', 'United Arab Emirates']
       ]
+
+      //get default dashboard data
+      /*const days = 30
+      const today = new Date()
+      const query = {
+        date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
+        date1: moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD')
+      }*/
+
+      
+      //const response = await getCDRSList(this.cdrsListQuery)
+      //await this.$nextTick()
+      
       getCDRSList(this.cdrsListQuery).then(response => {
         let totalDataUsage = 0
         let totalSMSUsage = 0
@@ -740,7 +752,12 @@ const query_1 = {
           const today = new Date()
           const todayDate = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
 
-          for (let i = 30; i >= 0; i--) {
+           var nowFull = moment()
+
+        var a = nowFull.clone().startOf('month').format('YYYY-MM-DD')
+      
+
+          for (let i = 8; i >= 0; i--) {
             const emptyDate = moment(today, 'YYYY-MM-DD').add(-(i.toString()), 'days').format('YYYY-MM-DD')
             arrLabel.unshift(emptyDate)
             arrData.unshift(0)
@@ -749,7 +766,7 @@ const query_1 = {
           }
         }
 
-        response.data.every((element, index) => {
+        response.data.every(async (element, index) => {
           if (arrTable.length < 10){
             const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
             const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
@@ -890,7 +907,8 @@ const query_1 = {
             }
           }
 
-          if (index < response.data.length - 1) return true
+          //if (index < response.data.length - 1) return true
+          if(+element.totalDataUsage > 0) return await true
           else {
             // table
 
@@ -920,27 +938,27 @@ const query_1 = {
                 const country = this.countries.find(({ Key }) => Key === keys[i][1])
                 if (country){
                   gdpData[keys[i][0]] = country.Count
-                  TooltipStatData[keys[i][0]] = country.Count
+                  //TooltipStatData[keys[i][0]] = country.Count
                 }
               }
 
               var max = 0
               var min = Number.MAX_VALUE
               var cc
-              var startColor = [248, 142, 134]; var // 76, 175, 80
-                endColor = [122, 33, 27]
+              var startColor = [248, 142, 134]; 
+              var endColor = [122, 33, 27]
               var colors = {}
               var hex
 
               // find maximum and minimum values
-              for (cc in gdpData) {
+              /*for (cc in gdpData) {
                 if (parseFloat(gdpData[cc]) > max) {
                   max = parseFloat(gdpData[cc])
                 }
                 if (parseFloat(gdpData[cc]) < min) {
                   min = parseFloat(gdpData[cc])
                 }
-              }
+              }*/
 
               // set colors according to values of GDP
               for (cc in gdpData) {
@@ -1051,11 +1069,14 @@ const query_1 = {
       }).catch(e => {
         console.log('err', e)
         //this.logout()
+        const title = 'Error'
+        const message = 'An CORS issue has been detected, please try again later or contact our support team'
+        this.$alert(message, title, {type: 'error'})
       })
     },
     async logout() {
       await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      this.$router.push(`/login?redirect=${this.$route.fullPath}`) 
     },
     fillIMSIData(period = 1){
       getSIM(this.simQuery).then(response => {

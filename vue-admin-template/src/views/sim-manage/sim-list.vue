@@ -1,7 +1,10 @@
 <template>
-  <el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+  <el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">    
     <el-container class="page-fixed-height padding-vertical-x2">
-      <el-main class="no-padding">
+      <el-main v-if="isProfile" class="no-padding">
+        x
+      </el-main>
+      <el-main  v-else class="no-padding">
         <div class="filter-container ">
           <div class="display-flex justify-content-between">
             <div class="buttons-row">
@@ -79,7 +82,7 @@
             </el-table-column>
             <el-table-column v-if="checkboxRAG" :label="$t('RAG')" sortable="custom" :class-name="getSortClass('rag')" align="left" min-width="180px">
               <template slot-scope="{row}">
-                <span>{{ row.rag }}</span>
+                <span :style="'font-size:2em;color:'+row.rag">&#x025FC;</span>
               </template>
             </el-table-column>
             <el-table-column v-if="checkboxSolution" :label="$t('SOLUTION')" sortable="custom" :class-name="getSortClass('solution')" align="left" min-width="180px">
@@ -127,11 +130,13 @@
                 </el-button>-->
               </template>
             </el-table-column>
-          </el-table>
+          </el-table> 
+          
+          <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.pageSize" @pagination="getList" />
+   
         </div>
 
-        <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
-
+        
       </el-main>
     </el-container>
     <el-aside class="panel panel-right">
@@ -246,27 +251,30 @@ import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
+import { getSIMListAsync, getSIMAsync } from '@/api/sim'
+import moment from 'moment'
+
 export default {
-  comments: {
+  components: {
     Pagination
   },
   directives: { waves },
   data() {
     return {
-      checkboxICCID: true,
-      checkboxMSSDN: true,
-      checkboxBusinessUnit: true,
+      checkboxICCID: false,
+      checkboxMSSDN: false,
+      checkboxBusinessUnit: false,
       checkboxCSP: true,
       checkboxState: true,
       checkboxRAG: true,
-      checkboxSolution: true,
-      checkboxAgent: true,
+      checkboxSolution: false,
+      checkboxAgent: false,
       checkboxCustomer: true,
       checkboxDataSession: true,
       checkboxDataUsage: true,
       checkboxSMSUsage: true,
-      checkboxZeroSession: true,
-
+      checkboxZeroSession: false,
+      isProfile: false,
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       solutionsArr: [
@@ -278,67 +286,109 @@ export default {
       customersArr: [
         { code: '1', name: 'Customer' }
       ],
-
       tableKey: 0,
       total: 0,
       listLoading: true,
       list: [],
       listQuery: {
         page: 1,
-        limit: 10,
+        pageSize: 10,
         date1: '2020-10-29',
         date2: '2020-11-09',
-        customer: '0',
+        customer: undefined,
         sort: '+code'
       },
       multipleSelection: [],
-
-
-
     }
   },
   created() {
-    this.getList()
+    this.isProfile = this.$route.params.id ? true : false
+    if(this.isProfile){
+      this.isRightPanelVisible = false
+    }else{
+      this.getList()
+    }
   },
 /*  mounted(){
 
   },*/
   methods: {
-    getList() {
-      /*this.list = [
-        {
-          imsi: '123',
-          iccid: '123',
-          msisdn: '123',
+    async getList() {
+      const arr = []
+      const currentTime = moment()
+      const oneDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
+      const threeDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
+
+      const response = await getSIMListAsync(this.listQuery)
+      response.data.rows.forEach(async element => {    
+        const query = {
+          id: element._id,
+          activity: true,
+          states: true,
+          ancestors: true 
+        }
+        const response_1 = await getSIMAsync(query)  
+        let flowField = 0
+        let smsField = 0
+        let totalField = 0
+        let dataSessions = 0
+
+        console.log(response_1)
+        const customer = response_1.data.ancestors[0].info.name
+        const state = response_1.data.extra.states.current
+        const csp = response_1.data.extra.states.csp
+        const activityArr = response_1.data.extra.activity.samples
+        let rag = ''
+        /*if (response_1.data.extra.activity.totals != null && response_1.data.extra.activity.totals.flow != null){
+          flowField += +response_1.data.extra.activity.totals.flow.originalUnits
+        }*/
+        if (response_1.data.extra.activity.totals != null && response_1.data.extra.activity.totals.sms != null){
+          smsField += +response_1.data.extra.activity.totals.sms.originalUnits
+        }
+        if (response_1.data.extra.activity.totals != null && response_1.data.extra.activity.totals.data != null && response_1.data.extra.activity.totals.data.originalUnits != null){
+          totalField += +response_1.data.extra.activity.totals.data.originalUnits
+        }
+        if(typeof activityArr == 'undefined'){
+            rag = 'rgb(204,204,204)'
+        }else{
+          activityArr.forEach(element_1 => {
+            if(element_1.hasOwnProperty('originalUnits')){
+              dataSessions += +element_1.originalUnits
+            }
+          })
+          const simActivityTime = moment(activityArr[activityArr.length - 1].endTime, 'YYYY-MM-DD').format('YYYY-MM-DD');
+          if(simActivityTime >= oneDayAgo){
+            rag = 'rgb(57,181,74)'
+          }else if(simActivityTime >= threeDayAgo){
+            rag = '#ff8c00'
+          }else{
+            rag = '#CD3333'
+          }
+        }
+        
+        arr.push({
+          imsi: element.info.imsi,
+          iccid: element.info.iccid,
+          msisdn: element.info.msisdn,
           businessUnit: 'aus',
-          csp: 'SP5',
-          state: 'test',
-          rag: 1,
+          csp,
+          state,
+          rag,
           solution: 'Track',
-          agent: 'atga',
-          customer: 'atga',
-          dataSession: '123',
-          dataUsage: '123',
-          smsUsage: '123',
-          zeroSession: '123',
-        },{
-          imsi: '123',
-          iccid: '123',
-          msisdn: '123',
-          businessUnit: 'aus',
-          csp: 'SP5',
-          state: 'test',
-          rag: 1,
-          solution: 'Track',
-          agent: 'atga',
-          customer: 'atga',
-          dataSession: '123',
-          dataUsage: '123',
-          smsUsage: '123',
-          zeroSession: '123',
-        },
-      ]*/
-      //this.listLoading = false;
+          agent: 'M2M Data',
+          customer,
+          dataSession: dataSessions,
+          dataUsage: totalField,
+          smsUsage: smsField,
+          zeroSession: '0',
+        })
+      })
+      
+      this.total = response.data.total     
+      setTimeout(() => {
+          this.listLoading = false
+        }, 1.5 * 1000) 
+      this.list = arr
     },
 
     sortChange(data) {

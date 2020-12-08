@@ -12,7 +12,7 @@
       class="header-search-select"
       @change="change"
     >
-      <el-option v-for="item in options" :key="item.path" :value="item" :label="item.title" />
+      <el-option v-for="item in options" :key="item.code" :value="item" :label="item.title" />
     </el-select>
   </div>
 </template>
@@ -40,18 +40,7 @@ export default {
       },
     }
   },
-  computed: {
-    /*routes() {
-      return this.$store.getters.permission_routes
-    }*/
-  },
   watch: {
-    /*routes() {
-      this.searchPool = this.generateRoutes(this.routes)
-    },
-    searchPool(list) {
-      this.initFuse(list)
-    },*/
     show(value) {
       if (value) {
         document.body.addEventListener('click', this.close)
@@ -61,14 +50,14 @@ export default {
     }
   },
   mounted() {
-    //console.log('r',this.routes)
-    /*let test = [{
-          path: '/dashboard',
-          title: '777777777777'
-        }]
-    this.searchPool = this.generateRoutes(test)*/
+    //this.searchPool = this.generateRoutes(this.$store.getters.permission_routes)
   },
-  methods: {
+  computed: {
+    routes() {
+      //return this.$store.getters.permission_routes
+    }
+  },
+  methods: {    
     click() {
       this.show = !this.show
       if (this.show) {
@@ -81,14 +70,14 @@ export default {
       this.show = false
     },
     change(val) {
-      console.log('ch', val.title)
-      this.$store.dispatch('dashboard/setIMSI', val.title)
-      //this.$router.push(val.path)
-      this.search = val.title
-      //this.options = []
-      /*this.$nextTick(() => {
+      //this.$store.dispatch('dashboard/setIMSI', val.title)
+      this.$router.push('/sim-list/' + val.code)
+      //this.$route.params.id = val.code // 'admin'
+      this.search = ''
+      this.options = []
+      this.$nextTick(() => {
         this.show = false
-      })*/
+      })
     },
     /*initFuse(list) {
       this.fuse = new Fuse(list, {
@@ -109,7 +98,7 @@ export default {
     },*/
     // Filter out the routes that can be displayed in the sidebar
     // And generate the internationalized title
-    /*generateRoutes(routes, basePath = '/', prefixTitle = []) {
+    generateRoutes(routes, basePath = '/', prefixTitle = []) {
       let res = []
 
       for (const router of routes) {
@@ -140,7 +129,7 @@ export default {
         }
       }
       return res
-    },*/
+    },
     searchIMSI(query) {
       const arr = []
       this.simListQuery = {
@@ -150,12 +139,11 @@ export default {
       getSIMList(this.simListQuery).then(response => {
         response.data.forEach(element => {
           arr.push({
-            path: element._id,
+            code: element._id,
             title: element.info.imsi
           })
         })
         this.options = arr
-        console.log('resss',this.options)
       })      
     },
     querySearch(query) {
