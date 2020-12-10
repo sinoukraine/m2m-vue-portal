@@ -63,7 +63,7 @@
         <div class="chart-wrapper">
         <div class="w-100 d-flex" >
             <div class="card-inline card-panel-left font-16 bold color-grey" style="margin: 0px;margin-left: -20px;">
-            CSP
+              Service
             </div>
             <div class="card-inline card-panel-right d-flex">
             </div>
@@ -118,26 +118,7 @@
         </div>
         
         <!--
-        <el-table
-            :key="tableKey"
-            v-loading="listLoading"
-            :data="cspData"
-            fit
-            border
-            highlight-current-row
-            style="width: 100%;"
-          >
-           <el-table-column label="Device Offer" align="center" >
-              <template slot-scope="{row}">
-                <span>{{ row.DEVICE_OFFER }}</span>
-              </template>
-            </el-table-column>
-           <el-table-column label="SIM Numbers" align="center" width="160px">
-              <template slot-scope="{row}">
-                <span>{{ row.JTOV_SIM_NUMBERS }}</span>
-              </template>
-            </el-table-column>
-          </el-table>-->
+        -->
       </el-col>
     </el-row>
   </div>
@@ -446,7 +427,7 @@ export default {
 }
 
 .el-table td, .el-table th {
-    padding: 7px 0;
+    padding: 10px 0;
 }
 
 .cell a{

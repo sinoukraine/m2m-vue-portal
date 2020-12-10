@@ -1,11 +1,65 @@
 <template>
   <el-container class="">      
-    <el-dialog v-loading="mapLoading" :visible.sync="dialogFormVisible" width="70%">
-        
+    <el-dialog title="View Map" :visible.sync="dialogFormVisible" width="70%" >
+      <el-row :gutter="16">
+        <el-col :xs="24" :sm="12">
+          <div class="map-container">
+            <l-map
+              ref="map"
+              :zoom="zoom"
+              :center="center"
+              style="height: 100%"
+              @ready="doSomethingOnReady()"
+            > 
+              <l-control-layers position="topright">
+
+              </l-control-layers>
+              <l-tile-layer
+                v-for="tileProvider in tileProviders"
+                :key="tileProvider.name"
+                :name="tileProvider.name"
+                :visible="tileProvider.visible"
+                :url="tileProvider.url"
+                :subdomains="tileProvider.subdomains"
+                layer-type="base"/>
+              <l-marker
+                :lat-lng="markerLatLng"
+                :icon="markerIcon"
+              >
+              </l-marker>
+            </l-map>
+          </div>
+        </el-col>
+        <el-col :xs="24" :sm="12">
+          <el-table
+            :data="locationData"
+            fit            
+            :show-header="false"
+            class="location-table"
+          >
+           <el-table-column label="Device Offer" align="left" >
+              <template slot-scope="{row}">
+                <span>1</span>
+              </template>
+            </el-table-column>
+           <el-table-column label="SIM Numbers" align="right">
+              <template slot-scope="{row}">
+                <span>2</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </el-row>      
     </el-dialog>
     <el-main  class="no-padding">
       <div class="mixin-components-container">
-        <el-row style="margin: 30px">
+        <el-row style="margin: 30px">          
+          <div>
+            <panel-group
+              :total="panelData"
+              @change="searchTotalByPeriod"
+            />
+          </div>
           <el-card class="box-card footer-border">              
             <div>
               <el-form ref="dataForm"  label-position="top" label-width="70px">
@@ -89,13 +143,7 @@
               <el-button class="btn-primary-pos" type="primary">Save</el-button>                
             </div>
           </el-card>
-          <div class="mt-30">
-            <panel-group
-              :total="panelData"
-              @change="searchTotalByPeriod"
-            />
-          </div>
-          <el-card class="box-card">     
+          <el-card class="box-card mt-30">     
             <div class="card-flex">
               <div class="card-inline card-panel-left font-16">
                 <b>Data Details</b>
@@ -123,7 +171,8 @@
 
 <script>
 import L from 'leaflet';
-import { LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup } from 'vue2-leaflet';
+import { LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup } from 'vue2-leaflet'
+import { latLng, Icon, icon } from 'leaflet'
 import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
 import { getSIMAsync } from '@/api/sim'
@@ -137,7 +186,19 @@ export default {
     LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup
   },
   data() {
+    
+    let customicon = icon(Object.assign({},
+        Icon.Default.prototype.options,
+        {
+          iconUrl:'images/pin.svg',
+          iconRetinaUrl:'images/pin.svg',
+          shadowUrl:''
+        }
+      ))
+
     return {
+      
+      markerIcon: customicon,
       profileQuery: {
         id: undefined
       },
@@ -202,11 +263,9 @@ export default {
         maintainAspectRatio: false
       },
       dialogFormVisible: false,
-      mapLoading: true,
       zoom: 13,
       center: L.latLng(47.41322, -1.219482),
       map: '',
-
       tileProviders: [
         {
           name: 'Map',
@@ -231,13 +290,13 @@ export default {
           url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         },*/
       ],
+      locationData: [],
+      markerLatLng: [47.413220, -1.219482]
     }
   },
   created() {
     this.profileQuery.id = this.$route.params.id
     this.getProfile()
-  },
-  mounted() {    
   },
   computed: {
     lineStyles() {
@@ -278,8 +337,26 @@ export default {
     async searchTotalByPeriod(period) {
     
     },
+    doSomethingOnReady() {
+        this.map = this.$refs.map.mapObject
+        this.map.invalidateSize()
+    },
     showMap(){
+       this.locationData=[]
+      this.locationData.push(
+        {title: '1', count: '12'}, 
+        {title: '2', count: '989'},
+        {title: '2', count: '989'},
+        {title: '2', count: '989'},
+        {title: '2', count: '989'},
+        {title: '2', count: '989'},
+        {title: '2', count: '989'},
+        {title: '2', count: '989'})
       this.dialogFormVisible = true
+      setTimeout(()=>{
+ this.map.invalidateSize()
+      },500)
+     
     }
   }
 }
@@ -290,7 +367,9 @@ export default {
 <style >
 
   .map-container{
-    width: 100%;height: 300px;
+    overflow: hidden;
+    width: 100%;
+    height: 390px;
   }
   .w-100{
     width: 100%;
@@ -333,5 +412,24 @@ export default {
     -webkit-box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
     box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
   }
-  
+  .el-dialog{
+    background-color:#f2f5fb;
+  }
+  .el-dialog__title{
+    color: #606268;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .el-dialog__headerbtn .el-dialog__close {
+    color: #909399;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .location-table{
+    width: 100%;
+    background-color:#ffffff;
+    box-shadow: none;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
 </style>

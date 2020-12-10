@@ -30,8 +30,7 @@ import '@/utils/jquery.vmap/jqvmap.css';
 import '@/utils/jquery.vmap/jquery.vmap.js';
 import '@/utils/jquery.vmap/jquery.vmap.world.js';
 
-import VTooltip from 'v-tooltip'
-Vue.use(VTooltip)
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
