@@ -1,5 +1,5 @@
 <template>
-  <el-container class="">      
+  <el-container class="">
     <el-dialog title="View Map" :visible.sync="dialogFormVisible" width="70%" >
       <el-row :gutter="16">
         <el-col :xs="24" :sm="12">
@@ -10,7 +10,7 @@
               :center="center"
               style="height: 100%"
               @ready="doSomethingOnReady()"
-            > 
+            >
               <l-control-layers position="topright">
 
               </l-control-layers>
@@ -33,7 +33,7 @@
         <el-col :xs="24" :sm="12">
           <el-table
             :data="locationData"
-            fit            
+            fit
             :show-header="false"
             class="location-table"
           >
@@ -49,41 +49,41 @@
             </el-table-column>
           </el-table>
         </el-col>
-      </el-row>      
+      </el-row>
     </el-dialog>
     <el-main  class="no-padding">
       <div class="mixin-components-container">
-        <el-row style="margin: 30px">          
+        <el-row style="margin: 30px">
           <div>
             <panel-group
               :total="panelData"
               @change="searchTotalByPeriod"
             />
           </div>
-          <el-card class="box-card footer-border">              
+          <el-card class="box-card footer-border">
             <div>
               <el-form ref="dataForm"  label-position="top" label-width="70px">
                 <el-row :gutter="16">
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="IMSI" prop="imsi">
-                      <el-input v-model="temp.imsi" />                        
+                      <el-input v-model="temp.imsi" />
                     </el-form-item>
                   </el-col>
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="ICCID" prop="iccid">
-                      <el-input v-model="temp.iccid" />                            
+                      <el-input v-model="temp.iccid" />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row :gutter="16">
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="MSISDN" prop="msisdn">
-                      <el-input v-model="temp.msisdn" />                          
+                      <el-input v-model="temp.msisdn" />
                     </el-form-item>
                   </el-col>
                   <el-col :xs="24" :sm="12">
-                    <el-form-item label="IMEI" prop="imei">                     
-                      <el-input  />      
+                    <el-form-item label="IMEI" prop="imei">
+                      <el-input  />
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -125,14 +125,14 @@
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="Agent" prop="category">
                       <el-select class="filter-item w-100" placeholder="Please select">
-                        
+
                       </el-select>
                     </el-form-item>
                   </el-col>
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="Customer" prop="key">
                       <el-select class="filter-item w-100" placeholder="Please select">
-                        
+
                       </el-select>
                     </el-form-item>
                   </el-col>
@@ -140,22 +140,22 @@
               </el-form>
             </div>
             <div class="el-card__footer w-100" >
-              <el-button class="btn-primary-pos" type="primary">Save</el-button>                
+              <el-button class="btn-primary-pos" type="primary">Save</el-button>
             </div>
           </el-card>
-          <el-card class="box-card mt-30">     
+          <el-card class="box-card mt-30">
             <div class="card-flex">
               <div class="card-inline card-panel-left font-16">
                 <b>Data Details</b>
                 <p>Click on the button to open a popup with info.</p>
               </div>
               <div class="card-inline card-panel-right">
-                <el-button type="success" icon="el-icon-menu">Session Data</el-button> 
-                <el-button type="warning" icon="el-icon-mail">SMS Usage</el-button> 
-                <el-button type="primary" icon="el-icon-location" @click="showMap">View Map</el-button> 
+                <el-button type="success" icon="el-icon-menu">Session Data</el-button>
+                <el-button type="warning" icon="el-icon-mail">SMS Usage</el-button>
+                <el-button type="primary" icon="el-icon-location" @click="showMap">View Map</el-button>
               </div>
             </div>
-          </el-card>          
+          </el-card>
           <div class="chart-container line-chart-container mt-30">
             <line-chart
               :chart-data="lineCollection"
@@ -177,27 +177,42 @@ import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
 import { getSIMAsync } from '@/api/sim'
 
+// BUG https://github.com/Leaflet/Leaflet/issues/4968
+/*import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
+import iconUrl from 'leaflet/dist/images/marker-icon.png'
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
+L.Marker.prototype.options.icon = L.icon({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
+})*/
+
 export default {
   name: 'SIMProfile',
   components: {
     PanelGroup,
     LineChart,
-    
+
     LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup
   },
   data() {
-    
+
     let customicon = icon(Object.assign({},
         Icon.Default.prototype.options,
         {
-          iconUrl:'images/pin.svg',
-          iconRetinaUrl:'images/pin.svg',
+          iconUrl:'logo.png',
+          iconRetinaUrl:'logo.png',
           shadowUrl:''
         }
       ))
 
     return {
-      
+
       markerIcon: customicon,
       profileQuery: {
         id: undefined
@@ -206,7 +221,7 @@ export default {
         imsi: undefined,
         iccid: undefined,
         msisdn: undefined
-      },      
+      },
       businessUnitOptions: [
         { code: '1', name: 'World' }
       ],
@@ -240,7 +255,7 @@ export default {
         loaded: false
       },
       lineCollection: null,
-      lineOptions: {        
+      lineOptions: {
         scales: {
           yAxes: [
             {
@@ -309,12 +324,12 @@ export default {
   },
   methods: {
     async getProfile() {
-      const response = await getSIMAsync(this.profileQuery)    
+      const response = await getSIMAsync(this.profileQuery)
       this.temp = {
         imsi: response.data.info.imsi,
         iccid: response.data.info.iccid,
         msisdn: response.data.info.msisdn,
-      }  
+      }
       this.panelData = {
         totalDataUsage: 23,
         totalSMSUsage: 2,
@@ -327,7 +342,7 @@ export default {
         datasets: [
           {
             label: 'Data Usage',
-            backgroundColor: 'rgb(53, 165, 228)', 
+            backgroundColor: 'rgb(53, 165, 228)',
             data: [200, 230, 233, 190, 150, 210, 208, 201, 117]
           }
         ]}
@@ -335,7 +350,7 @@ export default {
       console.log(this.temp.imsi)
     },
     async searchTotalByPeriod(period) {
-    
+
     },
     doSomethingOnReady() {
         this.map = this.$refs.map.mapObject
@@ -344,7 +359,7 @@ export default {
     showMap(){
        this.locationData=[]
       this.locationData.push(
-        {title: '1', count: '12'}, 
+        {title: '1', count: '12'},
         {title: '2', count: '989'},
         {title: '2', count: '989'},
         {title: '2', count: '989'},
@@ -353,10 +368,7 @@ export default {
         {title: '2', count: '989'},
         {title: '2', count: '989'})
       this.dialogFormVisible = true
-      setTimeout(()=>{
- this.map.invalidateSize()
-      },500)
-     
+
     }
   }
 }
@@ -387,12 +399,12 @@ export default {
     color: #97a8be;
     line-height: 2em;
   }
-  .footer-border .el-card__body{    
+  .footer-border .el-card__body{
     border-bottom: 1px solid #ebeef5;
     margin-bottom: 100px;
     padding-bottom: 10px;
   }
-  .el-card__footer button{    
+  .el-card__footer button{
     float: right;
     margin-top: 38px;
   }

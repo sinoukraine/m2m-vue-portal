@@ -60,7 +60,10 @@ div:focus {
     height: 0;
   }
 }
-
+//fix for correct displaying of rows with row type flex
+.el-row--flex{
+  flex-wrap: wrap;
+}
 // main-container global css
 
 .page-fixed-height{
@@ -206,6 +209,12 @@ div:focus {
   height: 1px;
   background: $baseDividerColor;
 }
+.block{
+  background-color: #fff;
+  border-radius: $baseBorderRadius;
+  box-shadow: $baseBoxShadow;
+}
+
 
 .filter-container{
   padding: 0 $basePadding;

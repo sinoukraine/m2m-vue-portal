@@ -15,6 +15,9 @@ $navbarHeight: 75px;
 $baseMargin: 10px;
 $basePadding: 10px;
 
+$baseBorderRadius: 5px;
+$baseBoxShadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
+
 $baseButtonBorderRadius: 5px;
 $baseButtonBoxShadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
 $baseDividerColor: rgb(235, 238, 245);
@@ -43,6 +46,8 @@ $labelSize: 12px;
   baseMargin: $baseMargin;
   basePadding: $basePadding;
   baseDividerColor: $baseDividerColor;
+  baseBorderRadius: $baseBorderRadius;
+  baseBoxShadow: $baseBoxShadow;
 
   baseButtonBorderRadius: $baseButtonBorderRadius;
   baseButtonBoxShadow: $baseButtonBoxShadow;

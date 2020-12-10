@@ -24,7 +24,10 @@
   "TEST_END": "Test End",
   "TEST_PRODUCTIVE": "Test Productive",
   "ACTIONS": "Actions",
+  "IMEI": "IMEI",
 
+  "EDIT": "Edit",
+  "SAVE": "Save",
   "MINIMIZE_PANEL": "Minimize Panel",
   "SEARCH": "Search",
   "FINISH": "Finish"

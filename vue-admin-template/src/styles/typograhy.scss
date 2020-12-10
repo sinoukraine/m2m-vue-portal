@@ -42,6 +42,26 @@
   width: 100% !important;
 }
 
+.button-min-with-150{
+  min-width: 150px;
+}
+.margin{
+  margin: $baseMargin;
+}
+.margin-vertical{
+  margin-top: $baseMargin;
+  margin-bottom: $baseMargin;
+}
+.margin-horizontal{
+  margin-left: $baseMargin;
+  margin-right: $baseMargin;
+}
+.margin-top{
+  margin-top: $baseMargin;
+}
+.margin-bottom{
+  margin-bottom: $baseMargin;
+}
 .margin-x2{
   margin: calc(#{$baseMargin} * 2);
 }
@@ -52,6 +72,46 @@
 .margin-horizontal-x2{
   margin-left: calc(#{$baseMargin} * 2);
   margin-right: calc(#{$baseMargin} * 2);
+}
+.margin-top-x2{
+  margin-top: calc(#{$baseMargin} * 2);
+}
+.margin-bottom-x2{
+  margin-bottom: calc(#{$baseMargin} * 2);
+}
+.margin-x3{
+  margin: calc(#{$baseMargin} * 3);
+}
+.margin-vertical-x3{
+  margin-top: calc(#{$baseMargin} * 3);
+  margin-bottom: calc(#{$baseMargin} * 3);
+}
+.margin-horizontal-x3{
+  margin-left: calc(#{$baseMargin} * 3);
+  margin-right: calc(#{$baseMargin} * 3);
+}
+.margin-top-x3{
+  margin-top: calc(#{$baseMargin} * 3);
+}
+.margin-bottom-x3{
+  margin-bottom: calc(#{$baseMargin} * 3);
+}
+.margin-x4{
+  margin: calc(#{$baseMargin} * 4);
+}
+.margin-vertical-x4{
+  margin-top: calc(#{$baseMargin} * 4);
+  margin-bottom: calc(#{$baseMargin} * 4);
+}
+.margin-horizontal-x4{
+  margin-left: calc(#{$baseMargin} * 4);
+  margin-right: calc(#{$baseMargin} * 4);
+}
+.margin-top-x4{
+  margin-top: calc(#{$baseMargin} * 4);
+}
+.margin-bottom-x4{
+  margin-bottom: calc(#{$baseMargin} * 4);
 }
 .no-margin-bottom{
   margin-bottom: 0!important;

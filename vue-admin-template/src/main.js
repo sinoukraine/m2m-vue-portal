@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
-
+import 'leaflet/dist/leaflet.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/en' // lang i18n
@@ -22,8 +22,10 @@ Vue.use(ToastPlugin);
 Vue.use(ButtonPlugin);
 
 import moment from 'moment'
-
 Vue.prototype.moment = moment
+
+import simStateColorFilter from '@/filters/simStateColor.filter'
+import simRagColorFilter from '@/filters/simRagColor.filter'
 
 import '@/utils/jquery-global.js';
 import '@/utils/jquery.vmap/jqvmap.css';
@@ -48,6 +50,8 @@ if (process.env.NODE_ENV === 'production') {
 Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
 // Vue.use(ElementUI)
+Vue.filter('simStateColor', simStateColorFilter)
+Vue.filter('simRagColor', simRagColorFilter)
 
 Vue.config.productionTip = false
 
