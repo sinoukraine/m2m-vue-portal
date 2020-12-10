@@ -36,10 +36,10 @@ export default {
   watch: {
     pie: function(val) {
       const arr = []
-      val.forEach(element => {
+      val.forEach(({value, name}) => {
         arr.push({
-          value: element.JTOV_SIM_NUMBERS,
-          name: element.DEVICE_STATUS_CODE
+          value,
+          name
         })
       })
       this.initChart(arr)

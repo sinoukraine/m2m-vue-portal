@@ -76,7 +76,7 @@
             <div v-else>
               <count-to :start-val="0" :end-val="+total.totalDataUsage" :duration="2600" class="card-panel-num" />
               <span class="card-panel-num">
-                KB
+                MB
               </span>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default {
     handlePeriod(val){
       this.loading = true
       this.$emit('change', val)
-      this.$store.dispatch('dashboard/setPeriod', val)
+      //this.$store.dispatch('dashboard/setPeriod', val)
     }
   },
   /*created() {

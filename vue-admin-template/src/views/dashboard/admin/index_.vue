@@ -34,7 +34,9 @@
             </el-table-column>
            <el-table-column label="IMSI" align="center" width="180px">
               <template slot-scope="{row}">
-                <span>{{ row.imsi }}</span>
+                <span>
+                {{ row.imsi }}
+                </span>
               </template>
             </el-table-column>
             <el-table-column label="Customer" sortable="custom" width="180px" align="center">
@@ -57,7 +59,33 @@
     </el-row>
 
     <el-row :gutter="40" >
-      <el-col :xs="24" :sm="24" :lg="12" style="margin-bottom:32px">
+      <el-col :xs="24" :sm="24" :lg="12" style="">
+        <div class="chart-wrapper">
+        <div class="w-100 d-flex" >
+            <div class="card-inline card-panel-left font-16 bold color-grey" style="margin: 0px;margin-left: -20px;">
+            CSP
+            </div>
+            <div class="card-inline card-panel-right d-flex">
+            </div>
+        </div>
+        
+          <pie-chart :pie="cspData"/>
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="24" :lg="12">
+        <div class="chart-wrapper">
+          <div class="w-100 d-flex">
+            <div class="card-inline card-panel-left font-16 bold color-grey" style="margin: 0px;margin-left: -20px;">
+              SIM Inventory
+            </div>
+          </div>
+          <pie-chart :pie="stateData"/>
+        </div>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="40">
+      <el-col :xs="24" :sm="24" :lg="24" style="">
         <div key="key-vmap" class="card col-100 large-30 no-margin margin-bottom" style="border: none;background-color: #ffffff;border-radius: 5px;">
             <div class="w-100 d-flex" style="padding: 37px 30px">
                 <div class="card-inline card-panel-left font-16 bold color-grey">
@@ -88,28 +116,8 @@
                 </div>   
             </div>
         </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="12">
-        <div class="chart-wrapper">
-          <div class="w-100 d-flex">
-            <div class="card-inline card-panel-left font-16 bold color-grey" style="margin: 0px;margin-left: -20px;">
-              SIM Inventory
-            </div>
-          </div>
-          <pie-chart :pie="pieData"/>
-        </div>
-      </el-col>
-    </el-row>
-
-    <el-row :gutter="40">
-      <el-col :xs="24" :sm="12" :lg="12" style="margin-bottom:30px;">
-        <div class="w-100 d-flex" style="padding: 30px;background-color: #ffffff;border-top-left-radius: 5px;border-top-right-radius: 5px;">
-            <div class="card-inline card-panel-left font-16 bold color-grey">
-            CSP
-            </div>
-            <div class="card-inline card-panel-right d-flex">
-            </div>
-        </div>
+        
+        <!--
         <el-table
             :key="tableKey"
             v-loading="listLoading"
@@ -129,7 +137,7 @@
                 <span>{{ row.JTOV_SIM_NUMBERS }}</span>
               </template>
             </el-table-column>
-          </el-table>
+          </el-table>-->
       </el-col>
     </el-row>
   </div>
@@ -140,7 +148,7 @@ import PanelGroup from './components/PanelGroup'
 import PieChart from './components/PieChart'
 import LineChart from './components/LineChart.js'
 import moment from 'moment'
-import { getDemo, getCDRSList } from '@/api/sim'
+import { getDemoOwerview, getDemoTopUsage, getCDRSList } from '@/api/sim'
 
 export default {
   name: 'Dashboard',
@@ -162,7 +170,8 @@ export default {
         listLoading: true,
         list: [],        
         switchTablePeriod: 'Week',
-        pieData: []
+        stateData: [],
+        cspData: []        
     }
   },
   methods: {
@@ -171,11 +180,14 @@ export default {
         const colors = []
         let cc 
 
-        await getDemo().then(response => {
+        await getDemoTopUsage().then(response => {
+          console.log('r',response)
+        })
+        await getDemoOwerview().then(response => {
             switch (period){
                 case 'daily':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_DAY/1024,
+                        totalDataUsage: response.data.Table3[0].JTOV_DATA_DAY/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_DAY,
                         totalDuration: (3600*response.data.Table3[0].JTOV_DATA_DAY)/(response.data.Table3[0].JTOV_DURATION_DAY*1024),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_DAY,
@@ -184,7 +196,7 @@ export default {
                 break
                 case 'weekly':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_WEEK/1024,
+                        totalDataUsage: response.data.Table3[0].JTOV_DATA_WEEK/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_WEEK,
                         totalDuration: (3600*response.data.Table3[0].JTOV_DATA_WEEK)/(response.data.Table3[0].JTOV_DURATION_WEEK*1024),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_WEEK,
@@ -193,7 +205,7 @@ export default {
                 break
                 case 'monthly':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_MONTH/1024,
+                        totalDataUsage: response.data.Table3[0].JTOV_DATA_MONTH/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_MONTH,
                         totalDuration: (3600*response.data.Table3[0].JTOV_DATA_MONTH)/(response.data.Table3[0].JTOV_DURATION_MONTH*1024),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_MONTH,
@@ -202,7 +214,7 @@ export default {
                 break
                 case 'yerly':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_YEAR/1024,
+                        totalDataUsage: response.data.Table3[0].JTOV_DATA_YEAR/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_YEAR,
                         totalDuration: (3600*response.data.Table3[0].JTOV_DATA_YEAR)/(response.data.Table3[0].JTOV_DURATION_YEAR*1024),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_YEAR,
@@ -210,9 +222,10 @@ export default {
                     }
                 break
             }            
-            
-            this.pieData = response.data.Table1
-            this.cspData = response.data.Table2
+            console.log('arrr',response.data.Table2)
+            this.stateData = response.data.Table1.map(element => {return {name: element.DEVICE_STATUS_CODE,value: element.JTOV_SIM_NUMBERS}})
+            this.cspData = response.data.Table2.map(element => {return {name: element.DEVICE_OFFER,value: element.JTOV_SIM_NUMBERS}})
+         
 
             if (this.mapLoading){
                 this.mapLoading = false
@@ -429,8 +442,16 @@ export default {
     border-bottom-right-radius: 5px;
     -webkit-box-shadow: none;
     box-shadow: none;
-  }
+    font-size: 12px;
+}
 
+.el-table td, .el-table th {
+    padding: 7px 0;
+}
+
+.cell a{
+  color: #409EFF;
+}
   .font-12{
     font-size: 12px;
   }

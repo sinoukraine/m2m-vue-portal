@@ -7,7 +7,8 @@ import { getToken } from '@/utils/auth' // get token from cookie
 
 const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
 const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
-const DEMO = 'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
+const DEMO_OWERVIEW = 'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
+const DEMO_TOP_USAGE = 'https://m2mdata.co/JT/TopUsage?type=sms&time=today'
 const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
 const SIM_LIST = API_DOMIAN + 'sims'
 const USER_LIST = API_DOMIAN + 'people'
@@ -31,9 +32,9 @@ function getRequestOptions(options) {
   return axiosRequestOptions
 }
 
-export async function getDemo() {  
+export async function getDemoOwerview() {  
    return new Promise((resolve, reject) => {
-     axios.get(DEMO).then(
+     axios.get(DEMO_OWERVIEW).then(
        (result) => {
          resolve(result)
        }).catch(e => {
@@ -41,6 +42,17 @@ export async function getDemo() {
      })
    })
  }
+
+ export async function getDemoTopUsage() {  
+  return new Promise((resolve, reject) => {
+    axios.get(DEMO_TOP_USAGE).then(
+      (result) => {
+        resolve(result)
+      }).catch(e => {
+      reject(e)
+    })
+  })
+}
 
 export async function getUserList(query) {
   const options = {
@@ -182,8 +194,17 @@ export async function getSIMListAsync(query) {
   if (query.limit !== undefined) {
     addLimit = '&limit=' + query.limit
   }
-  if (query.sample !== undefined) {
+  if (query.sample !== undefined && query.sample !== '') {
     addSample = '&sample=' + query.sample
+  }else
+  if (query.imsi !== undefined && query.imsi !== '') {
+    addSample = '&sample=' + query.imsi
+  }else
+  if (query.iccid !== undefined && query.iccid !== '') {
+    addSample = '&sample=' + query.iccid
+  }else
+  if (query.msisdn !== undefined && query.msisdn !== '') {
+    addSample = '&sample=' + query.msisd
   }
   if (query.page !== undefined) {
     addPage = '&page=' + query.page

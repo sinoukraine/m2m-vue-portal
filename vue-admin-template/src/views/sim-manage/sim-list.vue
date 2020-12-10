@@ -1,95 +1,7 @@
 <template>
-  <el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">    
+  <el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
     <el-container class="page-fixed-height padding-vertical-x2">
-      <el-main v-if="isProfile" class="no-padding">
-        <div class="mixin-components-container" style="padding: 0 20px">
-          <el-row>
-            <el-card class="box-card">              
-              <div style="margin-bottom:50px;">
-                <el-form ref="dataForm"  label-position="top" label-width="70px">
-                  <el-row :gutter="16">
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="IMSI" prop="category">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-input  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="ICCID" prop="key">
-                        <el-input  />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="16">
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="MSISDN" prop="category">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-input  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="IMEI" prop="key">
-                        <el-input  />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="16">
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="Bussiness Unit" prop="category">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-option  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="CSP" prop="key">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-option  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="16">
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="State" prop="category">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-option  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="Solution" prop="key">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-option  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="16">
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="Agent" prop="category">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-option  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item label="Customer" prop="key">
-                        <el-select class="filter-item w-100" placeholder="Please select">
-                          <el-option  />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-form>
-              </div>
-            </el-card>
-          </el-row>
-        </div>
-      </el-main>
-      <el-main  v-else class="no-padding">
+      <el-main  class="no-padding">
         <div class="filter-container ">
           <div class="display-flex justify-content-between">
             <div class="buttons-row">
@@ -126,31 +38,34 @@
             :key="tableKey"
             v-loading="listLoading"
             :data="list"
-
+            border
             fit
             @sort-change="sortChange"
             @selection-change="handleSelectionChange"
           >
             <el-table-column
+              align="center"
               type="selection"
-              width="55">
+              width="40">
             </el-table-column>
-            <el-table-column :label="$t('IMSI')"  fixed="left" sortable="custom" :class-name="getSortClass('imsi')" align="left" min-width="180px">
+            <el-table-column :label="$t('IMSI')"  fixed="left" sortable="custom" :class-name="getSortClass('imsi')" align="left" min-width="140px">
               <template slot-scope="{row}">
-                <span>{{ row.imsi }}</span>
+                <router-link class="link" :to="{ path: `/sim-list/${row.id}` }">
+                  {{ row.imsi }}
+                </router-link>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxICCID" :label="$t('ICCID')" sortable="custom" :class-name="getSortClass('iccid')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxICCID" :label="$t('ICCID')" sortable="custom" :class-name="getSortClass('iccid')" align="left" min-width="160px">
               <template slot-scope="{row}">
                 <span>{{ row.iccid }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxMSSDN" :label="$t('MSISDN')" sortable="custom" :class-name="getSortClass('msisdn')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxMSSDN" :label="$t('MSISDN')" sortable="custom" :class-name="getSortClass('msisdn')" align="left" min-width="160px">
               <template slot-scope="{row}">
                 <span>{{ row.msisdn }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxBusinessUnit" :label="$t('BUSINESS_UNIT')" sortable="custom" :class-name="getSortClass('businessUnit')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxBusinessUnit" :label="$t('BUSINESS_UNIT')" sortable="custom" :class-name="getSortClass('businessUnit')" align="left" min-width="140px">
               <template slot-scope="{row}">
                 <span>{{ row.businessUnit }}</span>
               </template>
@@ -160,47 +75,47 @@
                 <span>{{ row.csp }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxState" :label="$t('STATE')" sortable="custom" :class-name="getSortClass('state')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxState" :label="$t('STATE')" sortable="custom" :class-name="getSortClass('state')" align="left" min-width="80px">
               <template slot-scope="{row}">
                 <span>{{ row.state }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxRAG" :label="$t('RAG')" sortable="custom" :class-name="getSortClass('rag')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxRAG" :label="$t('RAG')" align="center" min-width="60px">
               <template slot-scope="{row}">
                 <span :style="'font-size:2em;color:'+row.rag">&#x025FC;</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxSolution" :label="$t('SOLUTION')" sortable="custom" :class-name="getSortClass('solution')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxSolution" :label="$t('SOLUTION')" sortable="custom" :class-name="getSortClass('solution')" align="left" min-width="100px">
               <template slot-scope="{row}">
                 <span>{{ row.solution }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxAgent" :label="$t('AGENT')" sortable="custom" :class-name="getSortClass('agent')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxAgent" :label="$t('AGENT')" sortable="custom" :class-name="getSortClass('agent')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.agent }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxCustomer" :label="$t('CUSTOMER')" sortable="custom" :class-name="getSortClass('customer')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxCustomer" :label="$t('CUSTOMER')" sortable="custom" :class-name="getSortClass('customer')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxDataSession" :label="$t('DATA_SESSION')" sortable="custom" :class-name="getSortClass('dataSession')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxDataSession" :label="$t('DATA_SESSION')" sortable="custom" :class-name="getSortClass('dataSession')" align="left" min-width="130px">
               <template slot-scope="{row}">
                 <span>{{ row.dataSession }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')" sortable="custom" :class-name="getSortClass('dataUsage')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')" sortable="custom" :class-name="getSortClass('dataUsage')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.dataUsage }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')" sortable="custom" :class-name="getSortClass('smsUsage')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')" sortable="custom" :class-name="getSortClass('smsUsage')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.smsUsage }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxZeroSession" :label="$t('ZERO_SESSION')" sortable="custom" :class-name="getSortClass('zeroSession')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxZeroSession" :label="$t('ZERO_SESSION')" sortable="custom" :class-name="getSortClass('zeroSession')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.zeroSession }}</span>
               </template>
@@ -224,7 +139,7 @@
         
       </el-main>
     </el-container>
-    <el-aside class="panel panel-right">
+    <el-aside class="panel panel-right"> 
       <div class="panel-open display-flex justify-content-between align-items-center" @click="isRightPanelVisible = !isRightPanelVisible">
         <i class="el-icon-arrow-left" />
       </div>
@@ -255,13 +170,13 @@
             <el-row :gutter="16" style="">
               <el-col :xs="100">
                 <el-form-item :label="$t('IMSI')" prop="title" class="no-margin-bottom">
-                  <el-input placeholder="" class="filter-item" />
+                  <el-input v-model="listQuery.imsi" placeholder="" class="filter-item" />
                 </el-form-item>
                 <el-form-item :label="$t('MSISDN')" prop="title" class="no-margin-bottom">
-                  <el-input placeholder="" class="filter-item" />
+                  <el-input v-model="listQuery.msisdn" placeholder="" class="filter-item" />
                 </el-form-item>
                 <el-form-item :label="$t('ICCID')" prop="title" class="no-margin-bottom">
-                  <el-input placeholder="" class="filter-item" />
+                  <el-input v-model="listQuery.iccid" placeholder="" class="filter-item" />
                 </el-form-item>
                 <el-form-item :label="$t('SOLUTION')" prop="title" class="no-margin-bottom">
                   <el-select v-model="solutionsArr[0]" :placeholder="$t('SOLUTION')" class="">
@@ -274,7 +189,7 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item :label="$t('CUSTOMER')" prop="title" class="">
-                  <el-select v-model="customersArr[0]" :placeholder="$t('CUSTOMER')" class="">
+                  <el-select v-model="selectedCustomer" :placeholder="$t('CUSTOMER')">
                     <el-option v-for="item in customersArr" :key="item.code" :label="item.name" :value="item.code" />
                   </el-select>
                 </el-form-item>
@@ -328,7 +243,6 @@
       </div>
     </el-aside>
   </el-container>
-
 </template>
 
 <script>
@@ -336,7 +250,7 @@ import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
-import { getSIMListAsync, getSIMAsync } from '@/api/sim'
+import { getSIMListAsync, getSIMAsync, getCustomerList } from '@/api/sim'
 import moment from 'moment'
 
 export default {
@@ -359,7 +273,6 @@ export default {
       checkboxDataUsage: true,
       checkboxSMSUsage: true,
       checkboxZeroSession: false,
-      isProfile: false,
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       solutionsArr: [
@@ -371,6 +284,7 @@ export default {
       customersArr: [
         { code: '1', name: 'Customer' }
       ],
+      selectedCustomer: '0',
       tableKey: 0,
       total: 0,
       listLoading: true,
@@ -381,20 +295,20 @@ export default {
         date1: '2020-10-29',
         date2: '2020-11-09',
         customer: undefined,
-        sort: '+code'
+        sort: '+code',
+        sample: '',
+        imsi: '',
+        iccid: '',
+        msisdn: ''
       },
       multipleSelection: [],
     }
   },
   created() {
-    this.isProfile = this.$route.params.id ? true : false
-    if(this.isProfile){
-      this.isRightPanelVisible = false
-    }else{
-      this.getList()
-    }
+    this.getList()
+    
   },
-/*  mounted(){
+  /*mounted(){
 
   },*/
   methods: {
@@ -452,6 +366,7 @@ export default {
         }
         
         arr.push({
+          id: element._id,
           imsi: element.info.imsi,
           iccid: element.info.iccid,
           msisdn: element.info.msisdn,
@@ -469,11 +384,22 @@ export default {
         })
       })
       
-      this.total = response.data.total     
+      this.total = response.data.total   
       setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000) 
-      this.list = arr
+
+      this.$nextTick(() => {
+        this.list = arr
+      })
+
+      getCustomerList().then(response => {
+        this.customersArr.length = 0
+        this.customersArr.push({ code: '0', name: 'All' })
+        response.data.forEach(element => {
+          this.customersArr.push({ code: element._id, name: element.info.name })
+        })
+      })
     },
 
     sortChange(data) {
@@ -502,7 +428,19 @@ export default {
     },
     handleFilter() {
       console.log('submitted')
+      this.listQuery.page = 1
+      this.listQuery.customer = this.selectedCustomer
+      this.getList()
     }
   }
 }
 </script>
+
+<style>
+.el-table {
+    font-size: 12px;
+}
+.cell a{
+  color: #409EFF;
+}
+</style>

@@ -35,7 +35,7 @@ export default {
       const child = childEl[0]
       if(child){
         matched.pop()
-        matched = matched.concat([{ path: '/', meta: { title: this.$route.params.id }}])
+        matched = matched.concat([{ path: '/sim-manage/sim-list', meta: { title: 'SIM List' }}], [{ path: '/', meta: { title: this.$route.params.id }}])
       }
 
       this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
