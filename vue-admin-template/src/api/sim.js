@@ -7,9 +7,11 @@ import { getToken } from '@/utils/auth' // get token from cookie
 
 const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
 const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
+const API_NOMAD = 'https://m2mdata03.sinopacific.com.ua/nomad/'
 const DEMO_OWERVIEW = 'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
 const DEMO_TOP_USAGE = 'https://m2mdata.co/JT/TopUsage?type=sms&time=today'
 const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
+const NOMAD_SIMS = API_NOMAD + 'sims'
 const SIM_LIST = API_DOMIAN + 'sims'
 const USER_LIST = API_DOMIAN + 'people'
 const SIM_STATES = API_DOMIAN + 'sims/states'
@@ -97,6 +99,23 @@ export async function getSIMStates(query) {
       reject(e)
     })
   })
+}
+
+export async function getSMSHistoryAsync(query) {
+  const findBy = query.imsi
+  const options = {
+    url: NOMAD_SIMS + '/' + findBy + '/sms',
+    method: 'get'
+  }
+  try {
+    const response = await axios.request(getRequestOptions(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    this.$alert(message, title, {type: 'error'})
+    throw e
+  }
 }
 
 export async function forceReconnectAsync(query) {

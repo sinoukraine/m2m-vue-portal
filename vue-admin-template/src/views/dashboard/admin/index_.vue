@@ -173,7 +173,7 @@ export default {
   },
   data() {
     return {
-        tablePeriod: 'Week',
+        tablePeriod: 'Last day',
         tableData: 'data',
         boxData: {
           day: 0,
@@ -190,7 +190,7 @@ export default {
         mapLoading: true,
         listLoading: true,
         list: [],        
-        switchTablePeriod: 'Week',
+        switchTablePeriod: 'Last day',
         stateData: [],
         cspData: []        
     }

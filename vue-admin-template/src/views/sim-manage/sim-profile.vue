@@ -4,7 +4,7 @@
         :can-cancel="true" 
         :on-cancel="onCancel"
         :is-full-page="fullPage"></loading>
-        <el-dialog title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
+    <el-dialog title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
       <el-table
         :data="sessionList"
         fit            
@@ -51,9 +51,49 @@
             <span></span>
           </template>
         </el-table-column>
-      </el-table>    
-   
+      </el-table>       
     </el-dialog>
+
+    <el-dialog title="SMS Usage Data" :visible.sync="smsFormVisible" width="100%" >
+      <el-table
+        :data="smsUsageList"
+        fit            
+        border
+        class="sms-table"
+      >
+        <el-table-column label="Date" align="center" min-width="100px" >
+          <template slot-scope="{row}">
+            <span>{{row.insertedDate.slice(0,19).replace('T', ' ')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Direction" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.direction}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Sender" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.from}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Message" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.message}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Status" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.status}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Reference" align="center">
+          <template >
+            <span></span>
+          </template>
+        </el-table-column>
+      </el-table>       
+    </el-dialog>
+
     <el-dialog title="View Map" :visible.sync="mapFormVisible" width="70%" >
       <el-row :gutter="16">
         <el-col :xs="24" :sm="12" class="lg-pr-0">
@@ -206,19 +246,19 @@
               </el-form>
             </div>
             <div class="el-card__footer w-100" >
-              <el-button class="btn-primary-pos" type="primary">Save</el-button>
+              <el-button class="blue-btn" type="primary">Save</el-button>
             </div>
           </el-card>
           <el-card class="box-card mt-30">
-            <div class="card-flex">
+            <div class="lg-card-flex">
               <div class="card-inline card-panel-left font-16">
-                <b>Data Details</b>
-                <p>Click on the button to open a popup with info.</p>
+                <div class=" font-16 bold color-grey">Data Details</div>
+                <p class=" font-14 color-grey">Click on the button to open a popup with info.</p>
               </div>
               <div class="card-inline card-panel-right">
-                <el-button type="success" icon="el-icon-menu" @click="showSessions">Session Data</el-button> 
-                <el-button type="warning" icon="el-icon-edit">SMS Usage</el-button>
-                <el-button type="primary" icon="el-icon-location" @click="showMap">View Map</el-button>
+                <el-button type="primary" class="green-btn" @click="showSessions"><item :icon="'csp'"/> Session Data</el-button> 
+                <el-button type="primary" class="orange-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS Usage</el-button>
+                <el-button type="primary" class="blue-btn" @click="showLocation"><item :icon="'map-white'"/> View Map</el-button>
               </div>
             </div>
           </el-card>
@@ -239,18 +279,18 @@
 import L from 'leaflet'
 import { LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup } from 'vue2-leaflet'
 import { latLng, Icon, icon } from 'leaflet'
-// Import component
-    import Loading from 'vue-loading-overlay';
-    // Import stylesheet
-    import 'vue-loading-overlay/dist/vue-loading.css';
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 import moment from 'moment'
 import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
-import { getSIMAsync, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
+import Item from '@/layout/components/Sidebar/Item'
+import { getSIMAsync, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync, getSMSHistoryAsync } from '@/api/sim'
 
 export default {
   name: 'SIMProfile',
   components: {
+    Item,
     Loading,
     PanelGroup,
     LineChart,
@@ -261,8 +301,8 @@ export default {
     let customicon = icon(Object.assign({},
         Icon.Default.prototype.options,
         {
-          iconUrl:'marker.svg',
-          iconRetinaUrl:'marker.svg',
+          iconUrl:'map-blue.svg',
+          iconRetinaUrl:'map-blue.svg',
           shadowUrl:''
         }
       ))
@@ -275,6 +315,8 @@ export default {
         activity: true
       },
       cdrsQuery: {
+      },
+      smsQuery: {
       },
       temp: {
         imsi: undefined,
@@ -338,6 +380,7 @@ export default {
       },
       mapFormVisible: false,      
       sessionFormVisible: false,
+      smsFormVisible: false,
       zoom: 13,
       center: L.latLng(0, 0),
       map: '',
@@ -368,7 +411,8 @@ export default {
       markerIcon: customicon,
       locationList: [],
       markerLatLng: [0, 0],//47.413220, -1.219482
-      sessionList: []
+      sessionList: [],
+      smsUsageList: []
     }
   },
   created() {
@@ -394,6 +438,9 @@ export default {
   methods: {
     async getProfile() {
       const response = await getSIMAsync(this.simQuery)
+      this.smsQuery = {
+        imsi: response.data.info.imsi,
+      }
       this.temp = {
         imsi: response.data.info.imsi,
         iccid: response.data.info.iccid,
@@ -420,7 +467,7 @@ export default {
         {title: 'Cell', value: ''},
         {title: 'Cell Range', value: ''},
         {title: 'Current Session Date', value: endTime.slice(0,19).replace('T', ' ')},
-        {title: 'Current Usage', value: response.data.extra.activity.totals.totalDataUsage}
+        {title: 'Current Usage', value: response.data.extra.activity?.totals?.totalDataUsage}
       )
       
       const response_1 = await getCDRSAsync(this.cdrsQuery)      
@@ -428,7 +475,6 @@ export default {
       response_1.data.forEach(element => {
           usageLabels.push(element.date.slice(0, 10))          
           usageData.push(element.totals?.data.originalUnits/1048576)
-        console.log(element.totals)
       })
       this.lineCollection = {
         labels: usageLabels,
@@ -447,6 +493,15 @@ export default {
       this.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
       this.mapFormVisible = false
     },
+    async showSMSUsage(){
+      this.isLoading = true
+      const response = await getSMSHistoryAsync(this.smsQuery)
+      this.smsUsageList = response.data
+     setTimeout(() => {
+        this.smsFormVisible = true
+        this.isLoading = false
+      },5000)
+    },
     showSessions(){
       this.isLoading = true
       setTimeout(() => {
@@ -458,7 +513,7 @@ export default {
         this.map = this.$refs.map.mapObject
         this.map.invalidateSize()
     },
-    showMap(){
+    showLocation(){
       this.isLoading = true
       //country by coords
       this.locationList.length = 10
@@ -501,6 +556,15 @@ export default {
 
 
 <style >
+  .bold {
+    font-weight: 600;
+  }
+  .font-14{
+    font-size: 14px;
+  }
+  .color-grey{
+    color: #606266;
+  }
 
   .map-container{
     overflow: hidden;
@@ -538,15 +602,7 @@ export default {
     float: right;
     margin-top: 38px;
   }
-  .card-flex{
-    display: flex;
-    -webkit-box-pack: justify;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-  }
+  
   .chart-container{
     background:#fff;
     padding: 30px;
@@ -554,6 +610,7 @@ export default {
     -webkit-box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
     box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
   }
+  /*map*/
   .el-dialog{
     background-color:#f2f5fb;
   }
@@ -589,11 +646,38 @@ export default {
   .leaflet-control-zoom, .leaflet-control-attribution{
     display: none;
   }
+  /*buttons*/
   .dark-btn{
+    border-color: #304257;
     background-color: #304257;
   }
   .dark-btn:hover,.dark-btn:active,.dark-btn:focus{
+    border-color: #35475c;
     background-color: #35475c;
+  }
+  .green-btn{
+    border-color: #34bfa3;
+    background-color: #34bfa3;
+  }
+  .green-btn:hover,.green-btn:active,.green-btn:focus{
+    border-color: #3ec8ac;
+    background-color: #3ec8ac;
+  }
+  .blue-btn{
+    border-color: #28a5e0;
+    background-color: #28a5e0;
+  }
+  .blue-btn:hover,.blue-btn:active,.blue-btn:focus{
+    border-color: #32aee8;
+    background-color: #32aee8;
+  }
+  .orange-btn{
+    border-color: #ffb880;
+    background-color: #ffb880;
+  }
+  .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
+    border-color: #ffc496;
+    background-color: #ffc496;
   }
   @media (min-width: 768px){
     .lg-pr-0{
@@ -601,6 +685,15 @@ export default {
     }
     .lg-pl-0{
       padding-left: 0 !important;
+    }
+    .lg-card-flex{
+      display: flex;
+      -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
     }
   }
 </style>

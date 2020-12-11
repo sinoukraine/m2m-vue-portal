@@ -2,6 +2,7 @@
   "ACTIVATION": "Activation",
   "STATE": "State",
   "MOVE_SIM": "Move SIM",
+  "MAP": "Map",
   "CSP": "CSP",
   "AGENT": "Agent",
   "SOLUTION": "Solution",

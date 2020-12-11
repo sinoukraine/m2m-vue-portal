@@ -1,20 +1,90 @@
 <template>
   <el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+    <loading :active.sync="isLoading" 
+        :can-cancel="true" 
+        :is-full-page="fullPage">
+    </loading><!--
+        :on-cancel="onCancel"-->
+
+    <el-dialog title="View Map" :visible.sync="mapFormVisible" width="70%" >
+      <el-row :gutter="16">
+        <el-col :xs="24" :sm="12" class="lg-pr-0">
+          <div class="map-container">
+            <l-map
+              ref="map"
+              :zoom="zoom"
+              :center="center"
+              style="height: 100%"
+              @ready="doSomethingOnReady()"
+            >
+              <l-tile-layer
+                v-for="tileProvider in tileProviders"
+                :key="tileProvider.name"
+                :name="tileProvider.name"
+                :visible="tileProvider.visible"
+                :url="tileProvider.url"
+                :subdomains="tileProvider.subdomains"
+                layer-type="base"/>
+              <l-marker
+                :lat-lng="markerLatLng"
+                :icon="markerIcon"
+              >
+              </l-marker>
+              <!--<l-circle 
+                 :color="'rgb(249,104,104)'"
+                  :fill-color="'rgb(249,104,104)'"
+                  :lat-lng="markerLatLng" 
+                  :radius="'10'" >
+                </l-circle>-->
+            </l-map>
+          </div>
+        </el-col>
+        <el-col :xs="24" :sm="12" class="lg-pl-0">
+          <el-table
+            :data="locationList"
+            fit
+            :show-header="false"
+            class="location-table"
+          >
+           <el-table-column label="Device Offer" align="left" >
+              <template slot-scope="{row}">
+                <span>{{row.title}}</span>
+              </template>
+            </el-table-column>
+           <el-table-column label="SIM Numbers" align="right">
+              <template slot-scope="{row}">
+                <span>{{row.value}}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+      </el-row>
+      <el-row>
+        <div class="card-flex">
+          <div class="card-inline card-panel-left">
+          </div>
+          <div class="card-inline card-panel-right">
+            <el-button type="info" class="dark-btn mt-25" @click="forceReconnect">Force reconnect</el-button>
+          </div>
+        </div>
+      </el-row>
+    </el-dialog>
+
     <el-container class="page-fixed-height padding-vertical-x2">
       <el-main  class="no-padding">
         <div class="filter-container ">
           <div class="display-flex justify-content-between">
             <div class="buttons-row">
-              <el-button v-waves class="button-custom" icon="el-icon-switch-button">{{ $t('ACTIVATION') }}</el-button>
-              <el-button v-waves class="button-custom" icon="el-icon-set-up">{{ $t('STATE') }}</el-button>
-              <el-button v-waves class="button-custom" icon="el-icon-rank">{{ $t('MOVE_SIM') }}</el-button>
-              <el-button v-waves class="button-custom" icon="el-icon-collection-tag">{{ $t('CSP') }}</el-button>
-              <el-button v-waves class="button-custom" icon="el-icon-user">{{ $t('AGENT') }}</el-button>
-              <el-button v-waves class="button-custom" icon="el-icon-link">{{ $t('SOLUTION') }}</el-button>
+              <el-button v-waves class="button-custom"><item :icon="'activation'"/> {{ $t('ACTIVATION') }}</el-button>
+              <el-button v-waves class="button-custom"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
+              <el-button v-waves class="button-custom"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
+              <el-button v-waves class="button-custom"><item :icon="'csp-blue'"/> {{ $t('CSP') }}</el-button>
+              <el-button v-waves class="button-custom"><item :icon="'profile-blue'"/> {{ $t('AGENT') }}</el-button>
+              <el-button v-waves class="button-custom"><item :icon="'solution-blue'"/> {{ $t('SOLUTION') }}</el-button>
             </div>
             <div class="buttons-row white-space-nowrap">
-              <el-button v-waves class="button-custom" type="primary" icon="el-icon-refresh-right" />
-              <el-button v-waves class="button-custom" type="primary" icon="el-icon-download" />
+              <el-button v-waves class="button-custom blue-btn" type="primary"><item :icon="'update-white'"/></el-button>
+              <el-button v-waves class="button-custom blue-btn" type="primary"><item :icon="'save-white'"/></el-button>
             </div>
           </div>
           <div class="buttons-row">
@@ -48,81 +118,86 @@
               type="selection"
               width="40">
             </el-table-column>
-            <el-table-column :label="$t('IMSI')"  fixed="left" sortable="custom" :class-name="getSortClass('imsi')" align="left" min-width="140px">
+            <el-table-column :label="$t('MAP')" align="center" width="60px">
+              <template slot-scope="{row}">
+                <img src="map-blue.svg" class="map-table-icon" @click="showLocation(row)"/>              
+              </template>
+            </el-table-column>
+            <el-table-column :label="$t('IMSI')"   :class-name="getSortClass('imsi')" align="left" min-width="140px">
               <template slot-scope="{row}">
                 <router-link class="link" :to="{ path: `/sim-list/${row.id}` }">
                   {{ row.imsi }}
                 </router-link>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxICCID" :label="$t('ICCID')" sortable="custom" :class-name="getSortClass('iccid')" align="left" min-width="160px">
+            <el-table-column v-if="checkboxICCID" :label="$t('ICCID')"  :class-name="getSortClass('iccid')" align="left" min-width="160px">
               <template slot-scope="{row}">
                 <span>{{ row.iccid }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxMSSDN" :label="$t('MSISDN')" sortable="custom" :class-name="getSortClass('msisdn')" align="left" min-width="160px">
+            <el-table-column v-if="checkboxMSSDN" :label="$t('MSISDN')"  :class-name="getSortClass('msisdn')" align="left" min-width="160px">
               <template slot-scope="{row}">
                 <span>{{ row.msisdn }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxBusinessUnit" :label="$t('BUSINESS_UNIT')" sortable="custom" :class-name="getSortClass('businessUnit')" align="left" min-width="140px">
+            <el-table-column v-if="checkboxBusinessUnit" :label="$t('BUSINESS_UNIT')"  :class-name="getSortClass('businessUnit')" align="left" min-width="140px">
               <template slot-scope="{row}">
                 <span>{{ row.businessUnit }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxCSP" :label="$t('CSP')" sortable="custom" :class-name="getSortClass('csp')" align="left" min-width="180px">
+            <el-table-column v-if="checkboxCSP" :label="$t('CSP')" :class-name="getSortClass('csp')" align="left" min-width="180px">
               <template slot-scope="{row}">
                 <span>{{ row.csp }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxState" :label="$t('STATE')" sortable="custom" :class-name="getSortClass('state')" align="left" min-width="80px">
+            <el-table-column v-if="checkboxState" :label="$t('STATE')"  :class-name="getSortClass('state')" align="left" min-width="80px">
               <template slot-scope="{row}">
                 <span>{{ row.state }}</span>
               </template>
             </el-table-column>
             <el-table-column v-if="checkboxRAG" :label="$t('RAG')" align="center" min-width="60px">
-              <template slot-scope="{row}">
-                <span :style="'font-size:2em;color:'+row.rag">&#x025FC;</span>
+              <template slot-scope="{row}" align="center">
+                <div class="square" :style="'background-color:'+row.rag+';'"></div>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxSolution" :label="$t('SOLUTION')" sortable="custom" :class-name="getSortClass('solution')" align="left" min-width="100px">
+            <el-table-column v-if="checkboxSolution" :label="$t('SOLUTION')"  :class-name="getSortClass('solution')" align="left" min-width="100px">
               <template slot-scope="{row}">
                 <span>{{ row.solution }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxAgent" :label="$t('AGENT')" sortable="custom" :class-name="getSortClass('agent')" align="left" min-width="120px">
+            <el-table-column v-if="checkboxAgent" :label="$t('AGENT')" :class-name="getSortClass('agent')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.agent }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxCustomer" :label="$t('CUSTOMER')" sortable="custom" :class-name="getSortClass('customer')" align="left" min-width="120px">
+            <el-table-column v-if="checkboxCustomer" :label="$t('CUSTOMER')" :class-name="getSortClass('customer')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxDataSession" :label="$t('DATA_SESSION')" sortable="custom" :class-name="getSortClass('dataSession')" align="left" min-width="130px">
+            <el-table-column v-if="checkboxDataSession" :label="$t('DATA_SESSION')"  :class-name="getSortClass('dataSession')" align="left" min-width="130px">
               <template slot-scope="{row}">
                 <span>{{ row.dataSession }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')" sortable="custom" :class-name="getSortClass('dataUsage')" align="left" min-width="120px">
+            <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')" :class-name="getSortClass('dataUsage')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.dataUsage }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')" sortable="custom" :class-name="getSortClass('smsUsage')" align="left" min-width="120px">
+            <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')"  :class-name="getSortClass('smsUsage')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.smsUsage }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxZeroSession" :label="$t('ZERO_SESSION')" sortable="custom" :class-name="getSortClass('zeroSession')" align="left" min-width="120px">
+            <el-table-column v-if="checkboxZeroSession" :label="$t('ZERO_SESSION')"  :class-name="getSortClass('zeroSession')" align="left" min-width="120px">
               <template slot-scope="{row}">
                 <span>{{ row.zeroSession }}</span>
               </template>
             </el-table-column>
             <el-table-column v-if="checkboxICCID" :label="$t('ACTIONS')" fixed="right" align="center" width="100" class-name="small-padding fixed-width">
               <template slot-scope="{row}">
-                <el-button type="primary" size="mini" @click="handleUpdate(row)">
+                <el-button type="primary blue-btn" size="mini" @click="handleUpdate(row)">
                   Edit
                 </el-button>
                 <!--<el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
@@ -146,9 +221,8 @@
       <div class="panel-toolbar panel-toolbar-bottom padding-x2">
         <el-row :gutter="16">
           <el-col :xs="100">
-            <label v-waves :for="filterSubmitId" class="el-button el-button--primary width-100 ">
-              <i class="el-icon-search"></i>
-              <span>{{ $t('SEARCH') }}</span>
+            <label v-waves :for="filterSubmitId" class="el-button el-button--primary width-100 blue-btn">
+              <item :icon="'search-white'"/> <span>{{ $t('SEARCH') }}</span>
             </label>
           </el-col>
         </el-row>
@@ -246,20 +320,47 @@
 </template>
 
 <script>
+import L from 'leaflet'
+import { LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup } from 'vue2-leaflet'
+import { latLng, Icon, icon } from 'leaflet'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-
-import { getSIMListAsync, getSIMAsync, getCustomerList } from '@/api/sim'
+import Item from '@/layout/components/Sidebar/Item'
+import { getSIMListAsync, getSIMAsync, getCustomerList, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
 import moment from 'moment'
 
 export default {
   components: {
-    Pagination
+    Pagination,
+    Item,
+    Loading,
+    LMap, 
+    LTileLayer, 
+    LMarker, 
+    LControlLayers, 
+    LPolyline, 
+    LFeatureGroup, 
+    LPopup
   },
   directives: { waves },
   data() {
+
+    let customicon = icon(Object.assign({},
+        Icon.Default.prototype.options,
+        {
+          iconUrl:'map-blue.svg',
+          iconRetinaUrl:'map-blue.svg',
+          shadowUrl:''
+        }
+      ))
+
     return {
+      isLoading: false,
+      fullPage: true,
+      mapFormVisible: false,
       checkboxICCID: false,
       checkboxMSSDN: false,
       checkboxBusinessUnit: false,
@@ -288,6 +389,39 @@ export default {
       tableKey: 0,
       total: 0,
       listLoading: true,
+      locationList: [],
+
+      zoom: 13,
+      center: L.latLng(0, 0),
+      map: '',
+      tileProviders: [
+        {
+          name: 'Map',
+          visible: true,
+          url: 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+          subdomains: ['mt0','mt1','mt2','mt3']
+        },
+        {
+          name: 'OpenStreetMap',
+          visible: false,
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        },
+        {
+          name: 'Satelitte',
+          visible: false,
+          url: 'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
+          subdomains: ['mt0','mt1','mt2','mt3']
+        },
+        /*{
+          name: 'OpenStreetMap',
+          visible: true,
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        },*/
+      ],
+      markerIcon: customicon,
+      locationList: [],
+      markerLatLng: [0, 0],//47.413220, -1.219482
+
       list: [],
       listQuery: {
         page: 1,
@@ -312,6 +446,10 @@ export default {
 
   },*/
   methods: {
+    doSomethingOnReady() {
+        this.map = this.$refs.map.mapObject
+        this.map.invalidateSize()
+    },
     async getList() {
       const arr = []
       const currentTime = moment()
@@ -332,7 +470,6 @@ export default {
         let totalField = 0
         let dataSessions = 0
 
-        console.log(response_1)
         const customer = response_1.data.ancestors[0].info.name
         const state = response_1.data.extra.states.current
         const csp = response_1.data.extra.states.csp
@@ -342,7 +479,8 @@ export default {
           flowField += +response_1.data.extra.activity.totals.flow.originalUnits
         }*/
         if (response_1.data.extra.activity.totals != null && response_1.data.extra.activity.totals.sms != null){
-          smsField += +response_1.data.extra.activity.totals.sms.originalUnits
+          const smsCount = response_1.data.extra.activity.totals.sms.originalUnits == null ? 0 : response_1.data.extra.activity.totals.sms.originalUnits 
+          smsField += +smsCount
         }
         if (response_1.data.extra.activity.totals != null && response_1.data.extra.activity.totals.data != null && response_1.data.extra.activity.totals.data.originalUnits != null){
           totalField += +response_1.data.extra.activity.totals.data.originalUnits
@@ -357,11 +495,11 @@ export default {
           })
           const simActivityTime = moment(activityArr[activityArr.length - 1].endTime, 'YYYY-MM-DD').format('YYYY-MM-DD');
           if(simActivityTime >= oneDayAgo){
-            rag = 'rgb(57,181,74)'
+            rag = '#41bea2'
           }else if(simActivityTime >= threeDayAgo){
-            rag = '#ff8c00'
+            rag = '#ffb880'
           }else{
-            rag = '#CD3333'
+            rag = '#d77980'
           }
         }
         
@@ -431,16 +569,206 @@ export default {
       this.listQuery.page = 1
       this.listQuery.customer = this.selectedCustomer
       this.getList()
-    }
+    },
+    showLocation(data){
+      this.isLoading = true      
+      this.locationList.length = 10
+
+      this.locationList.push(
+        {title: 'IMSI', value: data.imsi},
+        {title: 'Network Operator', value: ''},
+        {title: 'Area', value: ''},
+        {title: 'Cell', value: ''},
+        {title: 'Cell Range', value: ''},
+        {title: 'Current Session Date', value: ''},
+        {title: 'Current Usage', value: data.dataUsage}
+      )
+
+      //country by coords
+      const query = {
+        id: data.id
+      }
+      getSIMCoordinates(query).then(response => {
+        const query_1 = {
+          lat: response.data.geometry.coordinates[1],
+          lon: response.data.geometry.coordinates[0]
+        }
+        this.markerLatLng = [query_1.lat, query_1.lon]
+        this.center = L.latLng(query_1.lat, query_1.lon)
+        this.locationList.push(
+          {title: 'Longitude', value: query_1.lat},
+          {title: 'Latitude', value: query_1.lon}
+        )        
+        getSIMCountry(query_1).then(response_1 => {
+          const country = response_1.data.address.country
+          this.locationList.push({
+            title: 'Country',
+            value: country
+          })          
+          this.mapFormVisible = true
+          this.isLoading = false
+        })
+      }).catch(e=>{
+        this.locationList.push(
+          {title: 'Country', value: ''},
+          {title: 'Longitude', value: '0'},
+          {title: 'Latitude', value: '0'})
+        this.mapFormVisible = true
+        this.isLoading = false
+      })
+    },
+    async forceReconnect(){      
+      this.isLoading = true
+      const response = await forceReconnectAsync(this.simQuery)          
+      this.isLoading = false
+      this.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
+      this.mapFormVisible = false
+    },
   }
 }
 </script>
 
 <style>
+/*map*/
+
+  .map-container{
+    overflow: hidden;
+    width: 100%;
+    height: 439px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+  .el-dialog{
+    background-color:#f2f5fb;
+  }
+  .el-dialog__title{
+    color: #606268;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .el-dialog__headerbtn .el-dialog__close {
+    color: #909399;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .location-table{
+    width: 100%;
+    background-color:#ffffff;
+    box-shadow: none;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+  .location-table td{
+    background-color: initial !important;
+  }
+  .el-table td{
+    padding: 10px 0;
+    font-size: 12px;
+  }
+  .location-table td .cell{
+    white-space: nowrap; /* Запрещаем перенос строк */
+    overflow: hidden; /* Обрезаем все, что не помещается в область */
+    text-overflow: ellipsis; /* Добавляем многоточие */
+  }
+  .leaflet-control-zoom, .leaflet-control-attribution{
+    display: none;
+  }
+  .card-panel-right {
+    text-align: right;
+  }
+ /*buttons*/
+.dark-btn{
+  border-color: #304257;
+  background-color: #304257;
+}
+.dark-btn:hover,.dark-btn:active,.dark-btn:focus{
+  border-color: #35475c;
+  background-color: #35475c;
+}
+.blue-btn{
+  border-color: #28a5e0;
+  background-color: #28a5e0;
+}
+.blue-btn:hover,.blue-btn:active,.blue-btn:focus{
+  border-color: #32aee8;
+  background-color: #32aee8;
+}
+
+
+  .w-100{
+    width: 100%;
+  }
+  .mt-25{
+    margin-top: 25px;
+  }
+  .mt-30{
+    margin-top: 30px;
+  }
+  .mb-30{
+    margin-bottom: 30px;
+  }
+  .el-form-item {
+    margin-bottom: 20px;
+  }
+  .el-form-item__label{
+    color: #97a8be;
+    line-height: 2em;
+  }
+  .footer-border .el-card__body{
+    border-bottom: 1px solid #ebeef5;
+    margin-bottom: 100px;
+    padding-bottom: 10px;
+  }
+  .el-card__footer button{
+    float: right;
+    margin-top: 38px;
+  }
 .el-table {
     font-size: 12px;
 }
-.cell a{
-  color: #409EFF;
+.el-pagination.is-background .el-pager li:not(.disabled).active {
+    background-color: #28a5e0;
 }
+.el-pagination.is-background .el-pager li:not(.disabled):hover {
+    color: #28a5e0;
+}
+.cell a{
+  color: #28a5e0;
+}
+.el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+    background-color: #28a5e0;
+    border-color: #28a5e0;
+}
+div.square {
+  border-radius: 3px;
+  margin: 0 14px;
+  width: 10px;
+  height: 10px;
+}
+.pagination-container{
+  margin-top: 30px;
+  border-radius: 5px;
+}
+
+.map-table-icon{
+  width: 16px;
+  cursor: pointer;
+}
+@media (min-width: 768px){
+    .lg-pr-0{
+      padding-right: 0 !important;
+    }
+    .lg-pl-0{
+      padding-left: 0 !important;
+    }
+    .lg-card-flex{
+      display: flex;
+      -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+    }
+  }
 </style>

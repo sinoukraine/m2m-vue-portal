@@ -236,7 +236,7 @@ export default {
   }
 
   .card-panel {
-    min-height: 120px;
+    min-height: 135px;
     cursor: pointer;
     padding: 5px 15px 10px 12px;
     font-weight:  600;
