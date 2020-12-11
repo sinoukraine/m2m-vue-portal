@@ -1,8 +1,62 @@
 <template>
   <el-container class="">
-    <el-dialog title="View Map" :visible.sync="dialogFormVisible" width="70%" >
+    <loading :active.sync="isLoading" 
+        :can-cancel="true" 
+        :on-cancel="onCancel"
+        :is-full-page="fullPage"></loading>
+        <el-dialog title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
+      <el-table
+        :data="sessionList"
+        fit            
+        border
+        class="session-table"
+      >
+        <el-table-column label="Start Date" align="center" >
+          <template slot-scope="{row}">
+            <span>{{row.startTime.slice(0,19).replace('T', ' ')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Update Date" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.updateDate.slice(0,10)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="End Date" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.endTime.slice(0,19).replace('T', ' ')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Total Bytes" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.originalUnits}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Operator" align="center">
+          <template slot-scope="{row}">
+            <span>{{row.network}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Cell Info" align="center">
+          <template >
+            <span></span>
+          </template>
+        </el-table-column>
+        <el-table-column label="IMEI" align="center">
+          <template >
+            <span></span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Operator" align="center">
+          <template >
+            <span></span>
+          </template>
+        </el-table-column>
+      </el-table>    
+   
+    </el-dialog>
+    <el-dialog title="View Map" :visible.sync="mapFormVisible" width="70%" >
       <el-row :gutter="16">
-        <el-col :xs="24" :sm="12">
+        <el-col :xs="24" :sm="12" class="lg-pr-0">
           <div class="map-container">
             <l-map
               ref="map"
@@ -11,9 +65,6 @@
               style="height: 100%"
               @ready="doSomethingOnReady()"
             >
-              <l-control-layers position="topright">
-
-              </l-control-layers>
               <l-tile-layer
                 v-for="tileProvider in tileProviders"
                 :key="tileProvider.name"
@@ -27,37 +78,52 @@
                 :icon="markerIcon"
               >
               </l-marker>
+              <!--<l-circle 
+                 :color="'rgb(249,104,104)'"
+                  :fill-color="'rgb(249,104,104)'"
+                  :lat-lng="markerLatLng" 
+                  :radius="'10'" >
+                </l-circle>-->
             </l-map>
           </div>
         </el-col>
-        <el-col :xs="24" :sm="12">
+        <el-col :xs="24" :sm="12" class="lg-pl-0">
           <el-table
-            :data="locationData"
+            :data="locationList"
             fit
             :show-header="false"
             class="location-table"
           >
            <el-table-column label="Device Offer" align="left" >
               <template slot-scope="{row}">
-                <span>1</span>
+                <span>{{row.title}}</span>
               </template>
             </el-table-column>
            <el-table-column label="SIM Numbers" align="right">
               <template slot-scope="{row}">
-                <span>2</span>
+                <span>{{row.value}}</span>
               </template>
             </el-table-column>
           </el-table>
         </el-col>
+      </el-row>
+      <el-row>
+        <div class="card-flex">
+          <div class="card-inline card-panel-left">
+          </div>
+          <div class="card-inline card-panel-right">
+            <el-button type="info" class="dark-btn mt-25" @click="forceReconnect">Force reconnect</el-button>
+          </div>
+        </div>
       </el-row>
     </el-dialog>
     <el-main  class="no-padding">
       <div class="mixin-components-container">
         <el-row style="margin: 30px">
           <div>
-            <panel-group
+            <panel-group            
+              :lg="'6'"
               :total="panelData"
-              @change="searchTotalByPeriod"
             />
           </div>
           <el-card class="box-card footer-border">
@@ -150,8 +216,8 @@
                 <p>Click on the button to open a popup with info.</p>
               </div>
               <div class="card-inline card-panel-right">
-                <el-button type="success" icon="el-icon-menu">Session Data</el-button>
-                <el-button type="warning" icon="el-icon-mail">SMS Usage</el-button>
+                <el-button type="success" icon="el-icon-menu" @click="showSessions">Session Data</el-button> 
+                <el-button type="warning" icon="el-icon-edit">SMS Usage</el-button>
                 <el-button type="primary" icon="el-icon-location" @click="showMap">View Map</el-button>
               </div>
             </div>
@@ -170,34 +236,24 @@
 </template>
 
 <script>
-import L from 'leaflet';
+import L from 'leaflet'
 import { LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup } from 'vue2-leaflet'
 import { latLng, Icon, icon } from 'leaflet'
+// Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+import moment from 'moment'
 import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
-import { getSIMAsync } from '@/api/sim'
-
-// BUG https://github.com/Leaflet/Leaflet/issues/4968
-/*import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
-import iconUrl from 'leaflet/dist/images/marker-icon.png'
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
-L.Marker.prototype.options.icon = L.icon({
-  iconRetinaUrl,
-  iconUrl,
-  shadowUrl,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  tooltipAnchor: [16, -28],
-  shadowSize: [41, 41]
-})*/
+import { getSIMAsync, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
 
 export default {
   name: 'SIMProfile',
   components: {
+    Loading,
     PanelGroup,
     LineChart,
-
     LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup
   },
   data() {
@@ -205,17 +261,20 @@ export default {
     let customicon = icon(Object.assign({},
         Icon.Default.prototype.options,
         {
-          iconUrl:'logo.png',
-          iconRetinaUrl:'logo.png',
+          iconUrl:'marker.svg',
+          iconRetinaUrl:'marker.svg',
           shadowUrl:''
         }
       ))
 
     return {
-
-      markerIcon: customicon,
-      profileQuery: {
-        id: undefined
+      isLoading: false,
+      fullPage: true,
+      simQuery: {
+        id: undefined,
+        activity: true
+      },
+      cdrsQuery: {
       },
       temp: {
         imsi: undefined,
@@ -277,9 +336,10 @@ export default {
         responsive: true,
         maintainAspectRatio: false
       },
-      dialogFormVisible: false,
+      mapFormVisible: false,      
+      sessionFormVisible: false,
       zoom: 13,
-      center: L.latLng(47.41322, -1.219482),
+      center: L.latLng(0, 0),
       map: '',
       tileProviders: [
         {
@@ -305,12 +365,21 @@ export default {
           url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         },*/
       ],
-      locationData: [],
-      markerLatLng: [47.413220, -1.219482]
+      markerIcon: customicon,
+      locationList: [],
+      markerLatLng: [0, 0],//47.413220, -1.219482
+      sessionList: []
     }
   },
   created() {
-    this.profileQuery.id = this.$route.params.id
+    const today = new Date()
+    const current = moment()
+    this.cdrsQuery = {
+      id: this.$route.params.id,
+      date1: current.clone().startOf('month').format('YYYY-MM-DD'),
+      date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+    }
+    this.simQuery.id = this.$route.params.id
     this.getProfile()
   },
   computed: {
@@ -324,7 +393,7 @@ export default {
   },
   methods: {
     async getProfile() {
-      const response = await getSIMAsync(this.profileQuery)
+      const response = await getSIMAsync(this.simQuery)
       this.temp = {
         imsi: response.data.info.imsi,
         iccid: response.data.info.iccid,
@@ -337,38 +406,93 @@ export default {
         totalDataSessions: 300,
         loaded: true
       }
+
+      let network = '', endTime = ''
+      if(response.data.extra.activity.hasOwnProperty('samples')){
+        this.sessionList = response.data.extra.activity.samples.map(el => ({...el, updateDate: response.data.extra.activity.date}))
+        let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
+      }
+      
+      this.locationList.push(
+        {title: 'IMSI', value: response.data.info.imsi},
+        {title: 'Network Operator', value: network},
+        {title: 'Area', value: ''},
+        {title: 'Cell', value: ''},
+        {title: 'Cell Range', value: ''},
+        {title: 'Current Session Date', value: endTime.slice(0,19).replace('T', ' ')},
+        {title: 'Current Usage', value: response.data.extra.activity.totals.totalDataUsage}
+      )
+      
+      const response_1 = await getCDRSAsync(this.cdrsQuery)      
+      const usageLabels = [], usageData = []
+      response_1.data.forEach(element => {
+          usageLabels.push(element.date.slice(0, 10))          
+          usageData.push(element.totals?.data.originalUnits/1048576)
+        console.log(element.totals)
+      })
       this.lineCollection = {
-        labels: ['02.12', '03.12', '04.12', '05.12', '06.12', '07.12', '08.12', '09.12', '10.12'],
+        labels: usageLabels,
         datasets: [
           {
             label: 'Data Usage',
             backgroundColor: 'rgb(53, 165, 228)',
-            data: [200, 230, 233, 190, 150, 210, 208, 201, 117]
+            data: usageData
           }
         ]}
-
-      console.log(this.temp.imsi)
+    },    
+    async forceReconnect(){      
+      this.isLoading = true
+      const response = await forceReconnectAsync(this.simQuery)          
+      this.isLoading = false
+      this.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
+      this.mapFormVisible = false
     },
-    async searchTotalByPeriod(period) {
-
+    showSessions(){
+      this.isLoading = true
+      setTimeout(() => {
+        this.sessionFormVisible = true
+        this.isLoading = false
+      },5000)
     },
     doSomethingOnReady() {
         this.map = this.$refs.map.mapObject
         this.map.invalidateSize()
     },
     showMap(){
-       this.locationData=[]
-      this.locationData.push(
-        {title: '1', count: '12'},
-        {title: '2', count: '989'},
-        {title: '2', count: '989'},
-        {title: '2', count: '989'},
-        {title: '2', count: '989'},
-        {title: '2', count: '989'},
-        {title: '2', count: '989'},
-        {title: '2', count: '989'})
-      this.dialogFormVisible = true
-
+      this.isLoading = true
+      //country by coords
+      this.locationList.length = 10
+      const query = {
+        id: this.simQuery.id
+      }
+      getSIMCoordinates(query).then(response => {
+        const query_1 = {
+          lat: response.data.geometry.coordinates[1],
+          lon: response.data.geometry.coordinates[0]
+        }
+        this.markerLatLng = [query_1.lat, query_1.lon]
+        this.center = L.latLng(query_1.lat, query_1.lon)
+        this.locationList.push(
+          {title: 'Longitude', value: query_1.lat},
+          {title: 'Latitude', value: query_1.lon}
+        )        
+        getSIMCountry(query_1).then(response_1 => {
+          const country = response_1.data.address.country
+          this.locationList.push({
+            title: 'Country',
+            value: country
+          })          
+          this.mapFormVisible = true
+          this.isLoading = false
+        })
+      }).catch(e=>{
+        this.locationList.push(
+          {title: 'Country', value: ''},
+          {title: 'Longitude', value: '0'},
+          {title: 'Latitude', value: '0'})
+        this.mapFormVisible = true
+        this.isLoading = false
+      })
     }
   }
 }
@@ -381,10 +505,16 @@ export default {
   .map-container{
     overflow: hidden;
     width: 100%;
-    height: 390px;
+    height: 439px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
   }
+  
   .w-100{
     width: 100%;
+  }
+  .mt-25{
+    margin-top: 25px;
   }
   .mt-30{
     margin-top: 30px;
@@ -443,5 +573,34 @@ export default {
     box-shadow: none;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
+  }
+  .location-table td{
+    background-color: initial !important;
+  }
+  .el-table td{
+    padding: 10px 0;
+    font-size: 12px;
+  }
+  .location-table td .cell{
+    white-space: nowrap; /* Запрещаем перенос строк */
+    overflow: hidden; /* Обрезаем все, что не помещается в область */
+    text-overflow: ellipsis; /* Добавляем многоточие */
+  }
+  .leaflet-control-zoom, .leaflet-control-attribution{
+    display: none;
+  }
+  .dark-btn{
+    background-color: #304257;
+  }
+  .dark-btn:hover,.dark-btn:active,.dark-btn:focus{
+    background-color: #35475c;
+  }
+  @media (min-width: 768px){
+    .lg-pr-0{
+      padding-right: 0 !important;
+    }
+    .lg-pl-0{
+      padding-left: 0 !important;
+    }
   }
 </style>

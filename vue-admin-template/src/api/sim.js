@@ -99,6 +99,23 @@ export async function getSIMStates(query) {
   })
 }
 
+export async function forceReconnectAsync(query) {
+  const findBy = query.id
+  const options = {
+    url: SIM_LIST + '/' + findBy + '/cells',
+    method: 'get'
+  }
+  try {
+    const response = await axios.request(getRequestOptions(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    this.$alert(message, title, {type: 'error'})
+    throw e
+  }
+}
+
 export async function getSIMAsync(query) {
   if (query.imsi !== '') {
     let addStates = '', addActivity = '', addIdentifier = '', findBy = '', addCustomer = ''
@@ -245,7 +262,10 @@ export async function getCDRSAsync(query) {
 }
 
 export async function getCDRSList(query) {
-  let addCustomer = '', addLimit = ''
+  let addCustomer = '', addLimit = '', kind = 'data'
+  if (query.sms !== undefined ) {
+    kind = 'sms'
+  }
   if (query.customer !== undefined ) {
     addCustomer = '&customerId=' + query.customer
   }
@@ -256,7 +276,7 @@ export async function getCDRSList(query) {
     addLimit = '&limit=' + query.limit
   }
   const options = {
-    url: CDRS_LIST + '?startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z' + addLimit + '' + addCustomer + '',
+    url: CDRS_LIST + '?kindOfUsage=' + kind + '&startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z' + addLimit + '' + addCustomer + '',
     method: 'get'
   }
   return new Promise((resolve, reject) => {

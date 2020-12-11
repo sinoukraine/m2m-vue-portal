@@ -21,6 +21,7 @@ import { ButtonPlugin } from '@syncfusion/ej2-vue-buttons';
 Vue.use(ToastPlugin);
 Vue.use(ButtonPlugin);
 
+
 import moment from 'moment'
 Vue.prototype.moment = moment
 

@@ -1,21 +1,31 @@
 <template>
-  <el-card class="box-card-component" style="margin-left:8px;">
+  <el-card class="box-card-component mb-30" >
+    <div class="w-100 d-flex box-header" >
+            <div class="card-inline card-panel-left font-16 bold color-grey " >
+              Data Sessions
+            </div>
+            <div class="card-inline card-panel-right d-flex">
+              <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click">
+                <div class="menu-wrapper">
+                  <img src="menu.svg" class="menu-dropdown">
+                </div>
+                <el-dropdown-menu slot="dropdown">
+                </el-dropdown-menu>
+              </el-dropdown>
+            </div>
+        </div>
     
       <div class="progress-item">
-        <span>Vue</span>
-        <el-progress :percentage="70" />
+        <span>Data Sessions this year</span>
+        <el-progress :percentage="box.year/1400000"  :format="format"/>
       </div>
       <div class="progress-item">
-        <span>JavaScript</span>
-        <el-progress :percentage="18" />
+        <span>Data Sessions this month</span>
+        <el-progress :percentage="box.month/1400000"  :format="format"/>
       </div>
       <div class="progress-item">
-        <span>Css</span>
-        <el-progress :percentage="12" />
-      </div>
-      <div class="progress-item">
-        <span>ESLint</span>
-        <el-progress :percentage="100" status="success" />
+        <span>Data Sessions this day</span>
+        <el-progress :percentage="box.day/1400000"  :format="format"/>
       </div>
   </el-card>
 </template>
@@ -45,12 +55,18 @@ export default {
       }
     }
   },
+  props: ['box'],
   computed: {
     ...mapGetters([
       'name',
       'avatar',
       'roles'
     ])
+  },
+  methods: {
+    format(percentage) {
+      return (percentage*1400000).toFixed(0)
+    }
   }
 }
 </script>
@@ -117,4 +133,13 @@ export default {
     box-shadow: none;
     border: none;
   }
+</style>
+
+<style  scoped>
+  .box-card-component .progress-item{
+      margin-bottom: 30px;
+    }
+    .el-card{
+      height: 301px;
+    }
 </style>

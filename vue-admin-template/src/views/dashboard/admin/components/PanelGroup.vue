@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="40" class="panel-group">
-    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="lg" class="card-panel-col">
       <div class="card-panel justify-content-between bg-green">
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left font-16">
@@ -42,7 +42,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="lg" class="card-panel-col">
     <div class="card-panel justify-content-between bg-violet" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left font-16">
@@ -75,9 +75,7 @@
             </div>
             <div v-else>
               <count-to :start-val="0" :end-val="+total.totalDataUsage" :duration="2600" class="card-panel-num" />
-              <span class="card-panel-num">
-                MB
-              </span>
+           
             </div>
           </div>
           <div class="card-inline card-panel-right">
@@ -86,7 +84,7 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="lg" class="card-panel-col">
     <div class="card-panel justify-content-between bg-orange" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left font-16">
@@ -127,11 +125,11 @@
         </div>
       </div>
     </el-col>
-    <el-col :xs="24" :sm="12" :md="12" :lg="6" class="card-panel-col">
+    <el-col :xs="24" :sm="12" :md="12" :lg="lg" class="card-panel-col">
     <div class="card-panel justify-content-between bg-red" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left font-16">
-            Average
+            Online Numbers
           </div>
           <div class="card-inline card-panel-right">
             <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
@@ -160,9 +158,7 @@
             </div>
             <div v-else>
               <count-to :start-val="0" :end-val="+total.totalDuration" :duration="2600" class="card-panel-num" />
-              <span class="card-panel-num">
-                KB/H
-              </span>
+              
             </div>
           </div>
           <div class="card-inline card-panel-right">
@@ -181,7 +177,7 @@ export default {
   components: {
     CountTo
   },
-  props: ['total'],
+  props: ['lg','total'],
   data() {
     return {
       loading: true,

@@ -1,12 +1,22 @@
 <template>
   <div class="dashboard-editor-container">
-    <panel-group
-      :total="panelData"
-      @change="searchTotalByPeriod"
-    />
+    <el-row :gutter="40" >
+      <el-col :xs="24" :sm="24" :lg="12" style="">
+        <panel-group
+          :lg="'12'"
+          :total="panelData"
+          @change="searchTotalByPeriod"
+        />
+      </el-col>
+      <el-col :xs="24" :sm="24" :lg="12" style="">
+        <box-card :box="boxData"
+        />
+      </el-col>
+    </el-row>
+      
     <el-row :gutter="40">
       <el-col :xs="24" :sm="24" :lg="24" style="margin-bottom:30px;">
-        <div class="w-100 d-flex" style="padding: 30px;background-color: #ffffff;border-top-left-radius: 5px;border-top-right-radius: 5px;">
+        <div class="w-100 d-flex" style="padding: 20px 30px;background-color: #ffffff;border-top-left-radius: 5px;border-top-right-radius: 5px;">
             <div class="card-inline card-panel-left font-16 bold color-grey">
             Top 10 Metrics
             </div>
@@ -14,8 +24,17 @@
             <el-radio-group v-model="switchTablePeriod" @input="handleTablePeriod" >
                 <el-radio-button label="Last day" type="outline"/>
                 <el-radio-button label="Week" type="outline"/>
-                <el-radio-button label="Month" type="outline"/>
+                <el-radio-button label="This Month" type="outline"/>
             </el-radio-group>
+            <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click" @command="handleTableData">
+              <div class="menu-wrapper">
+                <img src="menu.svg" class="menu-dropdown">
+              </div>
+              <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="Data Usage">Data Usage</el-dropdown-item>
+                  <el-dropdown-item command="SMS Usage">SMS Usage</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
             </div>
         </div>
         <el-table
@@ -27,7 +46,7 @@
             highlight-current-row
             style="width: 100%;"
           >
-           <el-table-column label="№" align="center" width="160px">
+           <el-table-column label="№" align="center" width="80px">
               <template slot-scope="{row}">
                 <span>{{ row.num }}</span>
               </template>
@@ -39,19 +58,34 @@
                 </span>
               </template>
             </el-table-column>
-            <el-table-column label="Customer" sortable="custom" width="180px" align="center">
+            <el-table-column label="Customer"  min-width="180px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Data Usage" min-width="160px" align="center">
+            <el-table-column label="Data Usage(MB)" width="180px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.total }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="SMS Usage" min-width="160px" align="center">
+            <el-table-column label="Flow" width="100px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.flow }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="SMS Usage" width="100px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.sms }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Days" width="100px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.days }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Last Update" width="120px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.lastUpdate.slice(0,10) }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -116,9 +150,6 @@
                 </div>   
             </div>
         </div>
-        
-        <!--
-        -->
       </el-col>
     </el-row>
   </div>
@@ -128,6 +159,7 @@
 import PanelGroup from './components/PanelGroup'
 import PieChart from './components/PieChart'
 import LineChart from './components/LineChart.js'
+import BoxCard from './components/BoxCard'
 import moment from 'moment'
 import { getDemoOwerview, getDemoTopUsage, getCDRSList } from '@/api/sim'
 
@@ -136,16 +168,24 @@ export default {
   components: {
     PieChart,
     PanelGroup,
-    LineChart
+    LineChart,
+    BoxCard
   },
   data() {
     return {
+        tablePeriod: 'Week',
+        tableData: 'data',
+        boxData: {
+          day: 0,
+          month: 0,
+          year: 0
+        },
         panelData: {
-            totalDataUsage: 0,
-            totalSMSUsage: 0,
-            totalDuration: 0,
-            totalDataSessions: 0,
-            loaded: false
+          totalDataUsage: 0,
+          totalSMSUsage: 0,
+          totalDuration: 0,
+          totalDataSessions: 0,
+          loaded: false
         },
         mapLoading: true,
         listLoading: true,
@@ -161,16 +201,16 @@ export default {
         const colors = []
         let cc 
 
-        await getDemoTopUsage().then(response => {
+        /*await getDemoTopUsage().then(response => {
           console.log('r',response)
-        })
+        })*/
         await getDemoOwerview().then(response => {
             switch (period){
                 case 'daily':
                     this.panelData = {
                         totalDataUsage: response.data.Table3[0].JTOV_DATA_DAY/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_DAY,
-                        totalDuration: (3600*response.data.Table3[0].JTOV_DATA_DAY)/(response.data.Table3[0].JTOV_DURATION_DAY*1024),
+                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_DAY,//(3600*response.data.Table3[0].JTOV_DATA_DAY)/(response.data.Table3[0].JTOV_DURATION_DAY*1048576),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_DAY,
                         loaded: true
                     }
@@ -179,7 +219,7 @@ export default {
                     this.panelData = {
                         totalDataUsage: response.data.Table3[0].JTOV_DATA_WEEK/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_WEEK,
-                        totalDuration: (3600*response.data.Table3[0].JTOV_DATA_WEEK)/(response.data.Table3[0].JTOV_DURATION_WEEK*1024),
+                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_WEEK,//(3600*response.data.Table3[0].JTOV_DATA_WEEK)/(response.data.Table3[0].JTOV_DURATION_WEEK*1024),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_WEEK,
                         loaded: true
                     }
@@ -188,7 +228,7 @@ export default {
                     this.panelData = {
                         totalDataUsage: response.data.Table3[0].JTOV_DATA_MONTH/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_MONTH,
-                        totalDuration: (3600*response.data.Table3[0].JTOV_DATA_MONTH)/(response.data.Table3[0].JTOV_DURATION_MONTH*1024),
+                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_MONTH,//(3600*response.data.Table3[0].JTOV_DATA_MONTH)/(response.data.Table3[0].JTOV_DURATION_MONTH*1024),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_MONTH,
                         loaded: true
                     }
@@ -197,16 +237,20 @@ export default {
                     this.panelData = {
                         totalDataUsage: response.data.Table3[0].JTOV_DATA_YEAR/1048576,
                         totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_YEAR,
-                        totalDuration: (3600*response.data.Table3[0].JTOV_DATA_YEAR)/(response.data.Table3[0].JTOV_DURATION_YEAR*1024),
+                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_YEAR,//(3600*response.data.Table3[0].JTOV_DATA_YEAR)/(response.data.Table3[0].JTOV_DURATION_YEAR*1024),
                         totalDataSessions: response.data.Table3[0].JTOV_SESSION_YEAR,
                         loaded: true
                     }
                 break
-            }            
-            console.log('arrr',response.data.Table2)
+            } 
             this.stateData = response.data.Table1.map(element => {return {name: element.DEVICE_STATUS_CODE,value: element.JTOV_SIM_NUMBERS}})
             this.cspData = response.data.Table2.map(element => {return {name: element.DEVICE_OFFER,value: element.JTOV_SIM_NUMBERS}})
          
+            this.boxData = {
+              day: response.data.Table3[0].JTOV_SESSION_DAY,
+              month: response.data.Table3[0].JTOV_SESSION_MONTH,
+              year: response.data.Table3[0].JTOV_SESSION_YEAR
+            }
 
             if (this.mapLoading){
                 this.mapLoading = false
@@ -246,27 +290,27 @@ export default {
             }
         })
     },
-    async searchTableByPeriod(period) {
-      let days = 0
+    async searchTable() {
+      let days = 0      
       this.listLoading = true
       const today = new Date()
-      switch (period){
+      switch (this.tablePeriod){
         case 'Last day':
             days = 1
             break
         case 'Week':
             days = 7
             break
-        case 'Month':          
-            days = 30
-            break
       }
+
+      const current = moment()          
 
       const query = {
         page: 1,
         limit: 10,
-        date1: moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
+        date1: this.tablePeriod === 'This Month'?current.clone().startOf('month').format('YYYY-MM-DD'):moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
         date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
+        sms: this.tableData === 'SMS Usage'?'sms':undefined
       }
 
       await getCDRSList(query).then(response => {
@@ -278,12 +322,16 @@ export default {
         response.data.forEach((element, index) => {
           const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
           const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
+          const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
           arrTable.push({
             num: index + 1,
             imsi: element.imsi,
             customer: element.customer,
             total: tableDataUsageTotal,
-            sms: tableSMSUsageTotal
+            flow: tableFlowUsageTotal,
+            sms: tableSMSUsageTotal,
+            days: element.days,
+            lastUpdate: element.lastUpdate
           })
         })
 
@@ -291,13 +339,18 @@ export default {
         this.listLoading = false
       })
     },
+    handleTableData(val){
+      this.tableData = val
+      this.searchTable()
+    },
     handleTablePeriod(val){
-      this.searchTableByPeriod(val)
+      this.tablePeriod = val
+      this.searchTable()
     }
   },
   async mounted() {
       await this.searchTotalByPeriod('daily')
-      await this.searchTableByPeriod('Week')
+      await this.searchTable()
   }
 }
 </script>
@@ -430,9 +483,7 @@ export default {
     padding: 10px 0;
 }
 
-.cell a{
-  color: #409EFF;
-}
+
   .font-12{
     font-size: 12px;
   }
@@ -442,4 +493,17 @@ export default {
     width: 24px;
     height: 14px;
     }
+    
+    .el-progress-bar{
+      width: 94%;
+
+    }
+    .box-header{
+      margin-top:10px;
+      margin-bottom: 40px;
+    }
+  
+  .mb-30{
+    margin-bottom:30px;
+  }
 </style>
