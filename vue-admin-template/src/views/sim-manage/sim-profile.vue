@@ -4,7 +4,14 @@
         :can-cancel="true" 
         :on-cancel="onCancel"
         :is-full-page="fullPage"></loading>
-    <el-dialog title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
+    <el-dialog class="dialog-download" title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
+      <div class="display-flex justify-content-between">
+        <div class="buttons-row">
+        </div>
+        <div class="buttons-row white-space-nowrap">
+         <el-button v-waves :loading="downloadLoading" class="button-custom blue-btn" type="primary"  @click="handleSessionsDownload"><item :icon="'save-white'" /></el-button>
+        </div>
+      </div>
       <el-table
         :data="sessionList"
         fit            
@@ -46,16 +53,19 @@
             <span></span>
           </template>
         </el-table-column>
-        <el-table-column label="Operator" align="center">
-          <template >
-            <span></span>
-          </template>
-        </el-table-column>
       </el-table>       
     </el-dialog>
 
-    <el-dialog title="SMS Usage Data" :visible.sync="smsFormVisible" width="100%" >
+    <el-dialog class="dialog-download" title="SMS Usage Data" :visible.sync="smsFormVisible" width="100%" >
+      <div class="display-flex justify-content-between">
+        <div class="buttons-row">
+        </div>
+        <div class="buttons-row white-space-nowrap">
+         <el-button v-waves :loading="downloadLoading" class="button-custom blue-btn" type="primary"  @click="handleSMSUsageDownload"><item :icon="'save-white'" /></el-button>
+        </div>
+      </div>
       <el-table
+        :key="tableKey"
         :data="smsUsageList"
         fit            
         border
@@ -282,6 +292,8 @@ import { latLng, Icon, icon } from 'leaflet'
 import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.css'
 import moment from 'moment'
+import waves from '@/directive/waves' // waves directive
+import { parseTime } from '@/utils'
 import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
 import Item from '@/layout/components/Sidebar/Item'
@@ -290,6 +302,7 @@ import { getSIMAsync, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceRecon
 export default {
   name: 'SIMProfile',
   components: {
+    waves,
     Item,
     Loading,
     PanelGroup,
@@ -308,6 +321,8 @@ export default {
       ))
 
     return {
+      tableKey: 0,
+      downloadLoading: false,
       isLoading: false,
       fullPage: true,
       simQuery: {
@@ -548,7 +563,45 @@ export default {
         this.mapFormVisible = true
         this.isLoading = false
       })
-    }
+    },
+    handleSessionsDownload() {
+      this.downloadLoading = true
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = ['Start Date', 'Update Date', 'End Date', 'Total Bytes', 'Operator', 'Cell Info', 'IMEI']
+        const filterVal = ['startTime', 'updateDate', 'endTime', 'originalUnits', 'network', '', '']
+        const data = this.formatJson(this.sessionList, filterVal)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: 'sessions'
+        })
+        this.downloadLoading = false
+      })
+    },
+    handleSMSUsageDownload() {
+      this.downloadLoading = true
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = ['Date', 'Direction', 'Sender', 'Message', 'Status', 'Reference']
+        const filterVal = ['insertedDate', 'direction', 'from', 'message', 'status', 'reference']
+        const data = this.formatJson(this.smsUsageList, filterVal)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: 'sms-usage'
+        })
+        this.downloadLoading = false
+      })
+    },
+    formatJson(arr, filterVal) {
+      console.log(arr)
+      return arr.map(v => filterVal.map(j => {
+        if (j === 'timestamp') {
+          return parseTime(v[j])
+        } else {
+          return v[j]
+        }
+      }))
+    },
   }
 }
 
@@ -678,6 +731,12 @@ export default {
   .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
     border-color: #ffc496;
     background-color: #ffc496;
+  }
+  .dialog-download .el-dialog__body {
+    padding: 0 30px 20px;
+    color: #606266;
+    font-size: 14px;
+    word-break: break-all;
   }
   @media (min-width: 768px){
     .lg-pr-0{

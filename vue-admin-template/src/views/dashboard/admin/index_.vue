@@ -46,39 +46,39 @@
             highlight-current-row
             style="width: 100%;"
           >
-           <el-table-column label="№" align="center" width="80px">
+           <el-table-column label="№" align="center" width="60px">
               <template slot-scope="{row}">
                 <span>{{ row.num }}</span>
               </template>
             </el-table-column>
-           <el-table-column label="IMSI" align="center" width="180px">
+           <el-table-column label="IMSI" align="center" width="160px">
               <template slot-scope="{row}">
                 <span>
                 {{ row.imsi }}
                 </span>
               </template>
             </el-table-column>
-            <el-table-column label="Customer"  min-width="180px" align="center">
+            <el-table-column label="Customer"  min-width="120px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Data Usage(MB)" width="180px" align="center">
+            <el-table-column label="Data Usage(MB)" width="120px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.total }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Flow" width="100px" align="center">
+            <el-table-column label="Flow" width="58px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.flow }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="SMS Usage" width="100px" align="center">
+            <el-table-column label="SMS Usage" width="58px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.sms }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Days" width="100px" align="center">
+            <el-table-column label="Days" width="50px" align="center">
               <template slot-scope="{row}">
                 <span>{{ row.days }}</span>
               </template>
