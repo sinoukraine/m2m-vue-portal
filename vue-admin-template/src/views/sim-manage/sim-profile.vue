@@ -267,8 +267,9 @@
               </div>
               <div class="card-inline card-panel-right">
                 <el-button type="primary" class="green-btn" @click="showSessions"><item :icon="'csp'"/> Session Data</el-button> 
-                <el-button type="primary" class="orange-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS Usage</el-button>
+                <el-button type="primary" class="violet-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS Usage</el-button>
                 <el-button type="primary" class="blue-btn" @click="showLocation"><item :icon="'map-white'"/> View Map</el-button>
+                <el-button type="primary" class="orange-btn" @click="sendSMS"><item :icon="'sms-white'"/> Send SMS</el-button>
               </div>
             </div>
           </el-card>
@@ -602,6 +603,9 @@ export default {
         }
       }))
     },
+    sendSMS(){
+      this.$router.push({ path: `/commands/index` })
+    }
   }
 }
 
@@ -723,6 +727,14 @@ export default {
   .blue-btn:hover,.blue-btn:active,.blue-btn:focus{
     border-color: #32aee8;
     background-color: #32aee8;
+  }
+  .violet-btn{
+    border-color: rgb(182, 162, 222);
+    background-color: rgb(182, 162, 222);
+  }
+  .violet-btn:hover,.violet-btn:active,.violet-btn:focus{
+    border-color: rgb(196, 180, 228);
+    background-color: rgb(196, 180, 228);
   }
   .orange-btn{
     border-color: #ffb880;

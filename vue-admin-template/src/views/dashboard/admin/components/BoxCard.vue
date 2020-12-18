@@ -18,14 +18,17 @@
       <div class="progress-item">
         <span>Data Sessions this year</span>
         <el-progress :percentage="box.year/1400000"  :format="format"/>
+        <div class="percent-compare" style="color:rgb(64, 191, 162)"><i class="el-icon-top"/>32.8%</div>
       </div>
       <div class="progress-item">
         <span>Data Sessions this month</span>
         <el-progress :percentage="box.month/1400000"  :format="format"/>
+        <div class="percent-compare"  style="color:rgb(64, 191, 162)"><i class="el-icon-top" />4.4%</div>
       </div>
       <div class="progress-item">
         <span>Data Sessions this day</span>
         <el-progress :percentage="box.day/1400000"  :format="format"/>
+        <div class="percent-compare" style="color:rgb(212, 121, 128)"><i class="el-icon-bottom" />2.4%</div>
       </div>
   </el-card>
 </template>
@@ -141,5 +144,15 @@ export default {
     }
     .el-card{
       height: 301px;
+    }
+    .percent-compare{
+      width: 100px;
+      right: 0px;
+      margin-top: -15px;
+      position: absolute;
+    }
+    .percent-compare i{
+      font-size: 14px;
+      font-weight: 600;
     }
 </style>

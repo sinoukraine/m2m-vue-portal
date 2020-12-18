@@ -495,7 +495,7 @@ export default {
     }
     
     .el-progress-bar{
-      width: 94%;
+      width: 80%;
 
     }
     .box-header{
