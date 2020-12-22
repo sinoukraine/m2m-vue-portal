@@ -2,33 +2,37 @@
   <el-card class="box-card-component mb-30" >
     <div class="w-100 d-flex box-header" >
             <div class="card-inline card-panel-left font-16 bold color-grey " >
-              Data Sessions
+              {{box.report}}
             </div>
             <div class="card-inline card-panel-right d-flex">
-              <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click">
+              <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click"  @command="handleBox">
                 <div class="menu-wrapper">
                   <img src="menu.svg" class="menu-dropdown">
                 </div>
                 <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="Data Sessions">Data Sessions</el-dropdown-item>
+                  <el-dropdown-item command="Data Usage">Data Usage</el-dropdown-item>
+                  <el-dropdown-item command="SMS Usage">SMS Usage</el-dropdown-item> 
+                  <el-dropdown-item command="Online Numbers">Online Numbers</el-dropdown-item>   
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
         </div>
     
       <div class="progress-item">
-        <span>Data Sessions this year</span>
-        <el-progress :percentage="box.year/1400000"  :format="format"/>
-        <div class="percent-compare" style="color:rgb(64, 191, 162)"><i class="el-icon-top"/>32.8%</div>
+        <span>{{box.report}} this year</span>
+        <el-progress :percentage="percentFrom(box.year)"  :format="format"/>
+        <div class="percent-compare" style="color:rgb(64, 191, 162)"><i class="el-icon-top"/>{{compareFrom(box.year)}}%</div>
       </div>
       <div class="progress-item">
-        <span>Data Sessions this month</span>
-        <el-progress :percentage="box.month/1400000"  :format="format"/>
-        <div class="percent-compare"  style="color:rgb(64, 191, 162)"><i class="el-icon-top" />4.4%</div>
+        <span>{{box.report}} this month</span>
+        <el-progress :percentage="percentFrom(box.month)"  :format="format"/>
+        <div class="percent-compare"  style="color:rgb(64, 191, 162)"><i class="el-icon-top" />{{compareFrom(box.month)}}%</div>
       </div>
       <div class="progress-item">
-        <span>Data Sessions this day</span>
-        <el-progress :percentage="box.day/1400000"  :format="format"/>
-        <div class="percent-compare" style="color:rgb(212, 121, 128)"><i class="el-icon-bottom" />2.4%</div>
+        <span>{{box.report}} this day</span>
+        <el-progress :percentage="percentFrom(box.day)"  :format="format"/>
+        <div class="percent-compare" style="color:rgb(212, 121, 128)"><i class="el-icon-bottom" />{{compareFrom(box.day)}}%</div>
       </div>
   </el-card>
 </template>
@@ -40,7 +44,6 @@ import Mallki from '@/components/TextHoverEffect/Mallki'
 
 export default {
   components: { PanThumb, Mallki },
-
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -64,13 +67,74 @@ export default {
       'name',
       'avatar',
       'roles'
-    ])
+    ]),
   },
   methods: {
+    percentFrom(data){
+      switch (this.$props['box'].report){
+          case 'Data Sessions':
+            return (data/2000000)
+          break
+          case 'Data Usage':
+            return (data/11000)
+          break
+          case 'SMS Usage':            
+            return (data/200)
+          break
+          case 'Online Numbers':
+            return (data/100)
+          break
+        }     
+    },    
+    compareFrom(data){
+      switch (this.$props['box'].report){
+          case 'Data Sessions':
+            return (data/2000000).toFixed(2)
+          break
+          case 'Data Usage':
+            return (data/11000).toFixed(2)
+          break
+          case 'SMS Usage':
+            return (data/200).toFixed(2)
+          break
+          case 'Online Numbers':
+            return (data/100).toFixed(2)
+          break
+        }     
+    },  
     format(percentage) {
-      return (percentage*1400000).toFixed(0)
+      switch (this.$props['box'].report){
+          case 'Data Sessions':
+            return (percentage*2000000).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          break
+          case 'Data Usage':
+            return (percentage*11000).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          break
+          case 'SMS Usage':
+            return (percentage*200).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          break
+          case 'Online Numbers':
+            return (percentage*100).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          break
+        }   
+    },
+    handleBox(val){
+      this.loading = true
+      this.report = val
+      this.$emit('change', val)
+      //this.$store.dispatch('dashboard/setPeriod', val)
     }
-  }
+  },
+  watch: {
+    total: function(val) {
+      if(val.loaded==true) {
+        //console.log('issss', val.totalDataUsage)
+        this.loading = false
+      }else{
+        this.loading = true
+      }
+    },
+  },
 }
 </script>
 

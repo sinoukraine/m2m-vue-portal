@@ -1,8 +1,13 @@
 <template>
   <el-container class="chat-container">
+    <loading :active.sync="isLoading" 
+        :can-cancel="true" 
+        :is-full-page="fullPage">
+    </loading>
     <el-container class="p-20">
-      <el-main class="messages-container">
-        <div class="messages">
+      <el-main class="messages-container"
+              >
+        <div class="messages" id="messages">
           <div
             v-for="(message, index) in messageList"
             :key="index"
@@ -19,30 +24,37 @@
                     <div v-show="message.type === 'received'">
                         <img :src="'avatar-sim.png?imageView2/1/w/80/h/80'" class="user-avatar">
                     </div>
-                    <div class="message-status">Delivered</div>
-                    <div class="message-time">12:12:21</div>
+                    <div v-if="!message.new" class="message-status">Delivered</div>
+                    <div v-else class="message-status-new">Sent</div>
+                    <div class="message-time">{{message.timestamp}}</div>
                     <div v-show="message.type === 'sent'">
                         <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
                     </div>
                 </div>
                 <div class="message-bubble">
                   <div class="message-text">
+                    <b>                      
+                      {{message.type === 'sent'?'m2madmin':message.from}}
+                    </b>
+                    <br>
                     {{message.text}}
                   </div>
                 </div>
               </div>
             </slot>
           </div>
+        </div>     
+        <div class="unreaded">
         </div>
-      </el-main>
+      </el-main>   
 
       <el-footer class="messagebar-container">
         <div class="display-flex justify-content-between">
-            <el-input placeholder="Command" v-model="inputCommand" class="input-with-select">
-            </el-input>
-            <div class="buttons-row white-space-nowrap">
-            <el-button slot="append" class="button-custom blue-btn" type="primary" ><item :icon="'send-white'" /> Send</el-button>
-            </div>
+          <el-input placeholder="Command" v-model="newMessage" class="input-with-select">
+          </el-input>
+          <div class="buttons-row white-space-nowrap">
+            <el-button v-waves slot="append" class="button-custom blue-btn" type="primary" @click="sendMessage"><item :icon="'send-white'" /> Send</el-button>
+          </div>
         </div>
       </el-footer>
     </el-container>
@@ -54,43 +66,62 @@
         <p class="">Select command</p>
         <i class="el-icon-arrow-right" />
     </div>
-    <el-form class="commands-form" ref="listQuery" :model="listQuery" label-position="top" @submit.native.prevent="handleFilter">
-          <div class="padding-horizontal-x2">
-            <el-row :gutter="16" style="">
-              <el-col :xs="100">
-                 <el-form-item :label="$t('AGENT')" prop="title" class="no-margin-bottom">
-                  <el-select v-model="agentsArr[0]" :placeholder="$t('AGENT')" class="">
-                    <el-option v-for="item in agentsArr" :key="item.code" :label="item.name" :value="item.code" />
-                  </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('CUSTOMER')" prop="title" class="">
-                  <el-select v-model="selectedCustomer" :placeholder="$t('CUSTOMER')">
-                    <el-option v-for="item in customersArr" :key="item.code" :label="item.name" :value="item.code" />
-                  </el-select>
-                </el-form-item>                
-              </el-col>
-            </el-row>
-          </div>          
-          <div class="content-divider"></div>
-          <div class="padding-horizontal-x2">
-            <el-row :gutter="16" style="">
-              <el-col :xs="100">
-                <el-form-item :label="$t('IMSI')" prop="title" class="no-margin-bottom">
-                  <el-input  placeholder="" class="filter-item" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-        </el-form>
-      <el-scrollbar wrap-class="scrollbar-wrapper">        
-        <div class="sidebar-header">
+    <el-form class="commands-form" ref="simListQuery" :model="simListQuery" label-position="top" @submit.native.prevent="handleFilter">
+      <input :id="filterSubmitId" type="submit" class="display-none">
+        <!--<div class="padding-horizontal-x2">
+          <el-row :gutter="16" style="">
+            <el-col :xs="100">
+                <el-form-item :label="$t('AGENT')" prop="title" class="no-margin-bottom">
+                <el-select v-model="agentsArr[0]" :placeholder="$t('AGENT')" class="">
+                  <el-option v-for="item in agentsArr" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('CUSTOMER')" prop="title" class="">
+                <el-select v-model="selectedCustomer" :placeholder="$t('CUSTOMER')">
+                  <el-option v-for="item in customersArr" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
+              </el-form-item>                
+            </el-col>
+          </el-row>
+        </div>
+        <div class="content-divider"></div>-->       
+        <div class="padding-horizontal-x2 pb-20">
+          <el-row :gutter="16" style="">
+            <el-col :xs="100">
+              <el-form-item :label="$t('IMSI')" prop="title" class="no-margin-bottom">
+                <el-input  v-model="simListQuery.sample" placeholder="" class="filter-item" />
+              </el-form-item>
+            </el-col>
+          </el-row>     
+        </div>        
+        <div class="content-divider"></div>
+        <div class="padding-horizontal-x2 py-20"> 
+          <el-row :gutter="16">
+            <el-col :xs="12" :sm="12" :md="12" :lg="12">
+              <label @click="clearFilter" class="el-button el-button--primary width-100 dark-btn group-btn">
+                <span>{{ $t('CLEAR') }}</span>
+              </label>
+            </el-col>
+            <el-col :xs="12" :sm="12" :md="12" :lg="12">
+              <label v-waves :for="filterSubmitId" class="el-button el-button--primary width-100 blue-btn group-btn">
+                <item :icon="'search-white'"/> <span>{{ $t('SEARCH') }}</span>
+              </label>
+            </el-col>
+          </el-row>
+        </div>        
+        <div class="content-divider"></div>    
+      </el-form>
+      <el-scrollbar wrap-class="scrollbar-wrapper">     
+        <p v-show="!deviceList.length" class="no-sim-info">You can find the device by IMSI</p>   
+        <div v-show="deviceList.length" class="sidebar-header">
           <el-checkbox v-model="checkedAll">All</el-checkbox>
         </div>
-        <ul class="list">
+        <ul 
+            v-show="deviceList.length" class="list">
           <li v-for="device in deviceList" :key="device.id">
             <div class="item-content" >
               <div class="item-append">
-                <el-checkbox v-model="device.checkboxState"></el-checkbox>
+                <el-checkbox v-model="device.state" @input="handleChecked(device)"></el-checkbox>
               </div>
               <div class="item-inner">
                 <div class="item-title">
@@ -105,12 +136,10 @@
                       <el-dropdown-item>Option 3</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
-
                 </div>
               </div>
             </div>
           </li>
-
         </ul>
       </el-scrollbar>
 
@@ -122,32 +151,57 @@
 
 import { mapGetters } from 'vuex'
 import Item from '@/layout/components/Sidebar/Item'
+import waves from '@/directive/waves' 
+import moment from 'moment'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
+import { getSIMList, getSMSHistoryAsync } from '@/api/sim'
 
 export default {
   name: 'App',
   data() {
-    return {
-      inputCommand: '',
+    return {      
+      isLoading: false,
+      fullPage: true,
       checkedAll: '',
       deviceList: {},
-      messageList: [],
+      newMessage: '',
+      messageList: [
+        {
+          type: 'title',
+          text: 'Today',
+        },
+      ],
       agentsArr: [
         { code: '1', name: 'Agent' }
       ],
       customersArr: [
         { code: '1', name: 'Customer' }
-      ],
+      ],    
+      simListQuery: {
+        limit: 5,
+        sample: ''
+      },
+      filterSubmitId: Date.now(),
+      intervalForReply: null,
+      smsQuery: {
+      },
+      loadedSMS: [],      
+			monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     }
   },
+  directives: { waves },
   components: {
-      Item
+      Item,
+      Loading
   },
   watch: {
     checkedAll(state){
       for (let i = 0; i < this.deviceList.length; i++) {
-        this.deviceList[i].checkboxState = state;
+        this.deviceList[i].state = state
       }
-    }
+      this.getHistory()
+    },
   },
   computed: {
     ...mapGetters([
@@ -155,6 +209,171 @@ export default {
     ])
   },
   methods: {
+    clearFilter() {
+      this.isLoading = true     
+      this.simListQuery.sample = ''      
+      this.isLoading = false     
+    },
+    handleFilter() {
+      this.isLoading = true     
+      this.deviceList = []
+      this.searchSIMList()
+    },
+    searchSIMList() {
+      const arr = []
+
+      getSIMList(this.simListQuery).then(response => {
+        response.data.forEach(element => {
+          arr.push({
+            id: element._id,
+            name: element.info.imsi,
+            state: false,
+          })
+        })        
+        this.isLoading = false     
+        this.deviceList = arr
+      }).catch(e => {
+        this.isLoading = false 
+        this.$alert('The IMSI field length have to be greater than or equal to 4 characters long.', 'M2M Data Message', {type: 'message'})
+    
+      })
+    },
+    handleChecked({name, state}){       
+      this.getHistory()
+    },
+    sendMessage(){      
+      const someArr = this.deviceList.some(el => el.state === true)   
+      if(someArr) {
+        this.isLoading = true 
+        const datetime = moment.utc().toDate()						
+        const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
+                
+        const obj = {
+          new: true,
+          timestamp: time,
+          from: 'me',
+          text: this.newMessage,
+          type: 'sent'
+        }
+        
+        this.messageList.push(obj)
+        this.newMessage = ''
+        this.$nextTick(() => {
+          const el = this.$el.getElementsByClassName('unreaded')[0];
+        
+          if (el) {
+            el.scrollIntoView({behavior: 'smooth'});
+          }
+          
+          this.isLoading = false     
+        })
+        //this.intervalForReply = setInterval(function () {          
+          //this.getHistory()
+        //}, 30000)
+      }else{
+        this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
+    
+      }
+      /*var self = this;  	
+				var data = {
+					"content": text
+				}
+				
+				let userInfo = self.$app.methods.getFromStorage('userInfo');
+				let accessToken = userInfo.accessToken;
+					
+				$.ajax({
+					async: true,
+					crossDomain: true,
+					url: "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.ID + "/sms",
+					method: "POST",
+					headers: {
+						Authorization: "Bearer " + accessToken,
+						"content-type": "application/json"
+					},
+					processData: false,
+					data: JSON.stringify(data),
+					success: function (result) {
+						console.log('success', result);
+					},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
+					}
+				});	*/
+    },
+    getHistory(){     
+      let i = 0
+      let concatArr = []
+      this.deviceList.forEach(async (element, index, arr) => {
+        if(this.deviceList[index].state) {
+          const query = {
+            imsi: this.deviceList[index].name
+          } 
+          const response = await getSMSHistoryAsync(query).catch(e=>[])
+          if (response.data) {
+            concatArr = concatArr.concat(response.data)          						
+          }          
+        }
+        i++
+        if(i == arr.length) {
+          this.isLoading = true
+          let sortedArr = concatArr.sort(function(a,b){
+            var c = new Date(a.insertedDate)
+            var d = new Date(b.insertedDate)
+            return d-c
+          })
+          this.setHistory(sortedArr.reverse())       
+        }
+      })
+    },
+    setHistory(arr){
+      this.loadedSMS = []
+      this.messageList = []
+
+      arr.forEach(value => {
+        let obj = {}
+
+        if (this.loadedSMS.indexOf( value.insertedDate ) == -1){
+          this.loadedSMS.push(value.insertedDate)
+          const datetime = moment.utc(value.insertedDate).toDate()						
+					const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
+                 
+          obj.timestamp = time   
+          obj.from = value.from   
+
+          if (value.message) {
+            obj.text = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+          }
+							
+          if (value.direction == 'Outbound') {      
+            obj.type = 'sent'
+            //$('[data-id="'+value.insertedDate+'"]').find('.message-bubble').prepend('<div class="msg-status">Delivered</div>');
+                    
+            if(value.status == 'Delivered' || value.status == 'Submitted'){
+              /*$('.message-sent').each(function(i, ele) {
+                if(replySMS === $(this).find('.message-text').text() && $(this).find('.message-bubble').find('.msg-status').text() != 'Delivered'){
+                  $(this).remove();
+                }
+              })*/
+            }
+          }else if(value.direction == 'Inbound'){
+            obj.type = 'received'
+          }
+
+          this.messageList.push(obj)
+          
+        }
+      })
+      this.$nextTick(() => {
+        const el = this.$el.getElementsByClassName('unreaded')[0];
+      
+        if (el) {
+          el.scrollIntoView({behavior: 'smooth'});
+        }
+        
+        this.isLoading = false     
+      })
+    },
     messageClass: function (message) {
       return {
         'messages-title': message.type === 'title',
@@ -164,44 +383,6 @@ export default {
       }
     }
   },
-  mounted() {
-    this.deviceList = [
-      {
-        id: '1',
-        name: '123456789012345',
-        checkboxState: false,
-      },
-      {
-        id: '2',
-        name: '123456789012346',
-        checkboxState: false,
-      },
-      {
-        id: '3',
-        name: '123456789012347',
-        checkboxState: false,
-      }
-    ];
-
-    this.messageList = [
-      {
-        type: 'title',
-        text: 'Today',
-      },
-      {
-        type: 'sent',
-        text: 'some text that was sent',
-        from: 'me',
-        timestamp: '2020-07-16 14:25:43',
-      },
-      {
-        type: 'received',
-        from: '123456789012345',
-        text: 'reply that was received',
-        timestamp: '2020-07-16 14:26:10'
-      },
-    ]
-  }
 }
 </script>
 
@@ -211,11 +392,11 @@ export default {
   }
   .chat-container{
     position: relative;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 75px);
     width: 100%;
   }
     .chat-sidebar{
-      background-color: rgb(238, 241, 246);
+      background-color: #ffffff;
       color: #333;
 
       -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
@@ -557,8 +738,18 @@ export default {
 .p-20{
     padding: 20px;
 }
+.pb-20{
+  padding-bottom: 20px;
+}
+.py-20{
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
 .panel-right p{
     padding-right: 25px;
+}
+.panel-right{
+    background-color: rgb(238, 241, 246)
 }
 .messages-container {
     background-color: #ffffff;
@@ -567,6 +758,7 @@ export default {
 }
 
 .messagebar-container{
+    border-top: 1px solid #e3e3e3;
     background-color: #ffffff;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -594,11 +786,26 @@ export default {
     line-height: 1.144;
     font-size: 14px;
 }
+.message-status-new{
+  padding: 5px;
+    color: #ffc496;
+    line-height: 1.144;
+    font-size: 14px;
+}
 .message-time {
     padding: 5px;
     color: rgb(96, 98, 104);
     line-height: 1.144;
     font-size: 14px;
+}
+ /*buttons*/
+.dark-btn{
+  border-color: #304257;
+  background-color: #304257;
+}
+.dark-btn:hover,.dark-btn:active,.dark-btn:focus{
+  border-color: #35475c;
+  background-color: #35475c;
 }
 .blue-btn{
     border-color: #28a5e0;
@@ -611,5 +818,20 @@ export default {
   .commands-form{
       background-color: #ffffff;
       border-top: 1px solid #e3e3e3;
+  }
+
+  .group-btn{
+    padding: 12px 0;
+  }
+  .no-sim-info{
+    text-align: center;
+    background-color: #ffffff;
+    padding: 15px;
+    font-size: 12px;
+    color: grey;
+  }
+  .el-footer{
+    padding: 20px 10px 20px 20px;
+    height: 80px !important;
   }
 </style>

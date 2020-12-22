@@ -10,6 +10,9 @@
       </el-col>
       <el-col :xs="24" :sm="24" :lg="12" style="">
         <box-card :box="boxData"
+          
+            v-loading="listLoading"
+          @change="searchComparing"
         />
       </el-col>
     </el-row>
@@ -196,6 +199,50 @@ export default {
     }
   },
   methods: {
+    async searchComparing(data){      
+      this.listLoading = true
+      await getDemoOwerview().then(response => {
+        switch (data){
+          case 'Data Sessions':
+            this.boxData = {
+              day: response.data.Table3[0].JTOV_SESSION_DAY,
+              month: response.data.Table3[0].JTOV_SESSION_MONTH,
+              year: response.data.Table3[0].JTOV_SESSION_YEAR,
+              loaded: true,
+              report: data
+            }
+          break
+          case 'Data Usage':
+            this.boxData = {
+              day: response.data.Table3[0].JTOV_DATA_DAY/1048576,
+              month: response.data.Table3[0].JTOV_DATA_MONTH/1048576,
+              year: response.data.Table3[0].JTOV_DATA_YEAR/1048576,
+              loaded: true,
+              report: data
+            }
+          break
+          case 'SMS Usage':
+            this.boxData = {
+              day: response.data.Table3[0].JTOV_SMS_MO_DAY,
+              month: response.data.Table3[0].JTOV_SMS_MO_MONTH,
+              year: response.data.Table3[0].JTOV_SMS_MO_YEAR,
+              loaded: true,
+              report: data
+            }
+          break
+          case 'Online Numbers':
+            this.boxData = {
+              day: response.data.Table3[0].JTOV_DATA_NUMS_DAY,
+              month: response.data.Table3[0].JTOV_DATA_NUMS_MONTH,
+              year: response.data.Table3[0].JTOV_DATA_NUMS_YEAR,
+              loaded: true,
+              report: data
+            }
+          break
+        }        
+        this.listLoading = false
+      })
+    },
     async searchTotalByPeriod(period) {
         const gdpData = []
         const colors = []
@@ -249,7 +296,9 @@ export default {
             this.boxData = {
               day: response.data.Table3[0].JTOV_SESSION_DAY,
               month: response.data.Table3[0].JTOV_SESSION_MONTH,
-              year: response.data.Table3[0].JTOV_SESSION_YEAR
+              year: response.data.Table3[0].JTOV_SESSION_YEAR,
+              loaded: true,
+              report: 'Data Sessions'
             }
 
             if (this.mapLoading){
