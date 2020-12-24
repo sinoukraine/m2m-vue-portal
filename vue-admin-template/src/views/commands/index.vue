@@ -36,9 +36,12 @@
                 <div class="message-bubble">
                   <div class="message-text">
                     <b>                      
-                      {{message.type === 'sent'?'m2madmin':message.from}}
+                      {{message.from === 'me'?'m2madmin':message.from}}
                     </b>
+                    <br>                    
+                    <i v-show="message.to">to: {{message.to}}
                     <br>
+                    </i>
                     {{message.text}}
                   </div>
                 </div>
@@ -192,6 +195,8 @@
 
 <script>
 
+String.prototype.format = function (e) { var t = this; if($.isArray(e)) {for (var i = 0; i < e.length; i++) if (e[i] != undefined) { var r = new RegExp("({)" + i + "(})", "g"); t = t.replace(r, e[i]) } return t }else if (arguments.length == 1 && typeof e == "object") { for (var n in e) if (e[n] != undefined) { var r = new RegExp("({" + n + "})", "g"); t = t.replace(r, e[n]) } } else for (var i = 0; i < arguments.length; i++) if (arguments[i] != undefined) { var r = new RegExp("({)" + i + "(})", "g"); t = t.replace(r, arguments[i]) } return t };
+
 import { mapGetters } from 'vuex'
 import Item from '@/layout/components/Sidebar/Item'
 import waves from '@/directive/waves' 
@@ -201,7 +206,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 import Confirm from './message-box/confirm'
 //import MessageBox from '/message-box/message'
 import { create } from 'vue-modal-dialogs'
-import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync } from '@/api/sim'
+import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync, sendCommandAsync } from '@/api/sim'
 
 const confirm = create(Confirm, 'title', 'content')
 
@@ -253,7 +258,9 @@ export default {
     checkedAll(state){
       for (let i = 0; i < this.deviceList.length; i++) {
         this.deviceList[i].state = state
-      }
+      }      
+      this.loadedSMS = []
+      this.messageList = [] 
       this.getHistory()
     },
   },
@@ -263,17 +270,6 @@ export default {
     ])
   },
   methods: {
-    async ask () {
-      console.log(await confirm('Hey', 'Do you like this project?'))
-     /* if (await confirm('Hey', 'Do you like this project?')) {
-        if (await confirm('Thanks!', 'Could you please star this project at Github now?')) {
-          console.log('ok')
-          //this.star()
-        } else console.log('no')//this.noStar()
-      } else {
-        //messageBox(`Could you please tell me what's wrong?\nIssues and PRs are welcomed!`)
-      }*/
-    },
     clearFilter() {
       this.isLoading = true     
       this.simListQuery.sample = ''      
@@ -303,74 +299,68 @@ export default {
     
       })
     },
-    handleChecked({name, state}){       
+    handleChecked({name, state}){
+      this.loadedSMS = []
+      this.messageList = [] 
       this.getHistory()
     },
-    sendMessage(){      
-      if(this.deviceList.length) {
-        const someArr = this.deviceList.some(el => el.state === true)   
-        if(someArr) {
-          this.isLoading = true 
-          const datetime = moment.utc().toDate()						
-          const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
-                  
-          const obj = {
-            new: true,
-            timestamp: time,
-            from: 'me',
-            text: this.newMessage,
-            type: 'sent'
-          }
-          
-          this.messageList.push(obj)
-          this.newMessage = ''
-          this.$nextTick(() => {
-            const el = this.$el.getElementsByClassName('unreaded')[0];
-          
-            if (el) {
-              el.scrollIntoView({behavior: 'smooth'});
-            }
+    async sendMessage(){      
+      if(this.newMessage){
+        if(this.deviceList.length) {
+          const someArr = this.deviceList.some(el => el.state === true)   
+          if(someArr) {
+            //this.isLoading = true 
+            const datetime = moment.utc().toDate()						
+            const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
+ 
+            for (let i = 0; i < this.deviceList.length; i++) {
+              if(this.deviceList[i].state) {
+                const query = {
+                  imsi: this.deviceList[i].name,
+                  content: this.newMessage
+                }
+                const response = await sendCommandAsync(query).catch(e=>{
+                  this.$alert('Command was not sent to IMSI ' + this.deviceList[i].name, 'M2M Data Message', {type: 'message'})
+                })
+                if(response){
+                  const obj = {
+                    new: true,
+                    timestamp: time,
+                    from: 'me',
+                    to: this.deviceList[i].name,
+                    text: this.newMessage,
+                    type: 'sent'
+                  }
+                  this.messageList.push(obj)
+                }
+              }
+            }      
+           
+            this.newMessage = ''
+            this.$nextTick(() => {
+              const el = this.$el.getElementsByClassName('unreaded')[0];
             
-            this.isLoading = false     
-          })
-          //this.intervalForReply = setInterval(function () {          
-            //this.getHistory()
-          //}, 30000)
+              if (el) {
+                el.scrollIntoView({behavior: 'smooth'});
+              }
+                
+            })
+            //this.isLoading = false  
+            
+            if(!this.intervalForReply){
+              const self = this
+              this.intervalForReply = setInterval(function () {          
+                self.getHistory()
+              }, 30000)
+            }
+          }else{
+            this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
+        
+          }
         }else{
-          this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
-      
+          this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})      
         }
-      }else{
-          this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
-      
-        }
-      
-      /*var self = this;  	
-				var data = {
-					"content": text
-				}
-				
-				let userInfo = self.$app.methods.getFromStorage('userInfo');
-				let accessToken = userInfo.accessToken;
-					
-				$.ajax({
-					async: true,
-					crossDomain: true,
-					url: "http://m2mdata03.sinopacific.com.ua/api/v3/sims/" + self.ID + "/sms",
-					method: "POST",
-					headers: {
-						Authorization: "Bearer " + accessToken,
-						"content-type": "application/json"
-					},
-					processData: false,
-					data: JSON.stringify(data),
-					success: function (result) {
-						console.log('success', result);
-					},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-						console.log('can not connect: txt = '+textStatus+' err = '+errorThrown);
-					}
-				});	*/
+      }      
     },
     getHistory(){     
       let i = 0
@@ -398,19 +388,18 @@ export default {
       })
     },
     setHistory(arr){
-      this.loadedSMS = []
-      this.messageList = []
-
       arr.forEach(value => {
         let obj = {}
 
-        if (this.loadedSMS.indexOf( value.insertedDate ) == -1){
-          this.loadedSMS.push(value.insertedDate)
+        if (this.loadedSMS.indexOf( value.from + ' ' + value.insertedDate ) == -1){
+          
+          this.loadedSMS.push(value.from + ' ' + value.insertedDate)
           const datetime = moment.utc(value.insertedDate).toDate()						
 					const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
                  
           obj.timestamp = time   
-          obj.from = value.from   
+          obj.from = value.from
+          obj.to = ''
 
           if (value.message) {
             obj.text = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -418,9 +407,18 @@ export default {
 							
           if (value.direction == 'Outbound') {      
             obj.type = 'sent'
-            //$('[data-id="'+value.insertedDate+'"]').find('.message-bubble').prepend('<div class="msg-status">Delivered</div>');
-                    
             if(value.status == 'Delivered' || value.status == 'Submitted'){
+              const elToRemove = []
+              this.messageList.map((el, i) => {
+                if(el.text === obj.text && el.hasOwnProperty('new')){
+                  elToRemove.push(i)
+                }
+              })
+              console.log(elToRemove)
+              elToRemove.forEach(element => {
+                this.messageList.splice(element, 1)                
+              })
+
               /*$('.message-sent').each(function(i, ele) {
                 if(replySMS === $(this).find('.message-text').text() && $(this).find('.message-bubble').find('.msg-status').text() != 'Delivered'){
                   $(this).remove();
@@ -448,9 +446,21 @@ export default {
     handleChange(val) {
       
     },
-    async chooseCommand(val){      
-      //await confirm('Hey', 'Do you like this project?')
-      this.newMessage = val.Format
+    async chooseCommand(val){
+			let smsFormat = val.Format
+      let arr = eval(val.Params)
+      let params = []							
+      let count=arr.length
+      if(count){        
+        for(var i=0; i<arr.length; i++) {		
+          let curPar = await confirm(arr[i].Name, arr[i].Prams).transition()//self.$app.dialog.prompt(arr[i].Name, function (name) {
+          params.push(curPar)
+          this.newMessage = smsFormat.format(params)
+        }
+      }else{
+        this.newMessage = val.Format
+      }
+      
     },
     closeCommandsPanel(){
       this.isCommandsPanelVisible = false

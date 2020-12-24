@@ -37,6 +37,36 @@ function getRequestOptions(options) {
   return axiosRequestOptions
 }
 
+function postRequestOptions(options) {
+  const token = getToken()
+  const axiosRequestOptions = {
+    async: true,
+    crossDomain: true,
+    url: options.url,
+    method: options.method,
+    processData: false,
+    data: JSON.stringify({
+      "smsParameters": {
+        "data": options.content,
+        "from": "Platform",
+        "replaceIfPresent": "No",
+        "smsType": "Text",
+        "smsValidityDays": "1",
+        "smsValidityHours": "1",
+        "smsValidityMinutes": "2",
+        "udh": "No"
+      }
+    }),
+    timeout: 2147483647,
+  }
+  axiosRequestOptions.headers = {
+    'content-type': 'application/json',
+    'Authorization': 'Bearer ' + token
+  }
+
+  return axiosRequestOptions
+}
+
 function getRequestIMNSOptions(options) {
   const token = "11111111-1111-1111-1111-111111111111"
   const axiosRequestOptions = {
@@ -61,6 +91,7 @@ export async function getDemoOwerview() {
      })
    })
  }
+ 
 
  export async function getDemoTopUsage() {  
   return new Promise((resolve, reject) => {
@@ -116,6 +147,24 @@ export async function getSIMStates(query) {
       reject(e)
     })
   })
+}
+
+export async function sendCommandAsync(query) {
+  const findBy = query.imsi
+  const options = {
+    url: NOMAD_SIMS + '/' + findBy + '/sms',
+    method: 'post',
+    content: query.content
+  }
+  try {
+    const response = await axios.request(postRequestOptions(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    this.$alert(message, title, {type: 'error'})
+    throw e
+  }
 }
 
 export async function getSMSHistoryAsync(query) {
