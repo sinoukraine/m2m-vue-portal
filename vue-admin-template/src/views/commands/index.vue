@@ -3,7 +3,9 @@
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
-    </loading>
+    </loading>    
+    <confirm></confirm>
+    <dialogs-wrapper transition-name="fade"></dialogs-wrapper>
     <el-container class="p-20">
       <el-main class="messages-container"
               >
@@ -61,88 +63,129 @@
 
     
     <el-aside width="250px" style="" class="chat-sidebar">
-    <div class="panel-right padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="isRightPanelVisible = !isRightPanelVisible">
-        <item :icon="'commands-grey'" />
-        <p class="">Select command</p>
-        <i class="el-icon-arrow-right" />
-    </div>
-    <el-form class="commands-form" ref="simListQuery" :model="simListQuery" label-position="top" @submit.native.prevent="handleFilter">
-      <input :id="filterSubmitId" type="submit" class="display-none">
-        <!--<div class="padding-horizontal-x2">
-          <el-row :gutter="16" style="">
-            <el-col :xs="100">
-                <el-form-item :label="$t('AGENT')" prop="title" class="no-margin-bottom">
-                <el-select v-model="agentsArr[0]" :placeholder="$t('AGENT')" class="">
-                  <el-option v-for="item in agentsArr" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('CUSTOMER')" prop="title" class="">
-                <el-select v-model="selectedCustomer" :placeholder="$t('CUSTOMER')">
-                  <el-option v-for="item in customersArr" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-              </el-form-item>                
-            </el-col>
-          </el-row>
+      <div v-if="isCommandsPanelVisible">
+        <div class="right-column-header panel-right  padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="closeCommandsPanel">
+          <p class="">Commands</p>
+          <i class="el-icon-close" />
         </div>
-        <div class="content-divider"></div>-->       
-        <div class="padding-horizontal-x2 pb-20">
-          <el-row :gutter="16" style="">
-            <el-col :xs="100">
-              <el-form-item :label="$t('IMSI')" prop="title" class="no-margin-bottom">
-                <el-input  v-model="simListQuery.sample" placeholder="" class="filter-item" />
-              </el-form-item>
-            </el-col>
-          </el-row>     
-        </div>        
-        <div class="content-divider"></div>
-        <div class="padding-horizontal-x2 py-20"> 
-          <el-row :gutter="16">
-            <el-col :xs="12" :sm="12" :md="12" :lg="12">
-              <label @click="clearFilter" class="el-button el-button--primary width-100 dark-btn group-btn">
-                <span>{{ $t('CLEAR') }}</span>
-              </label>
-            </el-col>
-            <el-col :xs="12" :sm="12" :md="12" :lg="12">
-              <label v-waves :for="filterSubmitId" class="el-button el-button--primary width-100 blue-btn group-btn">
-                <item :icon="'search-white'"/> <span>{{ $t('SEARCH') }}</span>
-              </label>
-            </el-col>
-          </el-row>
-        </div>        
-        <div class="content-divider"></div>    
-      </el-form>
-      <el-scrollbar wrap-class="scrollbar-wrapper">     
-        <p v-show="!deviceList.length" class="no-sim-info">You can find the device by IMSI</p>   
-        <div v-show="deviceList.length" class="sidebar-header">
-          <el-checkbox v-model="checkedAll">All</el-checkbox>
-        </div>
-        <ul 
-            v-show="deviceList.length" class="list">
-          <li v-for="device in deviceList" :key="device.id">
-            <div class="item-content" >
-              <div class="item-append">
-                <el-checkbox v-model="device.state" @input="handleChecked(device)"></el-checkbox>
-              </div>
-              <div class="item-inner">
-                <div class="item-title">
-                  {{device.name}}
+        <el-scrollbar wrap-class="scrollbar-wrapper" 
+          :class="listLoading?'scrollbar-loading':''">   
+            <el-collapse v-model="activeCommandGroups"
+               @change="handleChange"      
+               v-loading="listLoading"
+               class="collapse-list">
+              <el-collapse-item           
+                v-for="group in commandGroupList" 
+                :key="group.ProductName"
+                :title="group.ProductName + ' (' + group.CommandList.length + ')'" 
+                :name="group.ProductName"
+                class="collapse-item">
+                <div>
+                  <ul 
+                       class="list">
+                    <li v-for="command in group.CommandList" :key="command.Code" @click="chooseCommand(command)">
+                      <div class="item-content" >
+                        <div class="item-inner">
+                          <div class="item-title">
+                            {{command.Name}}
+                          </div>
+                          
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
-                <div class="item-after">
-                  <el-dropdown slot="prepend" trigger="click">
-                    <i  class="el-icon-more rotate-90" style=""></i>
-                    <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item>Option 1</el-dropdown-item>
-                      <el-dropdown-item>Option 2</el-dropdown-item>
-                      <el-dropdown-item>Option 3</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                </div>
-              </div>
+              </el-collapse-item>            
+            </el-collapse>    
+            <!--<div v-show="commandsList.length" class="sidebar-header">
+              <el-checkbox v-model="checkedCommandsAll">All</el-checkbox>
             </div>
-          </li>
-        </ul>
-      </el-scrollbar>
-
+            -->
+          </el-scrollbar>
+      </div>
+      <div v-else>
+        <div class="right-column-header panel-right padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="showCommandsPanel">
+          <item :icon="'commands-grey'" />
+          <p class="">Select command</p>
+          <i class="el-icon-arrow-right" />
+        </div>
+        <el-form class="commands-form" ref="simListQuery" :model="simListQuery" label-position="top" @submit.native.prevent="handleFilter">
+          <input :id="filterSubmitId" type="submit" class="display-none">
+            <!--<div class="padding-horizontal-x2">
+              <el-row :gutter="16" style="">
+                <el-col :xs="100">
+                    <el-form-item :label="$t('AGENT')" prop="title" class="no-margin-bottom">
+                    <el-select v-model="agentsArr[0]" :placeholder="$t('AGENT')" class="">
+                      <el-option v-for="item in agentsArr" :key="item.code" :label="item.name" :value="item.code" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item :label="$t('CUSTOMER')" prop="title" class="">
+                    <el-select v-model="selectedCustomer" :placeholder="$t('CUSTOMER')">
+                      <el-option v-for="item in customersArr" :key="item.code" :label="item.name" :value="item.code" />
+                    </el-select>
+                  </el-form-item>                
+                </el-col>
+              </el-row>
+            </div>
+            <div class="content-divider"></div>-->       
+            <div class="padding-horizontal-x2 pb-20">
+              <el-row :gutter="16" style="">
+                <el-col :xs="100">
+                  <el-form-item :label="$t('IMSI')" prop="title" class="no-margin-bottom">
+                    <el-input  v-model="simListQuery.sample" placeholder="" class="filter-item" />
+                  </el-form-item>
+                </el-col>
+              </el-row>     
+            </div>        
+            <div class="content-divider"></div>
+            <div class="padding-horizontal-x2 py-20"> 
+              <el-row :gutter="16">
+                <el-col :xs="12" :sm="12" :md="12" :lg="12">
+                  <label @click="clearFilter" class="el-button el-button--primary width-100 dark-btn group-btn">
+                    <span>{{ $t('CLEAR') }}</span>
+                  </label>
+                </el-col>
+                <el-col :xs="12" :sm="12" :md="12" :lg="12">
+                  <label v-waves :for="filterSubmitId" class="el-button el-button--primary width-100 blue-btn group-btn">
+                    <item :icon="'search-white'"/> <span>{{ $t('SEARCH') }}</span>
+                  </label>
+                </el-col>
+              </el-row>
+            </div>        
+            <div class="content-divider"></div>    
+          </el-form>
+          <el-scrollbar wrap-class="scrollbar-wrapper">     
+            <p v-show="!deviceList.length" class="no-sim-info">You can find the device by IMSI</p>   
+            <div v-show="deviceList.length" class="sidebar-header">
+              <el-checkbox v-model="checkedAll">All</el-checkbox>
+            </div>
+            <ul 
+                v-show="deviceList.length" class="list">
+              <li v-for="device in deviceList" :key="device.id">
+                <div class="item-content" >
+                  <div class="item-append">
+                    <el-checkbox v-model="device.state" @input="handleChecked(device)"></el-checkbox>
+                  </div>
+                  <div class="item-inner">
+                    <div class="item-title">
+                      {{device.name}}
+                    </div>
+                    <div class="item-after">
+                      <el-dropdown slot="prepend" trigger="click">
+                        <i  class="el-icon-more rotate-90" style=""></i>
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item>Option 1</el-dropdown-item>
+                          <el-dropdown-item>Option 2</el-dropdown-item>
+                          <el-dropdown-item>Option 3</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </el-scrollbar>
+      </div>
     </el-aside>
   </el-container>
 </template>
@@ -155,16 +198,27 @@ import waves from '@/directive/waves'
 import moment from 'moment'
 import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.css'
-import { getSIMList, getSMSHistoryAsync } from '@/api/sim'
+import Confirm from './message-box/confirm'
+//import MessageBox from '/message-box/message'
+import { create } from 'vue-modal-dialogs'
+import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync } from '@/api/sim'
+
+const confirm = create(Confirm, 'title', 'content')
 
 export default {
   name: 'App',
   data() {
     return {      
       isLoading: false,
-      fullPage: true,
+      fullPage: true,      
+      listLoading: true,
+      isRightPanelVisible: true,
+      isCommandsPanelVisible: false,
       checkedAll: '',
+      checkedCommandsAll: '',
       deviceList: {},
+      commandGroupList: [],
+      activeCommandGroups: [],
       newMessage: '',
       messageList: [
         {
@@ -209,6 +263,17 @@ export default {
     ])
   },
   methods: {
+    async ask () {
+      console.log(await confirm('Hey', 'Do you like this project?'))
+     /* if (await confirm('Hey', 'Do you like this project?')) {
+        if (await confirm('Thanks!', 'Could you please star this project at Github now?')) {
+          console.log('ok')
+          //this.star()
+        } else console.log('no')//this.noStar()
+      } else {
+        //messageBox(`Could you please tell me what's wrong?\nIssues and PRs are welcomed!`)
+      }*/
+    },
     clearFilter() {
       this.isLoading = true     
       this.simListQuery.sample = ''      
@@ -242,38 +307,44 @@ export default {
       this.getHistory()
     },
     sendMessage(){      
-      const someArr = this.deviceList.some(el => el.state === true)   
-      if(someArr) {
-        this.isLoading = true 
-        const datetime = moment.utc().toDate()						
-        const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
-                
-        const obj = {
-          new: true,
-          timestamp: time,
-          from: 'me',
-          text: this.newMessage,
-          type: 'sent'
-        }
-        
-        this.messageList.push(obj)
-        this.newMessage = ''
-        this.$nextTick(() => {
-          const el = this.$el.getElementsByClassName('unreaded')[0];
-        
-          if (el) {
-            el.scrollIntoView({behavior: 'smooth'});
+      if(this.deviceList.length) {
+        const someArr = this.deviceList.some(el => el.state === true)   
+        if(someArr) {
+          this.isLoading = true 
+          const datetime = moment.utc().toDate()						
+          const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
+                  
+          const obj = {
+            new: true,
+            timestamp: time,
+            from: 'me',
+            text: this.newMessage,
+            type: 'sent'
           }
           
-          this.isLoading = false     
-        })
-        //this.intervalForReply = setInterval(function () {          
-          //this.getHistory()
-        //}, 30000)
+          this.messageList.push(obj)
+          this.newMessage = ''
+          this.$nextTick(() => {
+            const el = this.$el.getElementsByClassName('unreaded')[0];
+          
+            if (el) {
+              el.scrollIntoView({behavior: 'smooth'});
+            }
+            
+            this.isLoading = false     
+          })
+          //this.intervalForReply = setInterval(function () {          
+            //this.getHistory()
+          //}, 30000)
+        }else{
+          this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
+      
+        }
       }else{
-        this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
-    
-      }
+          this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
+      
+        }
+      
       /*var self = this;  	
 				var data = {
 					"content": text
@@ -373,6 +444,27 @@ export default {
         
         this.isLoading = false     
       })
+    },
+    handleChange(val) {
+      
+    },
+    async chooseCommand(val){      
+      //await confirm('Hey', 'Do you like this project?')
+      this.newMessage = val.Format
+    },
+    closeCommandsPanel(){
+      this.isCommandsPanelVisible = false
+    },
+    async showCommandsPanel(){      
+      this.isCommandsPanelVisible = true
+      const response = await getCommandsListAsync()
+      if(response.status=="200")
+      {	
+        this.commandGroupList = response.data        
+        this.$nextTick(()=>{
+          this.listLoading = false
+        })
+      }
     },
     messageClass: function (message) {
       return {
@@ -834,4 +926,73 @@ export default {
     padding: 20px 10px 20px 20px;
     height: 80px !important;
   }
+  .scrollbar-loading .collapse-list{
+    padding: 25px 0;
+  }
+  .scrollbar-loading{
+    padding-top: calc(50vh - 110px);
+  }
+  .scrollbar-loading .el-collapse{
+    border: none;
+  }
+  .scrollbar-loading .el-scrollbar__wrap{
+    overflow: hidden;
+    margin: 0 !important;
+  }
+  .collapse-item .el-collapse-item__header{
+    font-size: 12px;
+    padding: 0 12px 0 20px;
+    font-weight: 600;
+    color: rgb(96, 98, 104);
+  }
+  .right-column-header{
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    color: rgb(96, 98, 104);
+  }
+  .right-column-header:hover{
+    background-color: rgb(238, 241, 246);
+  }
+  .collapse-item .item-content{
+    font-size: 12px;
+    border-top: 1px solid #e3e3e3;
+    color: rgb(96, 98, 104);
+  }
+  .el-collapse-item__content{
+    padding-bottom: 0;
+  }
+  .el-collapse-item__content .list .item-content{
+    cursor: pointer;
+  }
+
+  .dialog-mask {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    background-color: rgba(0,0,0,.33);
+  }
+  .message-box .dialog-content {
+    min-width: 240px;
+    text-align: center;
+    font-size: 16px;
+}
+.dialog-content {
+    margin: 0 20px;
+    padding: 20px 30px;
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    color: #303133;
+}
 </style>

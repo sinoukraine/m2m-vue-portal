@@ -10,6 +10,7 @@ const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
 const API_NOMAD = 'https://m2mdata03.sinopacific.com.ua/nomad/'
 const DEMO_OWERVIEW = 'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
 const DEMO_TOP_USAGE = 'https://m2mdata.co/JT/TopUsage?type=sms&time=today'
+const API_IMNS_DOMIAN = "https://api.m2mglobaltech.com/QuikData/V1/"
 const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
 const NOMAD_SIMS = API_NOMAD + 'sims'
 const SIM_LIST = API_DOMIAN + 'sims'
@@ -17,6 +18,8 @@ const USER_LIST = API_DOMIAN + 'people'
 const SIM_STATES = API_DOMIAN + 'sims/states'
 const CDRS_LIST = API_DOMIAN + 'cdrs'
 const CUSTOMER_LIST = API_DOMIAN + 'counterparties'
+const COMMAND_LIST = API_IMNS_DOMIAN + "Command/GetLIst"
+const COMMAND_TYPES = API_IMNS_DOMIAN + 'Command/GetTypes'
 
 
 function getRequestOptions(options) {
@@ -29,6 +32,20 @@ function getRequestOptions(options) {
   axiosRequestOptions.headers = {
     'content-type': 'application/json',
     'Authorization': 'Bearer ' + token
+  }
+
+  return axiosRequestOptions
+}
+
+function getRequestIMNSOptions(options) {
+  const token = "11111111-1111-1111-1111-111111111111"
+  const axiosRequestOptions = {
+    url: options.url + '?MajorToken=' + token,
+    method: options.method,
+    timeout: 2147483647
+  }
+  axiosRequestOptions.headers = {
+    'content-type': 'application/json',
   }
 
   return axiosRequestOptions
@@ -109,6 +126,22 @@ export async function getSMSHistoryAsync(query) {
   }
   try {
     const response = await axios.request(getRequestOptions(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    this.$alert(message, title, {type: 'error'})
+    throw e
+  }
+}
+
+export async function getCommandsListAsync(query) {
+  const options = {
+    url: COMMAND_LIST,
+    method: 'get'
+  }
+  try {
+    const response = await axios.request(getRequestIMNSOptions(options))
     return response
   } catch (e) {
     const title = 'Error'
@@ -466,8 +499,6 @@ export function updateArticle(data) {
     body: urlencoded,
     redirect: 'follow'
   }
-
-  console.log(data)
 
   return new Promise((resolve, reject) => {
     fetch('http://test.m2mdata.co/Service/Language/Edit', requestOptions)

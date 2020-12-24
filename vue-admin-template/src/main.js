@@ -33,6 +33,8 @@ import '@/utils/jquery.vmap/jqvmap.css';
 import '@/utils/jquery.vmap/jquery.vmap.js';
 import '@/utils/jquery.vmap/jquery.vmap.world.js';
 
+import * as ModalDialogs from 'vue-modal-dialogs'
+Vue.use(ModalDialogs)               // No options
 
 /**
  * If you don't want to use mock-server
