@@ -4,6 +4,8 @@ const getters = {
   token: state => state.user.token,
   avatar: state => state.user.avatar,
   name: state => state.user.name,
+  language: state => state.user.language,
+  userInfo: state => state.user.qtUserInfo,
   imsi: state => state.dashboard.imsi,
   period: state => state.dashboard.period,
 }

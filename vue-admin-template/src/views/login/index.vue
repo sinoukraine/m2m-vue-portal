@@ -49,7 +49,10 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
-import { MessageBox, Message } from 'element-ui'
+import { qtLogin } from '@/api/user'
+//import { MessageBox, Message } from 'element-ui'
+import { detectNavigatorAgentType } from '@/utils/helpers'
+import { PlatformTypes } from '@/utils/dictionaries'
 
 export default {
   name: 'Login',
@@ -102,6 +105,40 @@ export default {
       })
     },
     handleLogin() {
+      
+      this.$refs.loginForm.validate(async valid => {
+        if (valid) {
+          this.loading = true
+          let response = await qtLogin(this.loginForm)
+          this.loading = false
+          if(!response){
+            return
+          }
+          this.$store.commit('user/SET_QT_USERINFO', response)
+          localStorage.Account = this.loginForm.Account;
+          localStorage.Password = this.loginForm.Password;
+
+          let m2mLoginDetails = {
+            username: 'm2madmin',
+            password: '888888'
+          }
+          this.$store.dispatch('user/login', m2mLoginDetails).then(() => {
+            this.$router.push({ path: this.redirect || '/report' })
+            this.loading = false
+          }).catch((e) => {
+            this.loading = false
+            Message({
+              message: 'Incorrect login data',
+              type: 'error',
+              duration: 5 * 1000
+            })
+          })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+/*
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
@@ -125,6 +162,8 @@ export default {
           return false
         }
       })
+      
+      */
     }
   }
 }

@@ -8,7 +8,7 @@ import { getToken } from '@/utils/auth' // get token from cookie
 const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
 const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
 const API_NOMAD = 'https://m2mdata03.sinopacific.com.ua/nomad/'
-const DEMO_OWERVIEW = 'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
+const DEMO_OWERVIEW = 'https://api.m2mglobaltech.com/QuikData/V1/SMS/Overview?login=m2mdataadmin'//'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
 const DEMO_TOP_USAGE = 'https://m2mdata.co/JT/TopUsage?type=sms&time=today'
 const API_IMNS_DOMIAN = "https://api.m2mglobaltech.com/QuikData/V1/"
 const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
@@ -29,6 +29,27 @@ function getRequestOptions(options) {
     method: options.method,
     timeout: 2147483647
   }
+  axiosRequestOptions.headers = {
+    'content-type': 'application/json',
+    'Authorization': 'Bearer ' + token
+  }
+
+  return axiosRequestOptions
+}
+
+
+function postRequestOptions1(options) {
+  const token = getToken()
+  const axiosRequestOptions = {
+    async: true,
+    crossDomain: true,
+    url: options.url,
+    method: options.method,
+    processData: false,
+    timeout: 2147483647,
+  }
+  
+  axiosRequestOptions.data = JSON.stringify(options.data)
   axiosRequestOptions.headers = {
     'content-type': 'application/json',
     'Authorization': 'Bearer ' + token
@@ -104,7 +125,23 @@ export async function getDemoOwerview() {
   })
 }
 
-export async function getUserList(query) {
+
+export async function addUser(query) {
+  const options = {
+     url: USER_LIST + '/',
+     method: 'put',
+     data: query
+   }
+   return new Promise((resolve, reject) => {
+     axios.request(postRequestOptions1(options)).then(
+       (result) => {
+         resolve(result)
+       }).catch(e => {
+       reject(e)
+     })
+   })
+ }
+ export async function getUserList(query) {
   const options = {
      url: USER_LIST,
      method: 'get'

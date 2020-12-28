@@ -13,7 +13,9 @@ const getDefaultState = () => {
     token: getToken(),
     name: '',
     avatar: '',
-    language: 'en'
+    language: 'en',
+
+    qtUserInfo: {}
   }
 }
 
@@ -34,6 +36,11 @@ const mutations = {
   },
   SET_LANGUAGE: (state, lang) => {
     state.language = lang
+  },
+
+  SET_QT_USERINFO: (state, info) => {
+    state.qtUserInfo = info
+    axios.defaults.headers.common['token'] = info.Token;
   }
 }
 
@@ -96,6 +103,8 @@ const actions = {
                 commit('SET_LANGUAGE', 'en')
 
                 setToken(accessToken)
+
+                
 
                 resolve()
               }).catch(e => {

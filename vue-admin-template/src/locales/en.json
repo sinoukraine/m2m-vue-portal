@@ -32,5 +32,12 @@
   "MINIMIZE_PANEL": "Minimize Panel",
   "SEARCH": "Search",
   "CLEAR": "Clear",
-  "FINISH": "Finish"
+  "FINISH": "Finish",
+
+  "TEXT_COMMON_SEARCH": "Search",
+  "TEXT_COMMON_EDIT": "Edit",
+  "TEXT_COMMON_DELETE": "Delete",
+  "TEXT_COMMON_CANCEL": "Cancel",
+  "TEXT_COMMON_SAVE": "Save",
+  "TEXT_COMMON_ENABLED": "Enabled"
 }

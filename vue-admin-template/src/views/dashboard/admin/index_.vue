@@ -164,7 +164,7 @@ import PieChart from './components/PieChart'
 import LineChart from './components/LineChart.js'
 import BoxCard from './components/BoxCard'
 import moment from 'moment'
-import { getDemoOwerview, getDemoTopUsage, getCDRSList } from '@/api/sim'
+import { addUser, getUserList, getDemoOwerview, getDemoTopUsage, getCDRSList } from '@/api/sim'
 
 export default {
   name: 'Dashboard',
@@ -398,8 +398,33 @@ export default {
     }
   },
   async mounted() {
-      await this.searchTotalByPeriod('daily')
-      await this.searchTable()
+    await this.searchTotalByPeriod('daily')
+    await this.searchTable()
+
+    /*getUserList(null).then(response => {
+      console.log('u', response)
+    })*/		
+    var data = { 
+      'info' : {
+        'address': {
+          },
+          'contacts': [{type: "email", value: "alice_cooper@mail.com"}],
+          'description': "test add 1",
+          'firstName': "Test1",
+          'lastName': "Custormer1"
+        },
+      'settings' : [{locale: "en_US.UTF-8", timezone: "UTC", login: "m2madmin"}],
+      'ancestors': ["5f7f74ada71a973d558205b3"],
+      'tags' : []					
+    }
+    
+    const query = 
+      data
+    
+     
+     addUser(query).then(response => {
+       console.log('au', response)
+     })
   }
 }
 </script>
