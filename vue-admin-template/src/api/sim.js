@@ -102,14 +102,30 @@ function getRequestIMNSOptions(options) {
   return axiosRequestOptions
 }
 
+
 export async function getDemoOwerview() {  
    return new Promise((resolve, reject) => {
-     axios.get(DEMO_OWERVIEW).then(
+      const requestOptions = {
+        method: 'GET',
+        redirect: 'follow',        
+        //'content-type': 'application/json',
+      }
+      fetch(DEMO_OWERVIEW, requestOptions)
+      .then(response => 
+        response.json()
+      )
+      .then(result => 
+        resolve(JSON.parse(result))
+      ).catch(error => 
+        reject(error)
+      )
+      /*axios.get(DEMO_OWERVIEW).then(
        (result) => {
          resolve(result)
        }).catch(e => {
+         console.log()
        reject(e)
-     })
+     })*/
    })
  }
  

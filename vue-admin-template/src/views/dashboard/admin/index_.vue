@@ -205,36 +205,36 @@ export default {
         switch (data){
           case 'Data Sessions':
             this.boxData = {
-              day: response.data.Table3[0].JTOV_SESSION_DAY,
-              month: response.data.Table3[0].JTOV_SESSION_MONTH,
-              year: response.data.Table3[0].JTOV_SESSION_YEAR,
+              day: response.Table3[0].JTOV_SESSION_DAY,
+              month: response.Table3[0].JTOV_SESSION_MONTH,
+              year: response.Table3[0].JTOV_SESSION_YEAR,
               loaded: true,
               report: data
             }
           break
           case 'Data Usage':
             this.boxData = {
-              day: response.data.Table3[0].JTOV_DATA_DAY/1048576,
-              month: response.data.Table3[0].JTOV_DATA_MONTH/1048576,
-              year: response.data.Table3[0].JTOV_DATA_YEAR/1048576,
+              day: response.Table3[0].JTOV_DATA_DAY/1048576,
+              month: response.Table3[0].JTOV_DATA_MONTH/1048576,
+              year: response.Table3[0].JTOV_DATA_YEAR/1048576,
               loaded: true,
               report: data
             }
           break
           case 'SMS Usage':
             this.boxData = {
-              day: response.data.Table3[0].JTOV_SMS_MO_DAY,
-              month: response.data.Table3[0].JTOV_SMS_MO_MONTH,
-              year: response.data.Table3[0].JTOV_SMS_MO_YEAR,
+              day: response.Table3[0].JTOV_SMS_MO_DAY,
+              month: response.Table3[0].JTOV_SMS_MO_MONTH,
+              year: response.Table3[0].JTOV_SMS_MO_YEAR,
               loaded: true,
               report: data
             }
           break
           case 'Online Numbers':
             this.boxData = {
-              day: response.data.Table3[0].JTOV_DATA_NUMS_DAY,
-              month: response.data.Table3[0].JTOV_DATA_NUMS_MONTH,
-              year: response.data.Table3[0].JTOV_DATA_NUMS_YEAR,
+              day: response.Table3[0].JTOV_DATA_NUMS_DAY,
+              month: response.Table3[0].JTOV_DATA_NUMS_MONTH,
+              year: response.Table3[0].JTOV_DATA_NUMS_YEAR,
               loaded: true,
               report: data
             }
@@ -251,59 +251,59 @@ export default {
         /*await getDemoTopUsage().then(response => {
           console.log('r',response)
         })*/
-        await getDemoOwerview().then(response => {
+        await getDemoOwerview().then(response => {console.log(response)
             switch (period){
                 case 'daily':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_DAY/1048576,
-                        totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_DAY,
-                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_DAY,//(3600*response.data.Table3[0].JTOV_DATA_DAY)/(response.data.Table3[0].JTOV_DURATION_DAY*1048576),
-                        totalDataSessions: response.data.Table3[0].JTOV_SESSION_DAY,
+                        totalDataUsage: response.Table3[0].JTOV_DATA_DAY/1048576,
+                        totalSMSUsage: response.Table3[0].JTOV_SMS_MO_DAY,
+                        totalDuration: response.Table3[0].JTOV_DATA_NUMS_DAY,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: response.Table3[0].JTOV_SESSION_DAY,
                         loaded: true
                     }
                 break
                 case 'weekly':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_WEEK/1048576,
-                        totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_WEEK,
-                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_WEEK,//(3600*response.data.Table3[0].JTOV_DATA_WEEK)/(response.data.Table3[0].JTOV_DURATION_WEEK*1024),
-                        totalDataSessions: response.data.Table3[0].JTOV_SESSION_WEEK,
+                        totalDataUsage: response.Table3[0].JTOV_DATA_WEEK/1048576,
+                        totalSMSUsage: response.Table3[0].JTOV_SMS_MO_WEEK,
+                        totalDuration: response.Table3[0].JTOV_DATA_NUMS_WEEK,//(3600*response.Table3[0].JTOV_DATA_WEEK)/(response.Table3[0].JTOV_DURATION_WEEK*1024),
+                        totalDataSessions: response.Table3[0].JTOV_SESSION_WEEK,
                         loaded: true
                     }
                 break
                 case 'monthly':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_MONTH/1048576,
-                        totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_MONTH,
-                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_MONTH,//(3600*response.data.Table3[0].JTOV_DATA_MONTH)/(response.data.Table3[0].JTOV_DURATION_MONTH*1024),
-                        totalDataSessions: response.data.Table3[0].JTOV_SESSION_MONTH,
+                        totalDataUsage: response.Table3[0].JTOV_DATA_MONTH/1048576,
+                        totalSMSUsage: response.Table3[0].JTOV_SMS_MO_MONTH,
+                        totalDuration: response.Table3[0].JTOV_DATA_NUMS_MONTH,//(3600*response.Table3[0].JTOV_DATA_MONTH)/(response.Table3[0].JTOV_DURATION_MONTH*1024),
+                        totalDataSessions: response.Table3[0].JTOV_SESSION_MONTH,
                         loaded: true
                     }
                 break
                 case 'yerly':
                     this.panelData = {
-                        totalDataUsage: response.data.Table3[0].JTOV_DATA_YEAR/1048576,
-                        totalSMSUsage: response.data.Table3[0].JTOV_SMS_MO_YEAR,
-                        totalDuration: response.data.Table3[0].JTOV_DATA_NUMS_YEAR,//(3600*response.data.Table3[0].JTOV_DATA_YEAR)/(response.data.Table3[0].JTOV_DURATION_YEAR*1024),
-                        totalDataSessions: response.data.Table3[0].JTOV_SESSION_YEAR,
+                        totalDataUsage: response.Table3[0].JTOV_DATA_YEAR/1048576,
+                        totalSMSUsage: response.Table3[0].JTOV_SMS_MO_YEAR,
+                        totalDuration: response.Table3[0].JTOV_DATA_NUMS_YEAR,//(3600*response.Table3[0].JTOV_DATA_YEAR)/(response.Table3[0].JTOV_DURATION_YEAR*1024),
+                        totalDataSessions: response.Table3[0].JTOV_SESSION_YEAR,
                         loaded: true
                     }
                 break
             } 
-            this.stateData = response.data.Table1.map(element => {return {name: element.DEVICE_STATUS_CODE,value: element.JTOV_SIM_NUMBERS}})
-            this.cspData = response.data.Table2.map(element => {return {name: element.DEVICE_OFFER,value: element.JTOV_SIM_NUMBERS}})
+            this.stateData = response.Table1.map(element => {return {name: element.DEVICE_STATUS_CODE,value: element.JTOV_SIM_NUMBERS}})
+            this.cspData = response.Table2.map(element => {return {name: element.DEVICE_OFFER,value: element.JTOV_SIM_NUMBERS}})
          
             this.boxData = {
-              day: response.data.Table3[0].JTOV_SESSION_DAY,
-              month: response.data.Table3[0].JTOV_SESSION_MONTH,
-              year: response.data.Table3[0].JTOV_SESSION_YEAR,
+              day: response.Table3[0].JTOV_SESSION_DAY,
+              month: response.Table3[0].JTOV_SESSION_MONTH,
+              year: response.Table3[0].JTOV_SESSION_YEAR,
               loaded: true,
               report: 'Data Sessions'
             }
 
             if (this.mapLoading){
                 this.mapLoading = false
-                response.data.Table.forEach(element => {
+                response.Table.forEach(element => {
                     gdpData[element.JTOV_DATA_COUNTRY_CODE] = element.JTOV_SIM_NUMBERS
                 })
 
