@@ -12,12 +12,12 @@ export function logout() {
 }
 
 export async function qtLogin(query) {
-  //let data = getFormDataFromObject(query)
-  const data1 = {
+  let data = getFormDataFromObject(query)
+  /*const data1 = {
     account: 'root',
     password: '888888'
   }
-  let data = getFormDataFromObject(data1)
+  let data = getFormDataFromObject(data1)*/
   
   try {
     const response = await axios.post(API_METHODS.LOGIN, data );
@@ -115,7 +115,24 @@ export async function deleteUser(query) {
   }
 }
 
+export async function resetPassword(query) {
+  let data = getFormDataFromObject(query)
 
+  try {
+    const response = await axios.post(API_METHODS.USER_RESET_PASSWORD, data );
+    if(response.data.MajorCode === '000'){
+      return response.data
+    }else{
+      response.data.method = 'resetPassword';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
 
 /*import request from '@/utils/request'
 

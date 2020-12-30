@@ -3,7 +3,7 @@ import { API_METHODS } from "@/utils/helpers"
 import store from "@/store"
 import axios from 'axios'
 
-const API_DOMIAN = 'http://test.m2mdata.co/Service/'
+const API_DOMIAN = 'https://test.m2mdata.co/Service/'
 const ROLE_QUERY = API_DOMIAN + 'Role/Query'
 const ROLE_EDIT = API_DOMIAN + 'Role/Edit'
 const ROLE_ADD = API_DOMIAN + 'Role/Add'

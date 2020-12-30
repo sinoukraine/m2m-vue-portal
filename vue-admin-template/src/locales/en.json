@@ -5,7 +5,17 @@
   "MAP": "Map",
   "CSP": "CSP",
   "AGENT": "Agent",
+  "AGENTS": "Agents",
+  "ACCOUNT": "Account",
+  "AUTHORITY": "Authority",
+  "EMAIL": "E-mail",
+  "COUNTRY": "Country",
+  "REMARK": "Remark",
+  "DESCRIPTION": "Description",
+  "CONTACTS": "Contacts",
+  "SCOPE": "Scope",
   "SOLUTION": "Solution",
+  "SUBAGENT": "Sub-agent",
   "ICCID": "ICCID",
   "MSISDN": "MSISDN",
   "BUSINESS_UNIT": "Business Unit",
@@ -39,5 +49,6 @@
   "TEXT_COMMON_DELETE": "Delete",
   "TEXT_COMMON_CANCEL": "Cancel",
   "TEXT_COMMON_SAVE": "Save",
-  "TEXT_COMMON_ENABLED": "Enabled"
+  "TEXT_COMMON_ENABLED": "Enabled",
+  "TEXT_COMMON_NA": "NA"
 }

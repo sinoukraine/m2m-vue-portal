@@ -403,7 +403,7 @@ export default {
 
     /*getUserList(null).then(response => {
       console.log('u', response)
-    })*/		
+    })	
     var data = { 
       'info' : {
         'address': {
@@ -424,7 +424,7 @@ export default {
      
      addUser(query).then(response => {
        console.log('au', response)
-     })
+     })*/
   }
 }
 </script>
@@ -471,6 +471,10 @@ export default {
 </style>
 
 <style>
+
+.el-loading-mask{
+  z-index: 2 !important;
+}
 
 .el-radio-button__inner{
   background: transparent;

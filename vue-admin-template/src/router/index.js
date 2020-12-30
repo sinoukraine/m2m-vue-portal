@@ -89,19 +89,28 @@ export const constantRoutes = [
       }
     ]
   },
-  /*{ 
-    path: '/sim-list/:id', 
+  {
+    path: '/customer-manage',
     component: Layout,
+    redirect: '/',
+    name: 'Customer Manage',
+    meta: { title: 'Customer Manage', icon: 'customer-manage' },
     children: [
       {
-        path: '/sim-list/:id', 
-        name: 'SIM Profile',
-        component: () => import('@/views/sim-manage/sim-profile'),
-        meta: { title: 'SIM List', childTitle: 'SIM Profile', icon: 'sim' }
-      }
+        path: 'user-list',
+        name: 'User List',
+        component: () => import('@/views/customer-manage/user-list'),
+        meta: { title: 'User List', icon: 'customer-manage' },
+      },
+      {
+        path: 'customer-list', 
+        name: 'Customer List',
+        component: () => import('@/views/customer-manage/customer-list'),
+        meta: { title: 'Customer List', icon: 'history' },
+      },
     ]
-  },*/
-  {
+  },
+  /*{
     path: '/customer',
     component: Layout,
     children: [
@@ -112,7 +121,7 @@ export const constantRoutes = [
         meta: { title: 'Customer manage', icon: 'customer-manage' },
       }
     ]
-  },
+  },*/
   {
     path: '/history',
     component: Layout,

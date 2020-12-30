@@ -1,4 +1,4 @@
-const DOMAIN1 = 'http://test.m2mdata.co/'
+const DOMAIN1 = 'https://test.m2mdata.co/'
 
 export const API_METHODS = {
   DOMAIN1,
@@ -23,6 +23,7 @@ export const API_METHODS = {
   USER_CREATE: DOMAIN1 + 'service/User/Add',
   USER_EDIT: DOMAIN1 + 'service/User/Edit',
   USER_DELETE: DOMAIN1 + 'service/User/Remove',
+  USER_RESET_PASSWORD: DOMAIN1 + 'Service/User/ResetPassword',
 }
 
 

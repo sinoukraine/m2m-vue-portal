@@ -605,7 +605,7 @@ export default {
     },
     sendSMS(){
       this.$router.push({ path: `/commands/index` })
-    }
+    },    
   }
 }
 

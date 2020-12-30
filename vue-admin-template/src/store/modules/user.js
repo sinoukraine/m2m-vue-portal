@@ -98,9 +98,9 @@ const actions = {
                 const { accessToken } = result.data
 
                 commit('SET_TOKEN', accessToken)
-                commit('SET_NAME', 'James Sipson')
+                /*commit('SET_NAME', 'James Sipson')
                 commit('SET_AVATAR', 'avatar.png')
-                commit('SET_LANGUAGE', 'en')
+                commit('SET_LANGUAGE', 'en')*/
 
                 setToken(accessToken)
 

@@ -10,9 +10,9 @@
       <el-form-item prop="username">
         <el-input
           ref="username"
-          v-model="loginForm.username"
-          placeholder="Username"
-          name="username"
+          v-model="loginForm.Account"
+          placeholder="Account"
+          name="Account"
           type="text"
           tabindex="1"
           auto-complete="on"
@@ -53,6 +53,7 @@ import { qtLogin } from '@/api/user'
 //import { MessageBox, Message } from 'element-ui'
 import { detectNavigatorAgentType } from '@/utils/helpers'
 import { PlatformTypes } from '@/utils/dictionaries'
+import { setToken } from '@/utils/auth'
 
 export default {
   name: 'Login',
@@ -73,16 +74,24 @@ export default {
     }
     return {
       loginForm: {
-        username: '',
-        password: ''
+        Account: !localStorage.Account ? '' : localStorage.Account,
+        Password: !localStorage.Password ? '' : localStorage.Password,
+        AppID: 'com.quiktrak.new.web',
+        PushToken: '',
+        SystemType: PlatformTypes[detectNavigatorAgentType()]
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        Account: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        Password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       loading: false,
       passwordType: 'password',
       redirect: undefined
+    }
+  },  
+  mounted() {
+    if(this.loginForm.Account && this.loginForm.Password){
+      this.handleLogin()
     }
   },
   watch: {
@@ -104,8 +113,7 @@ export default {
         this.$refs.password.focus()
       })
     },
-    handleLogin() {
-      
+    handleLogin() {      
       this.$refs.loginForm.validate(async valid => {
         if (valid) {
           this.loading = true
@@ -114,10 +122,18 @@ export default {
           if(!response){
             return
           }
-          this.$store.commit('user/SET_QT_USERINFO', response)
+
           localStorage.Account = this.loginForm.Account;
           localStorage.Password = this.loginForm.Password;
 
+          this.$store.commit('user/SET_QT_USERINFO', response)
+          this.$store.commit('user/SET_NAME', response.FirstName + ' ' + response.SubName)
+          this.$store.commit('user/SET_AVATAR', 'avatar.png')
+          this.$store.commit('user/SET_LANGUAGE', response.Language)
+          /*this.$store.commit('user/SET_TOKEN', response.Token)
+          setToken(response.Token)
+          this.$router.push({ path: this.redirect || '/' })*/
+          
           let m2mLoginDetails = {
             username: 'm2madmin',
             password: '888888'

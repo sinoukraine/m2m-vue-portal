@@ -500,6 +500,60 @@ export async function getCDRS(query) {
   }
 }
 
+export async function getCustomerListAsync(query) { 
+  let addSample = ''
+  if(query.sample !== undefined) {
+    addSample = '&sample='+query.sample
+  }//fields[]=_id&fields[]=ancestors&fields[]=info&
+  const options = {
+    url: CUSTOMER_LIST+ '?scope='+ query.scope + addSample +'&populate[]=ancestors',
+    method: 'get'
+  }
+  try {
+    const response = await axios.request(getRequestOptions(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    
+    throw e
+  }
+}
+
+export async function createCustomerAsync(query) { 
+  const options = {
+    url: CUSTOMER_LIST,
+    method: 'post',
+    content: query
+  }
+  try {
+    const response = await axios.request(postRequestOptions1(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    
+    throw e
+  }
+}
+
+export async function updateCustomerAsync(code, query) { 
+  const options = {
+    url: CUSTOMER_LIST + '/' + code,
+    method: 'put',
+    content: query
+  }
+  try {
+    const response = await axios.request(postRequestOptions1(options))
+    return response
+  } catch (e) {
+    const title = 'Error'
+    const message = 'An CORS issue has been detected, please try again later or contact our support team'
+    
+    throw e
+  }
+}
+
 export async function getCustomerList(query) {
   const options = {
     url: CUSTOMER_LIST + '?fields[]=_id&fields[]=info.name&scope=sub&sort=info.name',
