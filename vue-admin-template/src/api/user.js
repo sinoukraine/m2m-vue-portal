@@ -12,12 +12,12 @@ export function logout() {
 }
 
 export async function qtLogin(query) {
-  let data = getFormDataFromObject(query)
-  /*const data1 = {
+  //let data = getFormDataFromObject(query)
+  const data1 = {
     account: 'root',
     password: '888888'
   }
-  let data = getFormDataFromObject(data1)*/
+  let data = getFormDataFromObject(data1)
   
   try {
     const response = await axios.post(API_METHODS.LOGIN, data );
