@@ -7,39 +7,39 @@
 
     <el-container class="page-fixed-height padding-vertical-x2">
       <el-main  class="no-padding">        
-         <div class="messages " id="messages">
-            <el-button v-if="messageList.length&&isShowNow" type="info" class="blue-btn timebutton-now mt-25">Now</el-button>
+         <div class="commands " id="commands">
+            <el-button v-if="commandList.length&&isShowNow" type="info" class="blue-btn timebutton-now mt-25">Now</el-button>
             <div v-else class="no-data-info">No data for this time period</div>
           <div
-            v-for="(message, index) in messageList"
+            v-for="(command, index) in commandList"
             :key="index"
             class="display-flex"
-            :class="messageClass(message)"
+            :class="commandClass(command)"
           >
             <slot>
-            <div class="time-title message-time" v-show="isShowMessage(message)">
-              <div class="message-time-div">
-                {{message.timestamp}} 
+            <div class="time-title command-time" v-show="isShowcommand(command)">
+              <div class="command-time-div">
+                {{command.timestamp}} 
               </div>               
               <img :src="'time-dot.png'" class="time-dot">
             </div>
-              <div class="message-content" v-show="isShowMessage(message)">
-                <div class="message-bubble">
-                <div class="message-icon">
-                    <item :icon="message.type === 'sent'?'arrow-send':'arrow-received'"/>                                       
+              <div class="command-content" v-show="isShowcommand(command)">
+                <div class="command-bubble">
+                <div class="command-icon">
+                    <item :icon="command.type === 'sent'?'arrow-send':'arrow-received'"/>                                       
                 </div>
-                  <div class="message-text">
+                  <div class="command-text">
                     <b>                      
-                      {{message.type === 'sent'?'Sending a command':'Reply to command'}}
+                      {{command.type === 'sent'?'Sending a command':'Reply to command'}}
                     <br>                  
                       Who 
                     </b>                      
-                    {{message.from}}
+                    {{command.from}}
                     <br>
                     <b>                  
                       Description 
                     </b>      
-                    {{message.text}}
+                    {{command.text}}
                   </div>
                 </div>
               </div>
@@ -134,7 +134,7 @@ import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.css'
 import Item from '@/layout/components/Sidebar/Item'
 import waves from '@/directive/waves'
-import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync, sendCommandAsync } from '@/api/sim'
+import { getSIMList, getSMSHistoryAsync } from '@/api/sim'
 import moment from 'moment'
 
 export default {
@@ -159,8 +159,8 @@ export default {
       deviceList: {},
       commandGroupList: [],
       activeCommandGroups: [],
-      newMessage: '',
-      messageList: [
+      newcommand: '',
+      commandList: [
       ],
       imsiArr: [
       ],
@@ -206,19 +206,19 @@ export default {
   methods: {
     handleFilter() {
       this.isShowNow = false
-      this.messageList = []
+      this.commandList = []
       this.loadedSMS = []
       this.getHistory()
     },
-    isShowMessage(message){
-      const isShow = message.datetime>=new Date(this.listHistoryQuery.date1).getTime()
-                  &&message.datetime<=new Date(this.listHistoryQuery.date2).getTime()
-                  &&(message.type=='sent'&&this.checkboxSent||message.type=='received'&&this.checkboxReceived)
+    isShowcommand(command){
+      const isShow = command.datetime>=new Date(this.listHistoryQuery.date1).getTime()
+                  &&command.datetime<=new Date(this.listHistoryQuery.date2).getTime()
+                  &&(command.type=='sent'&&this.checkboxSent||command.type=='received'&&this.checkboxReceived)
       if(isShow){
         this.isShowNow = true
       }
       return isShow
-      //message.timestamp>=new Date(listHistoryQuery.date1).getTime()&&message.timestamp<=new Date(listHistoryQuery.date2).getTime()
+      //command.timestamp>=new Date(listHistoryQuery.date1).getTime()&&command.timestamp<=new Date(listHistoryQuery.date2).getTime()
     },
     changeIMSI(val) {
       this.imsiArr = []
@@ -254,7 +254,7 @@ export default {
     async getHistory(){     
       if(this.listHistoryQuery.imsi.length){
         this.isLoading = true
-        this.messageList = []
+        this.commandList = []
         let concatArr = []
           const query = {
             imsi: this.listHistoryQuery.imsi
@@ -264,7 +264,7 @@ export default {
           if (response.data) {
             concatArr = response.data    						
           }else{            
-            this.$alert('No data for this time period', 'M2M Data Message', {type: 'message'})
+            this.$alert('No data for this time period', 'M2M Data command', {type: 'command'})
           }  
           let sortedArr = concatArr.sort(function(a,b){
             var c = new Date(a.insertedDate)
@@ -273,7 +273,7 @@ export default {
           })
           this.setHistory(sortedArr)
       }else{
-        this.$alert('Please choose a SIM', 'M2M Data Message', {type: 'message'})
+        this.$alert('Please choose a SIM', 'M2M Data command', {type: 'command'})
       } 
     },
     setHistory(arr){
@@ -316,9 +316,9 @@ export default {
         }
       })
       this.$nextTick(() => {        
-        this.messageList = newArr
-        /*if(!this.isShowNow && this.messageList.length){
-          this.$alert('No data for this time period', 'M2M Data Message', {type: 'message'})
+        this.commandList = newArr
+        /*if(!this.isShowNow && this.commandList.length){
+          this.$alert('No data for this time period', 'M2M Data command', {type: 'command'})
         }*/
         const el = this.$el.getElementsByClassName('unreaded')[0];
       
@@ -329,12 +329,12 @@ export default {
         this.isLoading = false     
       })
     },
-    messageClass: function (message) {
+    commandClass: function (command) {
       return {
-        'messages-title': message.type === 'title',
-        'message': message.type !== 'title',
-        'message-sent': message.type === 'sent',
-        'message-received': message.type === 'received',
+        'commands-title': command.type === 'title',
+        'command': command.type !== 'title',
+        'command-sent': command.type === 'sent',
+        'command-received': command.type === 'received',
       }
     }
 
@@ -483,7 +483,7 @@ export default {
     }
 
   }
-  .messages{
+  .commands{
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -497,7 +497,7 @@ export default {
     position: relative;
     z-index: 1;
 
-    .messages-title{
+    .commands-title{
       text-align: center;
       width: 100%;
       line-height: 1;
@@ -505,7 +505,7 @@ export default {
       font-size: 12px;
       color: rgba(0,0,0,.51);
     }
-    .message {
+    .command {
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
       display: -webkit-box;
@@ -521,7 +521,7 @@ export default {
       -webkit-transform: translate3d(0,0,0);
       transform: translate3d(0,0,0);
 
-      &.message-sent {
+      &.command-sent {
         /*text-align: right;
         -webkit-box-orient: horizontal;
         -webkit-box-direction: reverse;
@@ -534,23 +534,23 @@ export default {
 
         margin-right: 8px;*/
 
-        .message-content {
+        .command-content {
             padding: 0 20px;
           -webkit-box-align: end;
           -webkit-align-items: flex-end;
           -ms-flex-align: end;
           align-items: flex-end;
         }
-        .message-from+.message-content {
+        .command-from+.command-content {
           margin-right: 8px;
         }
 
-        .message-bubble {
+        .command-bubble {
             margin-top: 20px;
           color: #606266;
           background: #ffffff;
         }
-        &.message-tail .message-bubble:before {
+        &.command-tail .command-bubble:before {
           position: absolute;
           content: '';
           border-right: 8px solid transparent;
@@ -563,7 +563,7 @@ export default {
         }
       }
 
-      &.message-received {
+      &.command-received {
         -webkit-box-orient: horizontal;
         -webkit-box-direction: normal;
         -webkit-flex-direction: row;
@@ -571,7 +571,7 @@ export default {
         flex-direction: row;
 
 
-        .message-content {
+        .command-content {
     padding: 0 20px;
     -webkit-box-align: end;
     -ms-flex-align: end;
@@ -588,16 +588,16 @@ export default {
 
         }
 
-        .message-from+.message-content {
+        .command-from+.command-content {
           margin-left: 8px;
         }
 
-        .message-bubble {
+        .command-bubble {
             margin-top: 20px;
           color: #606266;
           background: #ffffff;
         }
-        &.message-tail .message-bubble:before {
+        &.command-tail .command-bubble:before {
           position: absolute;
           content: '';
           border-left: 8px solid transparent;
@@ -610,7 +610,7 @@ export default {
         }
       }
 
-      .message-from {
+      .command-from {
         /*border-radius: 50%;*/
         position: relative;
         background-size: cover;
@@ -622,7 +622,7 @@ export default {
         flex-shrink: 0;
       }
 
-      .message-content {
+      .command-content {
         position: relative;
         display: -webkit-box;
         display: -webkit-flex;
@@ -634,25 +634,25 @@ export default {
         -ms-flex-direction: column;
         flex-direction: column;
 
-        .message-footer, .message-header {
+        .command-footer, .command-header {
           line-height: 1;
           font-size: 12px;
 
           color: rgba(0,0,0,.51);
         }
-        .message-header{
+        .command-header{
           margin-bottom: 2px;
           display: flex;
           align-items: center;
         }
-        .message-footer {
+        .command-footer {
           font-size: 11px;
           margin-bottom: -1em;
 
           margin-top: 2px;
         }
 
-        .message-bubble {
+        .command-bubble {
           -webkit-box-sizing: border-box;
           box-sizing: border-box;
           word-break: break-word;
@@ -672,19 +672,19 @@ export default {
           padding: 20px 15px;
           min-height: 32px;
 
-          .message-text-footer, .message-text-header {
+          .command-text-footer, .command-text-header {
             font-size: 12px;
             line-height: 1;
 
             color: rgba(0,0,0,.51);
           }
-          .message-text-header {
+          .command-text-header {
             margin-bottom: 4px;
           }
-          .message-text-footer {
+          .command-text-footer {
             margin-top: 4px;
           }
-          .message-text {
+          .command-text {
               padding-left: 10px;
             text-align: left;
           }
@@ -720,13 +720,13 @@ export default {
 .panel-right{
     background-color: rgb(238, 241, 246)
 }
-.messages-container {
+.commands-container {
     background-color: #ffffff;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
 
-.messagebar-container{
+.commandbar-container{
     border-top: 1px solid #e3e3e3;
     background-color: #ffffff;
     border-bottom-left-radius: 5px;
@@ -739,22 +739,22 @@ export default {
     border-radius: 20px;
     vertical-align: middle;
 }
-.message-header {
+.command-header {
     padding: 5px 0;
 }
-.message-status {
+.command-status {
     padding: 5px;
     color: rgb(65, 190, 162);
     line-height: 1.144;
     font-size: 14px;
 }
-.message-status-new{
+.command-status-new{
   padding: 5px;
     color: #ffc496;
     line-height: 1.144;
     font-size: 14px;
 }
-.message-time {
+.command-time {
     padding: 5px;
     color: rgb(96, 98, 104);
     line-height: 1.144;
@@ -851,7 +851,7 @@ export default {
     justify-content: center;
     background-color: rgba(0,0,0,.33);
   }
-  .message-box .dialog-content {
+  .command-box .dialog-content {
     min-width: 240px;
     text-align: center;
     font-size: 16px;
@@ -1002,7 +1002,7 @@ div.square {
     min-width: 145px;
 }
 
-.message-time-div{
+.command-time-div{
   display: inline-block;
   width: 102px;
   height: 20px; 
