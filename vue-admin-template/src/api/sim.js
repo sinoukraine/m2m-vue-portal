@@ -42,10 +42,11 @@ function postRequestOptions1(options) {
   const token = getToken()
   const axiosRequestOptions = {
     async: true,
-    crossDomain: true,
+    dataType: "json",
+    //crossDomain: true,
     url: options.url,
     method: options.method,
-    processData: false,
+    //processData: false,
     timeout: 2147483647,
   }
   

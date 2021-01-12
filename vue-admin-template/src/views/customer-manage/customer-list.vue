@@ -37,6 +37,9 @@
               </template>
             </el-table-column>
             <el-table-column :label="$t('CUSTOMER')"  align="left" min-width="140px">
+                <template >
+            <i class="el-icon-remove disable-icon"  />
+          </template>
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
@@ -393,14 +396,14 @@ export default {
         obj.info.address.country = tempData.country
         obj.info.contacts.push({'email': tempData.email })
         obj.ancestors = tempData.ancestors
-        obj._id = tempData.code
+        //obj._id = tempData.code
 
         /*console.log(tempData.code, obj)
         let response = await updateCustomerAsync(tempData.code, obj)
         if(!response){
           return
-        }*/
-        /*const index = this.list.findIndex(v => v.code === this.temp.code)
+        }
+        const index = this.list.findIndex(v => v.code === this.temp.code)
         this.list.splice(index, 1, this.temp)*/
 
         this.dialogFormVisible = false
