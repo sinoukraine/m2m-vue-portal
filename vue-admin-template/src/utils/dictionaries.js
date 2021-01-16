@@ -30,6 +30,45 @@ export const FieldsEnum = {
   organizecode: 'Organisation',
 }
 
+export const DistanceUnitList = [
+  { Code: '0', Name: 'Unknown' },
+  { Code: '1', Name: 'Kilometers' },
+  { Code: '2', Name: 'Nauticalmiles' },
+  { Code: '3', Name: 'Meters'  },
+  { Code: '4', Name: 'Miles'  },
+  { Code: '5', Name: 'Feet'  },
+]
+
+export const EconomyUnitList = [
+  { Code: '0', Name: 'Unknown' },
+  { Code: '1', Name: 'LiterPer100Kilometers' },
+  { Code: '2', Name: 'KilometersPerLiter' },
+  { Code: '3', Name: 'MilesPerGallon_US'  },
+  { Code: '4', Name: 'MilesPerGallon_UK'  },
+]
+
+export const VolumeUnitList = [
+  { Code: '0', Name: 'Unknown' },
+  { Code: '1', Name: 'Liters' },
+  { Code: '2', Name: 'Gallon_US' },
+  { Code: '3', Name: 'Gallon_UK'  },
+]
+
+export const TemperatureUnitList = [
+  { Code: '0', Name: 'Unknown' },
+  { Code: '1', Name: 'Celsius' },
+  { Code: '2', Name: 'Fahrenheit' },
+  { Code: '3', Name: 'Kelvin'  },
+  { Code: '4', Name: 'Rankine'  },
+  { Code: '5', Name: 'Delisle'  },
+  { Code: '6', Name: 'Newton'  },
+]
+
+export const PressureUnitList = [
+  { Code: '0', Name: 'Unknown' },
+  { Code: '1', Name: 'Pascal' },
+]
+
 export const LanguageList = [
   { Code: 'EN', Name: 'English' },
   { Code: 'ES', Name: 'Spanish' },

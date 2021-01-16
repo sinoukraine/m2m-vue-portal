@@ -24,6 +24,11 @@ export const API_METHODS = {
   USER_EDIT: DOMAIN1 + 'service/User/Edit',
   USER_DELETE: DOMAIN1 + 'service/User/Remove',
   USER_RESET_PASSWORD: DOMAIN1 + 'Service/User/ResetPassword',
+
+  CUSTOMER_GET_LIST: DOMAIN1 + 'service/Organize/Query',
+  CUSTOMER_CREATE: DOMAIN1 + 'service/Organize/Add',
+  CUSTOMER_EDIT: DOMAIN1 + 'service/Organize/Edit',
+  CUSTOMER_DELETE: DOMAIN1 + 'service/Organize/Remove',
 }
 
 

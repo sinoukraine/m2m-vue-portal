@@ -203,6 +203,10 @@ export default {
       })
     })*/
   },
+  mounted(){
+    this.$alert('Choose SIM card to see its Commands history', 'M2M Data Message', {type: 'message'})
+    
+  },
   methods: {
     handleFilter() {
       this.isShowNow = false
@@ -1046,5 +1050,9 @@ div.square {
     font-weight: 500;
     padding: 0 20px;
     font-size: 14px;
+}
+
+.el-aside {
+    overflow: hidden !important;
 }
 </style>

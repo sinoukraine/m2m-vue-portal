@@ -56,7 +56,7 @@
       </el-table>       
     </el-dialog>
 
-    <el-dialog class="dialog-download" title="SMS Usage Data" :visible.sync="smsFormVisible" width="100%" >
+    <el-dialog class="dialog-download" title="SMS History" :visible.sync="smsFormVisible" width="100%" >
       <div class="display-flex justify-content-between">
         <div class="buttons-row">
         </div>
@@ -267,7 +267,7 @@
               </div>
               <div class="card-inline card-panel-right">
                 <el-button type="primary" class="green-btn" @click="showSessions"><item :icon="'csp'"/> Session Data</el-button> 
-                <el-button type="primary" class="violet-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS Usage</el-button>
+                <el-button type="primary" class="violet-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS History</el-button>
                 <el-button type="primary" class="blue-btn" @click="showLocation"><item :icon="'map-white'"/> View Map</el-button>
                 <el-button type="primary" class="orange-btn" @click="sendSMS"><item :icon="'sms-white'"/> Send SMS</el-button>
               </div>
@@ -604,7 +604,12 @@ export default {
       }))
     },
     sendSMS(){
-      this.$router.push({ path: `/commands/index` })
+      if(this.temp.imsi!=undefined){
+        this.$router.push({ path: `/sms/index` })
+        const imsi = this.temp.imsi
+        this.$route.params.imsi = `${imsi}`
+        console.log(imsi)
+      }
     },    
   }
 }

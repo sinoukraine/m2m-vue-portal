@@ -239,17 +239,22 @@ export async function getSMSHistoryAsync(query) {
 }
 
 export async function getCommandsListAsync(query) {
-  const options = {
+  
+  /*const options = {
     url: COMMAND_LIST,
     method: 'get'
-  }
+  }*/
   try {
-    const response = await axios.request(getRequestIMNSOptions(options))
-    return response
+    const token = "11111111-1111-1111-1111-111111111111"
+    const response = await fetch(`https://api.m2mglobaltech.com/QuikData/V1/Command/GetLIst?MajorToken=${token}`)
+    
+    return await response.json()
+    //const response = await axios.request(getRequestIMNSOptions(options))
+    //return response
   } catch (e) {
-    const title = 'Error'
+    /*const title = 'Error'
     const message = 'An CORS issue has been detected, please try again later or contact our support team'
-    this.$alert(message, title, {type: 'error'})
+    this.$alert(message, title, {type: 'error'})*/
     throw e
   }
 }

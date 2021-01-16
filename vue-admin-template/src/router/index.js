@@ -142,7 +142,7 @@ export const constantRoutes = [
         path: 'index',
         name: 'SMS',
         component: () => import('@/views/sms/index'),
-        meta: { title: 'SMS', icon: 'sms' },
+        meta: { title: 'SMS', imsi: '', icon: 'sms' },
       }
     ]
   },
