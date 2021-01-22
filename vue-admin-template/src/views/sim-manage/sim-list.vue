@@ -195,12 +195,12 @@
                 <span>{{ row.zeroSession }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxICCID" :label="$t('ACTIONS')" fixed="right" align="center" width="100" class-name="small-padding fixed-width">
+            <el-table-column v-if="false" :label="$t('ACTIONS')" fixed="right" align="center" width="100" class-name="small-padding fixed-width">
               <template slot-scope="{row}">
                 <el-button type="primary blue-btn" size="mini" @click="handleUpdate(row)">
                   Edit
                 </el-button>
-                <!--<el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+                <!--<el-button  v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
                   Delete
                 </el-button>-->
               </template>
@@ -445,7 +445,7 @@ export default {
   /*mounted(){
 
   },*/
-  methods: {
+  methods: {    
     doSomethingOnReady() {
         this.map = this.$refs.map.mapObject
         this.map.invalidateSize()
@@ -754,6 +754,12 @@ div.square {
   width: 16px;
   cursor: pointer;
 }
+
+
+.el-aside{    
+    overflow: hidden;
+}
+
 @media (min-width: 768px){
     .lg-pr-0{
       padding-right: 0 !important;

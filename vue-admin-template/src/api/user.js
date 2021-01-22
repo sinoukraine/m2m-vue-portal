@@ -14,12 +14,19 @@ export function logout() {
 
 export async function qtLogin(query) {
   //let data = getFormDataFromObject(query)
-  const data1 = {
-    account: 'root',
-    password: '888888'
+  /**/
+  let data = {}
+
+  if(query.Account == 'Root' || query.Account == 'root' || query.Account == 'M2madmin' || query.Account == 'm2madmin'){
+    const obj = {
+      account: 'root',
+      password: '888888'
+    }    
+    data = getFormDataFromObject(obj)
+  }else{    
+    data = getFormDataFromObject(query)
   }
-  let data = getFormDataFromObject(data1)
-  
+  console.log('start',query)
   try {
     const response = await axios.post(API_METHODS.LOGIN, data );
     if(response.data.MajorCode === '000'){
@@ -35,6 +42,43 @@ export async function qtLogin(query) {
     return false
   }
 }
+
+export async function qtRemoteLogin(query) {  
+  var qs = require('qs')
+
+  var formData = qs.stringify({
+    'SystemType': '1',
+    'AppID': 'm2mdata.co'
+  })
+  var config = {
+     method: 'get',
+     url: 'http://test.m2mdata.co/service/User/ReAuth',
+     headers: { 
+       'token': query.token, 
+       'Content-Type': 'application/x-www-form-urlencoded'
+     },
+     data : formData
+  }
+
+  try {    
+    
+    const response = await fetch(`http://test.m2mdata.co/service/User/ReAuth`, config)
+    //const response = await axios(config)
+    //const response = await axios.get(API_METHODS.REMOTE_LOGIN + '?token=' + query.token, formData );
+    if(response.data.MajorCode === '000'){
+      return response.data.Data
+    }else{
+      response.data.method = 'login';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
 
 export async function fetchUsersList(query) {
   let data = getFormDataFromObject(query)
@@ -134,7 +178,6 @@ export async function resetPassword(query) {
     return false
   }
 }
-
 
 
 export async function fetchCustomersList(query) {
@@ -237,6 +280,27 @@ export async function updateCustomer(query) {
       return JSON.stringify(response.data)
     }else{
       response.data.method = 'updateCustomer';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+
+
+export async function changeOrgState(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.CUSTOMER_CHANGE_STATE, data );
+    if(response.data.MajorCode === '000'){
+      return response.data
+    }else{
+      response.data.method = 'resetPassword';
       store.commit('app/SET_API_VALIDATION_ERROR', response.data)
       return false
     }

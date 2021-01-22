@@ -126,10 +126,25 @@ export default {
           localStorage.Account = this.loginForm.Account;
           localStorage.Password = this.loginForm.Password;
 
+        if(this.loginForm.Account == 'M2madmin' || this.loginForm.Account == 'm2madmin' || this.loginForm.Account == 'Root' || this.loginForm.Account == 'root'){
           this.$store.commit('user/SET_QT_USERINFO', response)
           this.$store.commit('user/SET_NAME', response.FirstName + ' ' + response.SubName)
           this.$store.commit('user/SET_AVATAR', 'avatar.png')
           this.$store.commit('user/SET_LANGUAGE', response.Language)
+        }else{
+          let test = {
+            FirstName: 'Vlad',
+              SubName: 'Bill',
+              Language: 'en',
+              Login: 'quiktrakukraine',
+              //Token: '5b41ecfc-f8a5-4421-b4a8-61eb21f04ef5'
+          }
+          this.$store.commit('user/SET_QT_USERINFO', test)
+          this.$store.commit('user/SET_NAME', test.FirstName + ' ' + test.SubName)
+          this.$store.commit('user/SET_LOGIN', test.Login)
+          this.$store.commit('user/SET_AVATAR', 'avatar-user.png')
+          this.$store.commit('user/SET_LANGUAGE', test.Language)
+      }
           /*this.$store.commit('user/SET_TOKEN', response.Token)
           setToken(response.Token)
           this.$router.push({ path: this.redirect || '/' })*/

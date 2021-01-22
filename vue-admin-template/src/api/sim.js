@@ -8,7 +8,7 @@ import { getToken } from '@/utils/auth' // get token from cookie
 const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
 const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
 const API_NOMAD = 'https://m2mdata03.sinopacific.com.ua/nomad/'
-const DEMO_OWERVIEW = 'https://api.m2mglobaltech.com/QuikData/V1/SMS/Overview?login=m2mdataadmin'//'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
+const DEMO_OWERVIEW = 'https://api.m2mglobaltech.com/QuikData/V1/SMS/Overview'//'https://m2mdata.co/JT/Overview?login=m2mdataadmin'
 const DEMO_TOP_USAGE = 'https://m2mdata.co/JT/TopUsage?type=sms&time=today'
 const API_IMNS_DOMIAN = "https://api.m2mglobaltech.com/QuikData/V1/"
 const SIM_COUNTRY = API_NOMINATIM + 'reverse.php?format=json&zoom=18&addressdetails=1'
@@ -104,22 +104,33 @@ function getRequestIMNSOptions(options) {
 }
 
 
-export async function getDemoOwerview() {  
+export async function getDemoOwerview(login) {  
    return new Promise((resolve, reject) => {
       const requestOptions = {
         method: 'GET',
         redirect: 'follow',        
         //'content-type': 'application/json',
       }
-      fetch(DEMO_OWERVIEW, requestOptions)
-      .then(response => 
-        response.json()
-      )
-      .then(result => 
-        resolve(JSON.parse(result))
-      ).catch(error => 
-        reject(error)
-      )
+      //
+      if(login=='Root'||login=='root'){
+        fetch(DEMO_OWERVIEW + '?login=' + login, requestOptions)
+        .then(response => 
+          response.json()
+        )
+        .then(result => 
+          resolve(JSON.parse(result))
+        ).catch(error => 
+          reject(error)
+        )
+      }else{
+        resolve({
+          'Table': [],
+          'Table1': [],
+          'Table2': [],
+          'Table3': [],
+        })
+      }
+      
       /*axios.get(DEMO_OWERVIEW).then(
        (result) => {
          resolve(result)

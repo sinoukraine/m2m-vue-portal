@@ -78,13 +78,16 @@
                 </template>
                 </el-table-column>
 
-                <el-table-column label="Actions" align="center" width="160" class-name="small-padding fixed-width" fixed="right">
+                <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
                     <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
                     <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
+                    </el-button>
+                    <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
+                    Remote 
                     </el-button>
                 </template>
                 </el-table-column>
@@ -365,6 +368,36 @@ export default {
     ...mapGetters(['userInfo'])
   },
   methods: {
+     async remoteAccess(token) {  
+      
+          //this.loading = true
+          const loginForm = {
+            token,
+          }
+          /*let response = await qtRemoteLogin(loginForm)
+          console.log('rem',response)
+          //this.loading = false
+          if(!response){
+            return
+          }
+
+          localStorage.Account = loginForm.Account;
+          localStorage.Password = loginForm.Password;*/
+          let response = {
+            FirstName: 'Vlad',
+              SubName: 'Bill',
+              Language: 'en',
+              Login: 'quiktrakukraine',
+              Token: '5b41ecfc-f8a5-4421-b4a8-61eb21f04ef5'
+          }
+          this.$store.commit('user/SET_QT_USERINFO', response)
+          this.$store.commit('user/SET_NAME', response.FirstName + ' ' + response.SubName)
+          this.$store.commit('user/SET_LOGIN', response.Login)
+          this.$store.commit('user/SET_AVATAR', 'avatar-user.png')
+          this.$store.commit('user/SET_LANGUAGE', response.Language)
+          
+          this.$router.push({ path: '/' })
+    },
     async getList() {
       this.isListLoading = true
       //console.log('start')
@@ -703,7 +736,7 @@ div.square {
     -webkit-box-shadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
     box-shadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
 }
-.el-asside{    
+.el-aside{    
     overflow-x: hidden;
 }
 .px-0{

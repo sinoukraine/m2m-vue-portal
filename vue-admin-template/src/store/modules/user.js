@@ -14,7 +14,7 @@ const getDefaultState = () => {
     name: '',
     avatar: '',
     language: 'en',
-
+    login: 'Root',
     qtUserInfo: {}
   }
 }
@@ -37,7 +37,9 @@ const mutations = {
   SET_LANGUAGE: (state, lang) => {
     state.language = lang
   },
-
+  SET_LOGIN: (state, login) => {
+    state.login = login
+  },
   SET_QT_USERINFO: (state, info) => {
     state.qtUserInfo = info
     axios.defaults.headers.common['token'] = info.Token;

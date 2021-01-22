@@ -44,16 +44,16 @@
                 </template>
                 </el-table-column>
 
-                <el-table-column label="First Name" min-width="120px" align="center" sortable="custom" prop="FirstName">
+                <el-table-column label="Admin" min-width="120px" align="center" sortable="custom" prop="FirstName">
                 <template slot-scope="{row}">
-                    <span>{{ row.FirstName ? row.FirstName : $t('TEXT_COMMON_NA') }}</span>
+                    <span>{{ row.FirstName ? row.FirstName + ' ' + row.SubName : $t('TEXT_COMMON_NA') }}</span>
                 </template>
                 </el-table-column>
-                <el-table-column label="Last Name" min-width="120px" align="center" sortable="custom" prop="SubName">
+                <!--<el-table-column label="Last Name" min-width="120px" align="center" sortable="custom" prop="SubName">
                 <template slot-scope="{row}">
                     <span>{{ row.SubName ? row.SubName : $t('TEXT_COMMON_NA') }}</span>
                 </template>
-                </el-table-column>
+                </el-table-column>-->
                 <el-table-column label="Email" min-width="180px" align="center" sortable="custom" prop="Email">
                 <template slot-scope="{row}">
                     <span>{{ row.Email }}</span>
@@ -74,7 +74,7 @@
                 <template slot-scope="{row}">
                     <span>{{ row.Number }}</span>
                 </template>
-                </el-table-column>
+                </el-table-column><!--
                 <el-table-column label="Language" min-width="120px" align="center" sortable="custom" prop="Language">
                 <template slot-scope="{row}">
                     <span>{{ row.Language }}</span>
@@ -104,8 +104,7 @@
                 <template slot-scope="{row}">
                     <span>{{ row.AddressCode }}</span>
                 </template>
-                </el-table-column>
-
+                </el-table-column>-->
                 <el-table-column label="State" min-width="100px" align="center">
                 <template slot-scope="{row}">
                     <el-tag :type="row.State | statusFilter">
@@ -113,14 +112,16 @@
                     </el-tag>
                 </template>
                 </el-table-column>
-
-                <el-table-column label="Actions" align="center" width="160" class-name="small-padding fixed-width" fixed="right">
+                <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
                     <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
                     <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
+                    </el-button>
+                    <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
+                    Remote 
                     </el-button>
                 </template>
                 </el-table-column>
@@ -190,7 +191,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Province" prop="ProvinceCode">
+                    <el-form-item label="State / Province" prop="ProvinceCode">
                     <el-input v-model="temp.ProvinceCode" />
                     <!--<el-select v-model="temp.ProvinceCode" class="filter-item w-100" placeholder="Please select">
                         <el-option v-for="item in provinceOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
@@ -290,11 +291,13 @@
             </el-form>
             <div slot="footer" class="dialog-footer">                
                 
-                <!--<el-tooltip v-if="dialogStatus !== 'create'" effect="dark" content="Default password(123456) will be set for user" placement="top-end">
-                <el-button type="warning" class="orange-btn" :loading="isResetLoading" @click="onResetPassword">
-                    Reset Password
+                <el-button v-show="dialogStatus !== 'create'" v-if="temp.State==2" class="green-btn" :loading="isChangeStateLoading" @click="onChangeState(1)">
+                    {{'Enable'}}
                 </el-button>
-                </el-tooltip>-->
+                <el-button v-show="dialogStatus !== 'create'" v-else type="danger" :loading="isChangeStateLoading" @click="onChangeState(2)">
+                    {{'Disable'}}
+                </el-button>
+
                 <el-button :loading="isFormLoading" type="primary" class="blue-btn" @click="onEditFormSubmit()">
                 {{ $t('TEXT_COMMON_SAVE') }}
                 </el-button>
@@ -306,7 +309,7 @@
       <div class="panel-open display-flex justify-content-between align-items-center" @click="isRightPanelVisible = !isRightPanelVisible">
         <i class="el-icon-arrow-left" />
       </div>
-      <!--<div class="panel-toolbar panel-toolbar-bottom padding-x2">
+      <div class="panel-toolbar panel-toolbar-bottom padding-x2">
         <el-row :gutter="16">
           <el-col :xs="100">
 
@@ -316,7 +319,7 @@
             </label>
           </el-col>
         </el-row>
-      </div>-->
+      </div>
       <div class="panel-container">
         <el-row :gutter="0">
           <el-col :xs="100">
@@ -329,12 +332,65 @@
 
         <div class="content-divider"></div>
         
-
         <el-form ref="listQuery"  :model="listQuery" label-position="top" class="form-padding" @submit.native.prevent="handleFilter" >
           <input :id="filterSubmitId" type="submit" class="display-none">
-          <div class="padding-horizontal-x2">
-          
-          </div>
+          <div class="padding-horizontal-x2 pb-3">
+                
+                <input type="submit" class="display-none">
+                <el-row :gutter="16">
+                <el-col :xs="100" class="px-0">
+                    <el-form-item label="Fuzzy query" prop="q" class="no-margin-bottom">
+                    <el-input v-model="listQuery.q" placeholder="Type something" class="filter-item" />
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="100" class="px-0">
+                    <el-form-item label="Code" prop="code" class="no-margin-bottom">
+                    <el-input v-model="listQuery.Code" placeholder="Organize Code" class="filter-item" />
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="100" class="px-0">
+                    <el-form-item label="Name" prop="name" class="no-margin-bottom">
+                    <el-input v-model="listQuery.Name" placeholder="Name" class="filter-item" />
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="100"  class="px-0">
+                    <el-form-item label="Number" prop="number" class="no-margin-bottom">
+                    <el-input v-model="listQuery.Number" placeholder="Number" class="filter-item" />
+                    </el-form-item>
+                </el-col>                
+                <el-col :xs="100"  class="px-0">
+                    <el-form-item label="Parent" prop="parent" class="no-margin-bottom">
+                    <el-select v-model="listQuery.ParentCode" placeholder="Parent Code">
+                      <el-option v-for="item in parentOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+                    </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="100"  class="px-0">
+                    <el-form-item label="Service Profile" prop="serviceProfile" class="no-margin-bottom">
+                    <el-select v-model="listQuery.ServiceProfileCode" placeholder="Service Profile">
+                      <el-option v-for="item in serviceProfileOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+                    </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="100"  class="px-0">
+                    <el-form-item label="Country" prop="country" class="no-margin-bottom">
+                    <el-select v-model="listQuery.CountryCode" :placeholder="$t('COUNTRY')">
+                      <el-option v-for="item in countryOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+                    </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="100" class="px-0">
+                    <el-form-item label="State / Province" prop="province" class="no-margin-bottom">
+                    <el-input v-model="listQuery.ProvinceCode" placeholder="Province" class="filter-item" />
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="100" class="px-0">
+                    <el-form-item label="City" prop="city" class="no-margin-bottom">
+                    <el-input v-model="listQuery.CityCode" placeholder="City" class="filter-item" />
+                    </el-form-item>
+                </el-col>
+                </el-row>
+            </div>
         </el-form>
       </div>
     </el-aside>
@@ -346,10 +402,11 @@
 import waves from '@/directive/waves' // waves directive
 import { mapGetters } from 'vuex'
 
+import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
 //import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchCustomersList, createCustomer, updateCustomer, deleteCustomer, fetchServiceProfileList } from "@/api/user";
+import { fetchCustomersList, createCustomer, updateCustomer, deleteCustomer, fetchServiceProfileList, changeOrgState } from "@/api/user";
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
 
@@ -369,7 +426,7 @@ export default {
   },
   data() {
     return {
-      isRightPanelVisible: false,
+      isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       tableKey: 0,
       list: null,
@@ -420,7 +477,7 @@ export default {
       },
       isDialogFormVisible: false,
       isFormLoading: false,
-      isResetLoading: false,
+      isChangeStateLoading: false,
       isSearchExpanded: false,
       dialogStatus: '',
       textMap: {
@@ -440,7 +497,7 @@ export default {
         ],
         //Mobile: [{ type: 'number', message: 'Only digits please', trigger: 'blur' }],
         RoleCode: [{ required: true, message: 'Role is required', trigger: 'change' }],
-        ProvinceCode: [{ required: true, message: 'Province is required', trigger: 'blur' }],
+        ProvinceCode: [{ required: true, message: 'State / Province is required', trigger: 'blur' }],
         CityCode: [{ required: true, message: 'City is required', trigger: 'blur' }],
         CountryCode: [{ required: true, message: 'Country is required', trigger: 'change' }],
         ParentCode: [{ required: true, message: 'Parent is required', trigger: 'change' }],
@@ -468,6 +525,36 @@ export default {
     ...mapGetters(['userInfo'])
   },
   methods: {
+    async remoteAccess(token) {  
+      
+          //this.loading = true
+          const loginForm = {
+            token,
+          }
+          /*let response = await qtRemoteLogin(loginForm)
+          console.log('rem',response)
+          //this.loading = false
+          if(!response){
+            return
+          }
+
+          localStorage.Account = loginForm.Account;
+          localStorage.Password = loginForm.Password;*/
+          let response = {
+            FirstName: 'Vlad',
+              SubName: 'Bill',
+              Language: 'en',
+              Login: 'quiktrakukraine',
+              Token: '5b41ecfc-f8a5-4421-b4a8-61eb21f04ef5'
+          }
+          this.$store.commit('user/SET_QT_USERINFO', response)
+          this.$store.commit('user/SET_NAME', response.FirstName + ' ' + response.SubName)
+          this.$store.commit('user/SET_LOGIN', response.Login)
+          this.$store.commit('user/SET_AVATAR', 'avatar-user.png')
+          this.$store.commit('user/SET_LANGUAGE', response.Language)
+          
+          this.$router.push({ path: '/' })
+    },
     async getList() {
       this.isListLoading = true
       let response = await fetchCustomersList(this.listQuery)
@@ -634,26 +721,27 @@ export default {
         })
       })
     },
+    async onChangeState(state){
+      this.isChangeStateLoading = true;
+      let response = await changeOrgState({ Code: this.temp.Code, State: state })
+      this.isChangeStateLoading = false;
+      if(!response){
+        return
+      }
+      this.$notify({
+        title: 'Success',
+        message: 'State Changed Successfully',
+        type: 'success',
+        duration: 2000
+      })
+    },
     /*onParentCodeChange(value){
       this.getParentRoles(value)
       //console.log(event)
     },
     onServiceProfileChange(value){ 
     },
-    async onResetPassword(){
-      this.isResetLoading = true;
-      let response = await resetPassword({ Code: this.temp.Code })
-      this.isResetLoading = false;
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'Password Resetted Successfully',
-        type: 'success',
-        duration: 2000
-      })
-    },
+    
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
@@ -763,6 +851,14 @@ export default {
   border-color: #35475c;
   background-color: #35475c;
 }
+.green-btn{
+    border-color: #34bfa3;
+    background-color: #34bfa3;
+  }
+  .green-btn:hover,.green-btn:active,.green-btn:focus{
+    border-color: #3ec8ac;
+    background-color: #3ec8ac;
+  }
 .blue-btn{
   border-color: #28a5e0;
   background-color: #28a5e0;
@@ -772,6 +868,14 @@ export default {
   background-color: #32aee8;
 }
 
+  .violet-btn{
+    border-color: rgb(182, 162, 222);
+    background-color: rgb(182, 162, 222);
+  }
+  .violet-btn:hover,.violet-btn:active,.violet-btn:focus{
+    border-color: rgb(196, 180, 228);
+    background-color: rgb(196, 180, 228);
+  }
 
   .w-100{
     width: 100%;
@@ -835,18 +939,24 @@ div.square {
 .el-table td, .el-table th {
     padding: 12px 0;
 }
+.el-select{
+  width: 100%;
+}
 .el-table {
     width: 100%;
     border-radius: 5px;
     -webkit-box-shadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
     box-shadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
 }
-.el-asside{    
-    overflow-x: hidden;
+.el-aside{    
+    overflow: hidden;
 }
 .px-0{
     padding-left: 0 !important;
     padding-right: 0 !important;
+}
+.pb-3{
+  padding-bottom: 30px;
 }
 @media (min-width: 768px){
     .lg-pr-0{

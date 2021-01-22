@@ -16,14 +16,17 @@
             <el-dropdown-item>
               Home
             </el-dropdown-item>
-          </router-link>
+          </router-link>            
           <a target="_blank" href="http://android.app.quiktrak.eu/m2m-controller/">
             <el-dropdown-item>App</el-dropdown-item>
           </a>
           <a target="_blank" href="https://statistic.quiktrak.com.au/top-imsi-usage/">
             <el-dropdown-item>Reports</el-dropdown-item>
           </a>
-          <el-dropdown-item divided @click.native="logout">
+          <el-dropdown-item divided @click.native="accessAdmin()">
+            Back to Admin
+          </el-dropdown-item>
+          <el-dropdown-item @click.native="logout">
             <span style="display:block;">Log Out</span>
           </el-dropdown-item>
         </el-dropdown-menu>
@@ -51,6 +54,51 @@ export default {
     ])
   },
   methods: {
+    accessAdmin() { 
+          //this.loading = true
+          //let response = await qtLogin(this.loginForm)
+          //this.loading = false
+          /*if(!response){
+            return
+          }
+
+          localStorage.Account = this.loginForm.Account;
+          localStorage.Password = this.loginForm.Password;
+*/let response = {
+    FirstName: 'Vlad',
+    SubName: 'Bill',
+    Language: 'en',
+    Login: 'Root',
+    Token: '00000000-0000-0000-0000-000000000000'
+}
+          this.$store.commit('user/SET_QT_USERINFO', response)
+          this.$store.commit('user/SET_NAME', response.FirstName + ' ' + response.SubName)
+          this.$store.commit('user/SET_LOGIN', response.Login)
+          this.$store.commit('user/SET_AVATAR', 'avatar.png')
+          this.$store.commit('user/SET_LANGUAGE', response.Language)
+          this.$router.push({ path: '/customer-manage/user-list' })
+          
+          //this.$route.params.imsi = `${imsi}`
+          /*this.$store.commit('user/SET_TOKEN', response.Token)
+          setToken(response.Token)
+          this.$router.push({ path: this.redirect || '/' })*/
+          /*
+          let m2mLoginDetails = {
+            username: 'm2madmin',
+            password: '888888'
+          }
+          this.$store.dispatch('user/login', m2mLoginDetails).then(() => {
+            this.$router.push({ path: this.redirect || '/report' })
+            this.loading = false
+          }).catch((e) => {
+            this.loading = false
+            Message({
+              message: 'Incorrect login data',
+              type: 'error',
+              duration: 5 * 1000
+            })
+          })*/
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
@@ -128,7 +176,7 @@ export default {
           cursor: pointer;
           width: 40px;
           height: 40px;
-          border-radius: 10px;
+          border-radius: 50px;
           vertical-align: middle;
         }
 
