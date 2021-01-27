@@ -667,6 +667,16 @@ export default {
   background-color: #32aee8;
 }
 
+  .violet-btn{
+    border-color: rgb(182, 162, 222);
+    background-color: rgb(182, 162, 222);
+  }
+  .violet-btn:hover,.violet-btn:active,.violet-btn:focus{
+    border-color: rgb(196, 180, 228);
+    background-color: rgb(196, 180, 228);
+  }
+
+
 
   .w-100{
     width: 100%;

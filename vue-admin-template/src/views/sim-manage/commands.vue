@@ -38,78 +38,14 @@
                     <span>{{ row.Name }}</span>
                 </template>
                 </el-table-column>
-                <el-table-column label="Parent" min-width="120px" align="center" sortable="custom" prop="ParentName">
+                <el-table-column label="Format" min-width="120px" align="center" sortable="custom" prop="Format">
                 <template slot-scope="{row}">
-                    <span>{{ row.ParentName }}</span>
+                    <span>{{ row.Format }}</span>
                 </template>
                 </el-table-column>
-
-                <el-table-column label="Admin" min-width="120px" align="center" sortable="custom" prop="FirstName">
+                <el-table-column label="Organize Code" min-width="140px" align="center" sortable="custom" prop="OrganizeCode">
                 <template slot-scope="{row}">
-                    <span>{{ row.FirstName ? row.FirstName + ' ' + row.SubName : $t('TEXT_COMMON_NA') }}</span>
-                </template>
-                </el-table-column>
-                <!--<el-table-column label="Last Name" min-width="120px" align="center" sortable="custom" prop="SubName">
-                <template slot-scope="{row}">
-                    <span>{{ row.SubName ? row.SubName : $t('TEXT_COMMON_NA') }}</span>
-                </template>
-                </el-table-column>-->
-                <el-table-column label="Email" min-width="180px" align="center" sortable="custom" prop="Email">
-                <template slot-scope="{row}">
-                    <span>{{ row.Email }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="Mobile" min-width="120px" align="center">
-                <template slot-scope="{row}">
-                    <span>{{ row.Mobile ? row.Mobile : $t('TEXT_COMMON_NA') }}</span>
-                </template>
-                </el-table-column>
-                
-                <el-table-column label="Service Profile" min-width="140px" align="center" sortable="custom" prop="ServiceProfileName">
-                <template slot-scope="{row}">
-                    <span>{{ row.ServiceProfileName }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="Number" min-width="100px" align="center" sortable="custom" prop="Number">
-                <template slot-scope="{row}">
-                    <span>{{ row.Number }}</span>
-                </template>
-                </el-table-column><!--
-                <el-table-column label="Language" min-width="120px" align="center" sortable="custom" prop="Language">
-                <template slot-scope="{row}">
-                    <span>{{ row.Language }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="Country" min-width="100px" align="center" sortable="custom" prop="CountryCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.CountryCode }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="Province" min-width="100px" align="center" sortable="custom" prop="ProvinceCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.ProvinceCode }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="City" min-width="100px" align="center" sortable="custom" prop="CityCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.CityCode }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="Address" min-width="100px" align="center" sortable="custom" prop="Address">
-                <template slot-scope="{row}">
-                    <span>{{ row.Address }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="ZIPCode" min-width="100px" align="center" sortable="custom" prop="ZIPCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.AddressCode }}</span>
-                </template>
-                </el-table-column>-->
-                <el-table-column label="State" min-width="100px" align="center">
-                <template slot-scope="{row}">
-                    <el-tag :type="row.State | statusFilter">
-                    {{ getStatusText(row.State) }}
-                    </el-tag>
+                    <span>{{ row.CreateOrganizeCode }}</span>
                 </template>
                 </el-table-column>
                 <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width" fixed="right">
@@ -121,7 +57,7 @@
                     {{ $t('TEXT_COMMON_DELETE') }}
                     </el-button>
                     <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
-                    Remote 
+                    Params 
                     </el-button>
                 </template>
                 </el-table-column>
@@ -359,27 +295,11 @@
                     </el-form-item>
                 </el-col>                
                 <el-col :xs="100"  class="px-0">
-                    <!--<el-form-item label="Parent" prop="parent" class="no-margin-bottom">
+                    <el-form-item label="Parent" prop="parent" class="no-margin-bottom">
                     <el-select v-model="listQuery.ParentCode" placeholder="Parent Code">
                       <el-option v-for="item in parentOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>
-                    </el-form-item>-->
-                    <el-form-item label="Parent" prop="parent" class="">
-                      <el-select
-                        ref="parentSearchSelect"
-                        v-model="searchedParent"
-                        :remote-method="querySearchParent"
-                        filterable
-                        default-first-option
-                        remote
-                        clearable
-                        placeholder="Parent"
-                        class="imsi-search-select"
-                        @change="changeParent"
-                      >
-                        <el-option v-for="item in parentArr" :key="item.code" :value="item" :label="item.title" />
-                      </el-select>
-                  </el-form-item>
+                    </el-form-item>
                 </el-col>
                 <el-col :xs="100"  class="px-0">
                     <el-form-item label="Service Profile" prop="serviceProfile" class="no-margin-bottom">
@@ -422,13 +342,13 @@ import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
 //import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchCustomersList, createCustomer, updateCustomer, deleteCustomer, fetchServiceProfileList, changeOrgState } from "@/api/user";
+import { fetchTemplatesList, createTemplate, updateTemplate, deleteTemplate, fetchServiceProfileList, changeOrgState } from "@/api/user";
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
 
 
 export default {
-  name: 'Customers',
+  name: 'Templates',
   components: { Pagination, Item },
   directives: { waves },
   filters: {
@@ -442,8 +362,6 @@ export default {
   },
   data() {
     return {
-      searchedParent: '',
-      parentArr: [],
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       tableKey: 0,
@@ -543,38 +461,6 @@ export default {
     ...mapGetters(['userInfo'])
   },
   methods: {
-    querySearchParent(query) {
-      if (query !== '') {        
-        if(query.length > 1) {
-          this.searchParent(query)
-        }      
-      } else {
-        this.parentArr = []
-      }
-    },
-    async searchParent(query) {
-      const arr = []      
-      this.parentArr = []
-      this.parentListQuery = {
-        Name: query
-      }
-      
-      let response = await fetchCustomersList(this.parentListQuery)
-      //getSIMList(this.simListQuery).then(response => {
-        response.rows.forEach(element => {
-          arr.push({
-            code: element.Code,
-            title: element.Name
-          })
-        })
-        this.parentArr = arr
-      //})      
-    },
-    changeParent(val) {
-      this.parentArr = []
-      this.searchedParent = val.title
-      this.listQuery.Parent = val.code
-    },
     async remoteAccess(token) {  
       const loginForm = {
             token,
@@ -611,19 +497,24 @@ export default {
           this.$router.push({ path: '/' })*/
     },
     async getList() {
-      this.isListLoading = true
-      let response = await fetchCustomersList(this.listQuery)
+      this.total = 10
+      this.list = [{
+        Code: '0',
+        Name: 'Location',
+        Format: '\r\nSERVER,QUIKTRAK.CO,40500#\r\nAPN,M2MDATA,,#"',
+        Parametrs: [],
+        CreateOrganizeCode: ''
+      }]
+      this.isListLoading = false
+      /*this.isListLoading = true
+      let response = await fetchTemplatesList(this.listQuery)
       this.isListLoading = false
       
       if(!response){
         return
       }
       this.total = response.total
-      this.list = response.rows
-      this.parentOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }].concat(this.list)
+      this.list = response.rows*/
     },
     /*async getParentRoles(token){
       if(!token) token = this.$store.getters.userInfo.Token
@@ -733,7 +624,7 @@ export default {
       })
     },
     async handleDelete(row, index) {
-      let response = await deleteCustomer({ Code: row.Code })
+      let response = await deleteTemplate({ Code: row.Code })
       if(!response){
         return
       }
@@ -758,7 +649,7 @@ export default {
         }
         
         this.isFormLoading = true
-        let response = this.dialogStatus === 'create' ? await createCustomer(tempData) : await updateCustomer(tempData)
+        let response = this.dialogStatus === 'create' ? await createTemplate(tempData) : await updateTemplate(tempData)
        
         this.isFormLoading = false
         if(!response){

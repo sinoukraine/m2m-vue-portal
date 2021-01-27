@@ -158,11 +158,12 @@ export default {
             this.loading = false
           }).catch((e) => {
             this.loading = false
-            Message({
+            console.error(e)
+            /*Message({
               message: 'Incorrect login data',
               type: 'error',
               duration: 5 * 1000
-            })
+            })*/
           })
         } else {
           console.log('error submit!!')

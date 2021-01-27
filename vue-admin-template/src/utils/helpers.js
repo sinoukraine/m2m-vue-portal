@@ -31,6 +31,8 @@ export const API_METHODS = {
   CUSTOMER_EDIT: DOMAIN1 + 'service/Organize/Edit',
   CUSTOMER_CHANGE_STATE: DOMAIN1 + 'service/Organize/SetState',
   CUSTOMER_DELETE: DOMAIN1 + 'service/Organize/Remove',
+
+  TEMPLATE_GET_LIST: DOMAIN1 + 'service/CommandTemplate/Attributes',
   
 }
 

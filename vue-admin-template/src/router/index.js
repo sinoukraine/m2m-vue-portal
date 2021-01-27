@@ -81,12 +81,12 @@ export const constantRoutes = [
         component: () => import('@/views/sim-manage/sim-profile'),
         meta: { title: 'SIM Profile', child: true, icon: 'sim' },
         hidden: true
-      },{
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
+      }/*,{
+        path: 'commands',
+        name: 'Commands',
+        component: () => import('@/views/sim-manage/commands'),
         meta: { title: 'Commands', icon: 'terminal' }
-      }
+      }*/
     ]
   },
   {
@@ -150,13 +150,28 @@ export const constantRoutes = [
   {
     path: '/report',
     component: Layout,
+    redirect: '/',
+    name: 'Reports',
+    meta: { title: 'Reports', icon: 'reports' },
     children: [
       {
-        path: 'index',
-        name: 'Report',
-        component: () => import('@/views/report/index'),
-        meta: { title: 'Report', icon: 'reports' }
-      }
+        path: 'quikdata-imns',
+        name: 'QuikData IMNS',
+        component: () => import('@/views/report/quikdata-imns'),
+        meta: { title: 'QuikData IMNS', icon: 'reports' }
+      },
+      {
+        path: 'imns-activity',
+        name: 'IMNS Activity',
+        component: () => import('@/views/report/imns-activity'),
+        meta: { title: 'IMNS Activity', icon: 'reports' }
+      },
+      /*{
+        path: 'sms-activity',
+        name: 'SMS Activity',
+        component: () => import('@/views/report/sms-activity'),
+        meta: { title: 'SMS Activity', icon: 'reports' }
+      }*/
     ]
   },
 

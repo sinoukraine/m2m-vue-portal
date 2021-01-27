@@ -18,7 +18,7 @@
         border
         class="session-table"
       >
-        <el-table-column label="Start Date" align="center" >
+        <el-table-column label="Start Date" width="90" align="center" >
           <template slot-scope="{row}">
             <span>{{row.startTime.slice(0,19).replace('T', ' ')}}</span>
           </template>
@@ -28,7 +28,7 @@
             <span>{{row.updateDate.slice(0,10)}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="End Date" align="center">
+        <el-table-column label="End Date" width="90" align="center">
           <template slot-scope="{row}">
             <span>{{row.endTime.slice(0,19).replace('T', ' ')}}</span>
           </template>
@@ -472,7 +472,15 @@ export default {
 
       let network = '', endTime = ''
       if(response.data.extra.activity.hasOwnProperty('samples')){
-        this.sessionList = response.data.extra.activity.samples.map(el => ({...el, updateDate: response.data.extra.activity.date}))
+        let sessionArr = response.data.extra.activity.samples.map(el => ({...el, updateDate: response.data.extra.activity.date}))
+        
+        let sortedArr = sessionArr/*.sort(function(a,b){
+          var c = new Date(a.insertedDate)
+          var d = new Date(b.insertedDate)
+          return d-c
+        })*/
+        this.sessionList = sortedArr.reverse()
+
         let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
       }
       

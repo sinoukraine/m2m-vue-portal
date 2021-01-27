@@ -43,8 +43,36 @@ export async function qtLogin(query) {
   }
 }
 
-export async function qtRemoteLogin(query) {  
+export async function qtRemoteLogin(query) { 
   var qs = require('qs')
+
+  var formData = qs.stringify({
+    'SystemType': '1',
+    'AppID': 'm2mdata.co'
+  })
+  return new Promise((resolve, reject) => {
+    const requestOptions = {
+      method: 'GET',
+      //redirect: 'follow',      
+     //url: 'http://test.m2mdata.co/service/User/ReAuth?token=00000000-0000-0000-0000-000000000000',
+     // data: formData,
+      /*headers: { 
+        'token': '00000000-0000-0000-0000-000000000000', 
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },*/
+    }
+    fetch('http://test.m2mdata.co/service/User/ReAuth?token=00000000-0000-0000-0000-000000000000')
+        .then(response => {
+          console.log('test',response)
+          return response.json()}
+        )
+        .then(result => 
+          resolve(JSON.parse(result))
+        ).catch(error => 
+          reject(error)
+        ) 
+  })
+  /*var qs = require('qs')
 
   var formData = qs.stringify({
     'SystemType': '1',
@@ -76,7 +104,7 @@ export async function qtRemoteLogin(query) {
     console.log(e)
     store.commit('app/SET_ERROR', e)
     return false
-  }
+  }*/
 }
 
 
@@ -321,6 +349,27 @@ export async function deleteCustomer(query) {
       return response.data
     }else{
       response.data.method = 'deleteCustomer';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+
+
+export async function fetchTemplatesList(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.TEMPLATE_GET_LIST, data );
+    if(!response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'fetchTemplatesList';
       store.commit('app/SET_API_VALIDATION_ERROR', response.data)
       return false
     }

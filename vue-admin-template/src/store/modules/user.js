@@ -75,11 +75,17 @@ function getRequestOptions(options) {
 const actions = {
   // user login
   login({ commit }, userInfo) {
+    
     const options = {
       url: PRELOGIN,
       method: 'post'
     }
     return new Promise((resolve, reject) => {
+      /*commit('SET_TOKEN', '0000')
+
+                setToken('0000')
+                resolve()
+                */
       axios.request(getRequestOptions(options)).then(
         (result) => {
           const { consumerToken } = result.data
