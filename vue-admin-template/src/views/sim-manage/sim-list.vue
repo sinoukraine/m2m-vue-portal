@@ -180,9 +180,9 @@
                 <span>{{ row.dataSession }}</span>
               </template>
             </el-table-column>
-            <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')" :class-name="getSortClass('dataUsage')" align="left" min-width="120px">
+            <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')+'(Mb)'" :class-name="getSortClass('dataUsage')" align="left" min-width="120px">
               <template slot-scope="{row}">
-                <span>{{ row.dataUsage }}</span>
+                <span>{{ row.dataUsage/1000000 }}</span>
               </template>
             </el-table-column>
             <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')"  :class-name="getSortClass('smsUsage')" align="left" min-width="120px">
@@ -468,12 +468,14 @@ export default {
         let flowField = 0
         let smsField = 0
         let totalField = 0
-        let dataSessions = 0
+        //let dataSessions = 0
 
         const customer = response_1.data.ancestors[0].info.name
         const state = response_1.data.extra.states.current
         const csp = response_1.data.extra.states.csp
         const activityArr = response_1.data.extra.activity.samples
+        console.log(response_1)
+        const sessions = response_1.data.extra.activity.totals.data.sessions
         let rag = ''
         /*if (response_1.data.extra.activity.totals != null && response_1.data.extra.activity.totals.flow != null){
           flowField += +response_1.data.extra.activity.totals.flow.originalUnits
@@ -489,9 +491,9 @@ export default {
             rag = 'rgb(204,204,204)'
         }else{
           activityArr.forEach(element_1 => {
-            if(element_1.hasOwnProperty('originalUnits')){
+           /* if(element_1.hasOwnProperty('originalUnits')){
               dataSessions += +element_1.originalUnits
-            }
+            }*/
           })
           const simActivityTime = moment(activityArr[activityArr.length - 1].endTime, 'YYYY-MM-DD').format('YYYY-MM-DD');
           if(simActivityTime >= oneDayAgo){
@@ -515,7 +517,7 @@ export default {
           solution: 'Track',
           agent: 'M2M Data',
           customer,
-          dataSession: dataSessions,
+          dataSession: sessions,
           dataUsage: totalField,
           smsUsage: smsField,
           zeroSession: '0',

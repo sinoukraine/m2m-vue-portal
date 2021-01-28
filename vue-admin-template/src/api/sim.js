@@ -461,7 +461,10 @@ export async function getCDRSList(query) {
 }
 
 export async function getCDRSListAsync(query) {
-  let addCustomer = '', addLimit = ''
+  let addCustomer = '', addLimit = '', kind = 'data'
+  if (query.sms !== undefined ) {
+    kind = 'sms'
+  }
   if (query.customer !== undefined ) {
     addCustomer = '&customerId=' + query.customer
   }
@@ -472,7 +475,7 @@ export async function getCDRSListAsync(query) {
     addLimit = '&limit=' + query.limit
   }
   const options = {
-    url: CDRS_LIST + '?startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z' + addLimit + '' + addCustomer + '',
+    url: CDRS_LIST + '?kindOfUsage=' + kind + '&startDate=' + query.date1 + 'T00:00:00.000Z&endDate=' + query.date2 + 'T00:00:00.000Z' + addLimit + '' + addCustomer + '',
     method: 'get'
   }
   try {

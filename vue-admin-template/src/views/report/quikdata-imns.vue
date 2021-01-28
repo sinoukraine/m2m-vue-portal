@@ -233,6 +233,10 @@
                 <el-select v-model="selectedSIMLimit" placeholder="SIM"  class="filter-item w-100" style="width: 100%;">
                   <el-option v-for="item in limitOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>
+                <span class="label-span">Ordering by</span>
+                <el-select v-model="selectedType" placeholder="Order"  class="filter-item w-100" style="width: 100%;">
+                  <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
               </el-form-item>
             </el-col>
           </el-row>
@@ -275,6 +279,11 @@ const customerListOption = [
 const statusOptions = [
   { code: 'A', name: 'A' },
   { code: 'V', name: 'V' }
+]
+
+const typeOptions = [
+  { code: 'data', name: 'Data' },
+  { code: 'sms', name: 'SMS' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -343,6 +352,7 @@ export default {
       selectedCustomer: '0',
       selectedPeriod: '0',
       selectedSIMLimit: '10',
+      selectedType: 'data',
       isChartShown: false,
       series: [{
         data: []
@@ -380,6 +390,7 @@ export default {
         sort: '+code'
       },
       categoryTypeOptions,
+      typeOptions,
       periodOptions,
       limitOptions,
       customerListOption,
@@ -635,7 +646,9 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       this.listQuery.customer = this.selectedCustomer==='0'?undefined:this.selectedCustomer
-      this.listQuery.limit = this.selectedSIMLimit==='all'?undefined:this.selectedSIMLimit      
+      this.listQuery.limit = this.selectedSIMLimit==='all'?undefined:this.selectedSIMLimit     
+      console.log(this.selectedType) 
+      this.listQuery.sms = this.selectedType === 'sms'?'sms':undefined
       this.getList()
     },
     handleModifyStatus(row, status) {

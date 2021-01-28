@@ -1250,6 +1250,9 @@ div.square {
 .el-pagination.is-background .el-pager li:not(.disabled).active {
     background-color: #28a5e0;
 }
+.el-select{
+  width: 100%;
+}
 /*.el-table{
   margin-top: 20px;
 }
