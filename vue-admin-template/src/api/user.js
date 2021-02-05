@@ -380,6 +380,56 @@ export async function fetchTemplatesList(query) {
   }
 }
 
+export async function fetchSIMList(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_GET_LIST, data );
+    if(!response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'fetchSIMList';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+
+export async function updateSIM(query) {
+  var qs = require('qs')
+     
+  var formData = qs.stringify(query)
+   var config = {
+     method: 'post',
+     url: 'https://test.m2mdata.co/Service/JTSim/Edit',
+     headers: { 
+       'token': '00000000-0000-0000-0000-000000000000', 
+       'Content-Type': 'application/x-www-form-urlencoded'
+     },
+     data : formData
+   }
+
+  try {
+    const response = await axios(config)
+    if(response.data.MajorCode === '000'){
+      console.log(JSON.stringify(response.data))
+      return JSON.stringify(response.data)
+    }else{
+      response.data.method = 'updateSIM';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
 /*import request from '@/utils/request'
 
 export function login(data) {

@@ -75,7 +75,12 @@ export const constantRoutes = [
         name: 'SimList',
         component: () => import('@/views/sim-manage/sim-list'),
         meta: { title: 'SIM List', icon: 'sim' },
-      },{
+      },/*{
+        path: 'sim-list_',
+        name: 'SimList_',
+        component: () => import('@/views/sim-manage/sim-list_'),
+        meta: { title: 'SIM List_', icon: 'sim' },
+      },*/{
         path: '/sim-list/:id', 
         name: 'SIM Profile',
         component: () => import('@/views/sim-manage/sim-profile'),

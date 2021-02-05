@@ -113,7 +113,7 @@ export async function getDemoOwerview(login) {
       }
       //
       if(login=='Root'||login=='root'){
-        fetch(DEMO_OWERVIEW + '?login=' + login, requestOptions)
+        fetch(DEMO_OWERVIEW + '?login=' + login + '&imsi=', requestOptions)
         .then(response => 
           response.json()
         )

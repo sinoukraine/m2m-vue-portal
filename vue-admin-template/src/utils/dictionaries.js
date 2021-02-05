@@ -10,6 +10,11 @@ export const StatusList = [
   { Code: 0, Name: 'Disabled', Translation: 'TEXT_COMMON_DISABLED' }
 ]
 
+export const SIMStatusList = [
+  { Code: 1, Name: 'Activated', Translation: 'TEXT_COMMON_ACTIVATED' },
+  { Code: 0, Name: 'OnStock', Translation: 'TEXT_COMMON_ONSTOCK' }
+]
+
 export const MinorCodeEnum = {
   "0000": 'All OK',
   "0001": 'Field is mandatory',
