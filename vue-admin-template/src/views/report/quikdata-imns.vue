@@ -467,7 +467,7 @@ export default {
         this.isLoading = true 
         const query = {
           imsi: data.imsi,
-          activity: true
+          //activity: true
         }
         const response = await getSIMAsync(query)
         

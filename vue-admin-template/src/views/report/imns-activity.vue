@@ -422,7 +422,7 @@ export default {
         this.isLoading = true 
         const query = {
           imsi: data.imsi,
-          activity: true
+          //activity: true
         }
         const response = await getSIMAsync(query)
         
@@ -575,11 +575,12 @@ export default {
       return Math.floor(Math.random() * (50 - 5 + 1)) + 5
     },
     async getList() {
+      this.list = []
       this.listLoading = true
     
         const query = {
           imsi: this.listQuery.imsi,
-          activity: true
+          //activity: true
         }
         const response = await getSIMAsync(query)
         

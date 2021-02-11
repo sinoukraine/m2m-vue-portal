@@ -422,7 +422,7 @@ export default {
         this.isLoading = true 
         const query = {
           imsi: data.imsi,
-          activity: true
+          //activity: true
         }
         const response = await getSIMAsync(query)
         
@@ -579,7 +579,7 @@ export default {
     
         const query = {
           imsi: this.listQuery.imsi,
-          activity: true
+          //activity: false
         }
         const response = await getSIMAsync(query)
         

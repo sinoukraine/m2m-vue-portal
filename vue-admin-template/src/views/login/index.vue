@@ -122,7 +122,6 @@ export default {
           if(!response){
             return
           }
-
           localStorage.Account = this.loginForm.Account;
           localStorage.Password = this.loginForm.Password;
 
@@ -145,6 +144,14 @@ export default {
           this.$store.commit('user/SET_AVATAR', 'avatar-user.png')
           this.$store.commit('user/SET_LANGUAGE', test.Language)
       }
+
+      
+          /*~~~this.$store.commit('user/SET_TOKEN', response.Token)
+          setToken(response.Token)
+
+          this.$router.push({ path: this.redirect || '/' })*/
+
+
           /*this.$store.commit('user/SET_TOKEN', response.Token)
           setToken(response.Token)
           this.$router.push({ path: this.redirect || '/' })*/

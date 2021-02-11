@@ -137,6 +137,8 @@ import waves from '@/directive/waves'
 import { getSIMList, getSMSHistoryAsync } from '@/api/sim'
 import moment from 'moment'
 
+const today = new Date()
+
 export default {
   components: {
     Item,
@@ -148,7 +150,7 @@ export default {
       checkboxSent: true,
       checkboxReceived: true, 
       isShowNow: false,
-      searchedIMSI: '',
+      searchedIMSI: '234500003096617',
       isLoading: false,
       fullPage: true,      
       listLoading: true,
@@ -175,9 +177,9 @@ export default {
         sample: ''
       },
       listHistoryQuery: {
-        imsi: '',
-        date1: '',
-        date2: ''
+        imsi: '234500003096617',
+        date1: moment(today, 'YYYY-MM-DD').add(-90, 'days').format('YYYY-MM-DD'),
+        date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
       },
       filterSubmitId: Date.now(),
       intervalForReply: null,
@@ -204,8 +206,9 @@ export default {
     })*/
   },
   mounted(){
-    this.$alert('Choose SIM card to see its Commands history', 'M2M Data Message', {type: 'message'})
-    
+    //this.$alert('Choose SIM card to see its Commands history', 'M2M Data Message', {type: 'message'})
+      this.isShowNow = false
+      this.getHistory()
   },
   methods: {
     handleFilter() {

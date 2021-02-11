@@ -10,8 +10,6 @@
       </el-col>
       <el-col :xs="24" :sm="24" :lg="12" style="">
         <box-card :box="boxData"
-          
-            v-loading="listLoading"
           @change="searchComparing"
         />
       </el-col>
@@ -56,9 +54,7 @@
             </el-table-column>
            <el-table-column label="IMSI" align="center" width="160px">
               <template slot-scope="{row}">
-                <span>
-                {{ row.imsi }}
-                </span>
+                <span>{{ row.imsi }}</span>
               </template>
             </el-table-column>
             <el-table-column label="Customer"  min-width="120px" align="center">
@@ -250,6 +246,7 @@ export default {
         let cc 
 
         await getDemoOwerview(this.$store.state.user.login).then(response => {
+          console.log('r',response)
             switch (period){
                 case 'daily':
                     this.panelData = {
@@ -278,7 +275,7 @@ export default {
                         loaded: true
                     }
                 break
-                case 'yerly':
+                case 'yearly':
                     this.panelData = {
                         totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_YEAR/1048576 : 0,
                         totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_YEAR : 0,

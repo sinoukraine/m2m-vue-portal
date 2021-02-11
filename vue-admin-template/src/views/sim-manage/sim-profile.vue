@@ -174,6 +174,7 @@
             <panel-group            
               :lg="'6'"
               :total="panelData"
+              @change="searchTotalByPeriod"
             />
           </div>
           <el-card class="box-card footer-border">
@@ -182,19 +183,19 @@
                 <el-row :gutter="16">
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="IMSI" prop="imsi">
-                      <el-input v-model="temp.imsi" />
+                      <el-input v-model="temp.imsi" disabled/>
                     </el-form-item>
                   </el-col>
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="ICCID" prop="iccid">
-                      <el-input v-model="temp.iccid" />
+                      <el-input v-model="temp.iccid" disabled />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row :gutter="16">
                   <el-col :xs="24" :sm="12">
                     <el-form-item label="MSISDN" prop="msisdn">
-                      <el-input v-model="temp.msisdn" />
+                      <el-input v-model="temp.msisdn" disabled/>
                     </el-form-item>
                   </el-col>
                   <el-col :xs="24" :sm="12">
@@ -273,12 +274,30 @@
               </div>
             </div>
           </el-card>
+          <div id="chart" class="sim-container">
+              
+            </div>
           <div class="chart-container line-chart-container mt-30">
-            <line-chart
+            <div style="display:flex;justify-content: center;">
+                <div style="display:flex">
+                  <div class="square" :style="'background-color:rgb(182, 162, 222);'"></div>
+                  <div class="font-14" style="padding: 0 15px;color:#606268">Data MB</div>
+                </div> 
+                <div style="display:flex">
+                    <div class="square" :style="'background-color:#ffb880;'"></div>
+                    <div class="font-14" style="padding: 0 15px;color:#606268">Average (MB/day)</div>
+                </div> 
+                <div style="display:flex">
+                    <div class="square" :style="'background-color:#d77980;'"></div>
+                    <div class="font-14" style="padding: 0 15px;color:#606268">Total SMS</div>
+                </div> 
+              </div>
+            <apexchart type="line" :height="350" :options="chartOptions" :series="series" />
+            <!--<line-chart
               :chart-data="lineCollection"
               :styles="lineStyles"
               :options="lineOptions"
-            ></line-chart>
+            ></line-chart>-->
           </div>
         </el-row>
       </div>
@@ -298,7 +317,10 @@ import { parseTime } from '@/utils'
 import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
 import Item from '@/layout/components/Sidebar/Item'
-import { getSIMAsync, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync, getSMSHistoryAsync } from '@/api/sim'
+import { getSIMAsync, getCDRS, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync, getSMSHistoryAsync, getDemoOwerview } from '@/api/sim'
+import VueApexCharts from 'vue-apexcharts'
+
+const curday = new Date()
 
 export default {
   name: 'SIMProfile',
@@ -308,7 +330,8 @@ export default {
     Loading,
     PanelGroup,
     LineChart,
-    LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup
+    LMap, LTileLayer, LMarker, LControlLayers, LPolyline, LFeatureGroup, LPopup,
+    apexchart: VueApexCharts
   },
   data() {
 
@@ -328,7 +351,8 @@ export default {
       fullPage: true,
       simQuery: {
         id: undefined,
-        activity: true
+        imsi: undefined,
+        //activity: true
       },
       cdrsQuery: {
       },
@@ -394,6 +418,9 @@ export default {
         responsive: true,
         maintainAspectRatio: false
       },
+      series: [],
+      chartOptions: {
+      },
       mapFormVisible: false,      
       sessionFormVisible: false,
       smsFormVisible: false,
@@ -432,14 +459,16 @@ export default {
     }
   },
   created() {
+    this.searchTotalByPeriod('daily')
     const today = new Date()
     const current = moment()
     this.cdrsQuery = {
-      id: this.$route.params.id,
+      //id: this.$route.params.id,
       date1: current.clone().startOf('month').format('YYYY-MM-DD'),
       date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
     }
-    this.simQuery.id = this.$route.params.id
+    //this.simQuery.id = this.$route.params.id
+    this.simQuery.imsi = this.$route.params.id
     this.getProfile()
   },
   computed: {
@@ -452,37 +481,79 @@ export default {
     }
   },
   methods: {
+    async searchTotalByPeriod(period) {
+        const imsi =  this.$route.params.id
+        await getDemoOwerview(this.$store.state.user.login, imsi).then(response => {
+            switch (period){
+                case 'daily':
+                    this.panelData = {
+                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_DAY/1048576 : 0,
+                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_DAY : 0,
+                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_DAY : 0,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_DAY : 0,
+                        loaded: true
+                    }
+                break
+                case 'weekly':
+                    this.panelData = {
+                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_WEEK/1048576 : 0,
+                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_WEEK : 0,
+                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_WEEK : 0,//(3600*response.Table3[0].JTOV_DATA_WEEK)/(response.Table3[0].JTOV_DURATION_WEEK*1024),
+                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_WEEK : 0,
+                        loaded: true
+                    }
+                break
+                case 'monthly':
+                    this.panelData = {
+                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_MONTH/1048576 : 0,
+                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_MONTH : 0,
+                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_MONTH : 0,//(3600*response.Table3[0].JTOV_DATA_MONTH)/(response.Table3[0].JTOV_DURATION_MONTH*1024),
+                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_MONTH : 0,
+                        loaded: true
+                    }
+                break
+                case 'yearly':
+                    this.panelData = {
+                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_YEAR/1048576 : 0,
+                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_YEAR : 0,
+                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_YEAR : 0,//(3600*response.Table3[0].JTOV_DATA_YEAR)/(response.Table3[0].JTOV_DURATION_YEAR*1024),
+                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
+                        loaded: true
+                    }
+                break
+            } 
+        })
+    },
     async getProfile() {
       const response = await getSIMAsync(this.simQuery)
       this.smsQuery = {
         imsi: response.data.info.imsi,
       }
+      this.cdrsQuery.id = response.data._id
       this.temp = {
         imsi: response.data.info.imsi,
         iccid: response.data.info.iccid,
         msisdn: response.data.info.msisdn,
       }
-      this.panelData = {
+      this.simQuery.id = response.data._id
+      /*this.panelData = {
         totalDataUsage: 23,
         totalSMSUsage: 2,
         totalDuration: 20,
         totalDataSessions: 300,
         loaded: true
-      }
+      }*/
 
       let network = '', endTime = ''
-      if(response.data.extra.activity.hasOwnProperty('samples')){
+      
+      /*if(response.data.extra.activity.hasOwnProperty('samples')){
         let sessionArr = response.data.extra.activity.samples.map(el => ({...el, updateDate: response.data.extra.activity.date}))
         
-        let sortedArr = sessionArr/*.sort(function(a,b){
-          var c = new Date(a.insertedDate)
-          var d = new Date(b.insertedDate)
-          return d-c
-        })*/
+        let sortedArr = sessionArr
         this.sessionList = sortedArr.reverse()
 
         let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
-      }
+      }*/
       
       this.locationList.push(
         {title: 'IMSI', value: response.data.info.imsi},
@@ -491,16 +562,110 @@ export default {
         {title: 'Cell', value: ''},
         {title: 'Cell Range', value: ''},
         {title: 'Current Session Date', value: endTime.slice(0,19).replace('T', ' ')},
-        {title: 'Current Usage', value: response.data.extra.activity?.totals?.totalDataUsage}
+        {title: 'Current Usage', value: response.data?.extra?.activity?.totals?.totalDataUsage}
       )
       
       const response_1 = await getCDRSAsync(this.cdrsQuery)      
-      const usageLabels = [], usageData = []
+      const arrLabel = [], arrData = []
+      let sessionArr = []
+      let totalData = 0
+      let totalSMS = 0
       response_1.data.forEach(element => {
-          usageLabels.push(element.date.slice(0, 10))          
-          usageData.push(element.totals?.data.originalUnits/1048576)
+          //usageLabels.push(element.date.slice(0, 10))          
+          //usageData.push(element.totals?.data.originalUnits/1048576)
+
+          arrLabel.push(element.date.slice(0, 10))   
+          let chartData = isNaN(parseFloat(element.totals?.data.originalUnits/1048576))?0:element.totals?.data.originalUnits/1048576
+          arrData.push((+chartData).toFixed(1))
+          totalData += +chartData
+          let chartSMS = isNaN(parseFloat(element.totals?.sms?.originalUnits))?0:element.totals?.sms?.originalUnits
+          totalSMS += +chartSMS
+            if(element.hasOwnProperty('samples')){
+              if(element.samples !== null){
+                sessionArr = (element.samples.map(el => ({...el, updateDate: element.date}))).concat(sessionArr)
+           
+              }
+            }
+            
+
+           // let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
+          
+
       })
-      this.lineCollection = {
+
+        const averageData = totalData/response_1.data.length
+
+      let sortedArr = sessionArr.sort(function(a,b){
+        var c = new Date(a.startTime)
+        var d = new Date(b.startTime)
+        return d-c
+      })
+
+      this.sessionList = sortedArr
+     
+      
+      this.chartOptions = {
+          chart: {
+            height: 350,
+            offsetX: 0,
+            type: 'line',
+          },          
+          stroke: {
+            width: [0, 1, 1]
+          },          
+          markers: {
+            size: [0, 4, 4]
+          },
+          colors: ['rgb(182, 162, 222)', '#ffb880', '#d77980'],
+          dataLabels: {
+            enabled: false
+          },          
+            legend: {
+              show: false
+            },
+          grid: {
+            show: true,
+            xaxis: {
+              categories: arrLabel,
+              lines: {
+                show: true
+              }
+            },
+            yaxis: {
+              lines: {
+                show: true
+              },
+            }
+          },
+          yaxis: {            
+              labels: {
+                formatter: function(val, index) {
+                  return val.toFixed(2)
+                }
+              }
+          },
+          xaxis: {
+            categories: arrLabel
+          }
+        }
+
+        this.series = [{
+          name: 'Data Usage',
+          data: arrData,
+          type: 'column'
+        },
+        {
+          name: 'Average',
+          type: 'line',
+          data: arrData.map(el=>el=averageData)
+        },
+        {
+          name: 'Limit',
+          type: 'line',
+          data: arrData.map(el=>el=totalSMS)
+        }]
+
+      /*this.lineCollection = {
         labels: usageLabels,
         datasets: [
           {
@@ -508,7 +673,7 @@ export default {
             backgroundColor: 'rgb(53, 165, 228)',
             data: usageData
           }
-        ]}
+        ]}*/
     },    
     async forceReconnect(){      
       this.isLoading = true
@@ -520,7 +685,17 @@ export default {
     async showSMSUsage(){
       this.isLoading = true
       const response = await getSMSHistoryAsync(this.smsQuery)
-      this.smsUsageList = response.data
+      if(!response){        
+        this.smsFormVisible = false
+        this.isLoading = false
+        return
+      }
+      let sortedArr = response.data.sort(function(a,b){
+        var c = new Date(a.insertedDate)
+        var d = new Date(b.insertedDate)
+        return d-c
+      })
+      this.smsUsageList = sortedArr
      setTimeout(() => {
         this.smsFormVisible = true
         this.isLoading = false
@@ -546,15 +721,16 @@ export default {
       }
       getSIMCoordinates(query).then(response => {
         const query_1 = {
-          lat: response.data.geometry.coordinates[1],
-          lon: response.data.geometry.coordinates[0]
+          lat: response.data.geometry.coordinates[0],
+          lon: response.data.geometry.coordinates[1]
         }
         this.markerLatLng = [query_1.lat, query_1.lon]
         this.center = L.latLng(query_1.lat, query_1.lon)
         this.locationList.push(
           {title: 'Longitude', value: query_1.lat},
           {title: 'Latitude', value: query_1.lon}
-        )        
+        ) 
+        
         getSIMCountry(query_1).then(response_1 => {
           const country = response_1.data.address.country
           this.locationList.push({
@@ -626,6 +802,9 @@ export default {
 
 
 <style >
+ .apexcharts-toolbar {
+    display: none !important;
+}
   .bold {
     font-weight: 600;
   }
@@ -780,4 +959,10 @@ export default {
       align-items: center;
     }
   }
+
+.font-14{
+  font-size: 14px;
+}
+ 
+
 </style>

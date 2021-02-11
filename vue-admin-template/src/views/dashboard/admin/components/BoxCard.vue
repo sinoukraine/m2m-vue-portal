@@ -73,7 +73,7 @@ export default {
     percentFrom(data){
       switch (this.$props['box'].report){
           case 'Data Sessions':
-            return (data/2000000)
+            return (data*140/2000000)
           break
           case 'Data Usage':
             return (data/11000)
@@ -82,14 +82,14 @@ export default {
             return (data/200)
           break
           case 'Online Numbers':
-            return (data/100)
+            return (data/1000)
           break
         }     
     },    
     compareFrom(data){
       switch (this.$props['box'].report){
           case 'Data Sessions':
-            return (data/2000000).toFixed(2)
+            return (data*140/2000000).toFixed(2)
           break
           case 'Data Usage':
             return (data/11000).toFixed(2)
@@ -98,14 +98,14 @@ export default {
             return (data/200).toFixed(2)
           break
           case 'Online Numbers':
-            return (data/100).toFixed(2)
+            return (data/1000).toFixed(2)
           break
         }     
     },  
     format(percentage) {
       switch (this.$props['box'].report){
           case 'Data Sessions':
-            return (percentage*2000000).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            return (percentage*2000000/140).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
           break
           case 'Data Usage':
             return (percentage*11000).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -114,7 +114,7 @@ export default {
             return (percentage*200).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
           break
           case 'Online Numbers':
-            return (percentage*100).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            return (percentage*1000).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
           break
         }   
     },

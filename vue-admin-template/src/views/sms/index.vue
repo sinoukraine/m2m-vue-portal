@@ -26,7 +26,7 @@
                     <div v-show="message.type === 'received'">
                         <img :src="'avatar-sim.png?imageView2/1/w/80/h/80'" class="user-avatar">
                     </div>
-                    <div v-if="!message.new" class="message-status">Delivered</div>
+                    <div v-if="!message.new" class="message-status">{{message.status}}</div>
                     <div v-else class="message-status-new">Sent</div>
                     <div class="message-time">{{message.timestamp}}</div>
                     <div v-show="message.type === 'sent'">
@@ -272,6 +272,7 @@ export default {
   },
   mounted(){
     this.simListQuery.sample = this.$route.params.imsi
+    console.log('ggg', this.$route.params.imsi)
     this.isLoading = true     
     this.searchSIMList()
   },
@@ -400,15 +401,16 @@ export default {
       arr.forEach(value => {
         let obj = {}
 
-        if (this.loadedSMS.indexOf( value.from + ' ' + value.insertedDate ) == -1){
+        if (this.loadedSMS.indexOf( value.from + ' ' + value.insertedDate + value.message[0] ) == -1){
           
-          this.loadedSMS.push(value.from + ' ' + value.insertedDate)
+          this.loadedSMS.push(value.from + ' ' + value.insertedDate + value.message[0])
           const datetime = moment.utc(value.insertedDate).toDate()						
 					const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
                  
           obj.timestamp = time   
           obj.from = value.from
           obj.to = ''
+          obj.status = value.status
 
           if (value.message) {
             obj.text = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")

@@ -71,7 +71,7 @@ export default {
     },
     change(val) {
       //this.$store.dispatch('dashboard/setIMSI', val.title)
-      this.$router.push('/sim-list/' + val.code)
+      this.$router.push('/sim-list/' + val.title)
       //this.$route.params.id = val.code // 'admin'
       this.search = ''
       this.options = []

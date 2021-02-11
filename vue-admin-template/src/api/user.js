@@ -231,7 +231,7 @@ export async function fetchServiceProfileList(query) {
   let data = getFormDataFromObject(query)
 
   try {
-    const response = await axios.post(API_METHODS.OSP_GET_LIST, data );
+    const response = await axios.post(API_METHODS.OSP_GET_LIST, data );//OSP_GET_LIST
     if(!response.data.MajorCode){
       return response.data
     }else{
@@ -430,6 +430,143 @@ export async function updateSIM(query) {
     return false
   }
 }
+
+export async function fetchSIMPosition(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_GET_POSITION, data );
+    if(!response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'fetchSIMPosition';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+
+export async function setActivateState(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_SET_ACTIVATE, data )
+    if(response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'setActivateState';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+export async function setSuspendState(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_SET_SUSPEND, data )
+    if(response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'setSuspendState';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+export async function setResumeState(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_SET_RESUME, data )
+    if(response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'setResumeState';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+export async function setTerminateState(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_SET_TERMINATE, data )
+    if(response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'setTerminateState';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+export async function setServiceProfileOptions(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_SET_SERVICE_PROFILE, data )
+    if(response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'setServiceProfileOptions';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+export async function fetchServiceProfileOptions(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_GET_SERVICE_PROFILE_OPTIONS, data )
+    if(response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'fetchServiceProfileOptions';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+
+
 /*import request from '@/utils/request'
 
 export function login(data) {

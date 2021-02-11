@@ -5,6 +5,7 @@ axios.defaults.timeout = 2147483647 //2147483647
 
 import { getToken } from '@/utils/auth' // get token from cookie
 
+const OLD_API_DOMAIN = 'https://m2mdata03.sinopacific.com.ua/m2mdata/v3/'
 const API_DOMIAN = 'https://m2mdata03.sinopacific.com.ua/api/v3/'
 const API_NOMINATIM = 'https://nominatim.sinopacific.com.ua/'
 const API_NOMAD = 'https://m2mdata03.sinopacific.com.ua/nomad/'
@@ -20,6 +21,7 @@ const CDRS_LIST = API_DOMIAN + 'cdrs'
 const CUSTOMER_LIST = API_DOMIAN + 'counterparties'
 const COMMAND_LIST = API_IMNS_DOMIAN + "Command/GetLIst"
 const COMMAND_TYPES = API_IMNS_DOMIAN + 'Command/GetTypes'
+const OLD_CDRS = OLD_API_DOMAIN + 'cdrs/'
 
 
 function getRequestOptions(options) {
@@ -104,7 +106,7 @@ function getRequestIMNSOptions(options) {
 }
 
 
-export async function getDemoOwerview(login) {  
+export async function getDemoOwerview(login, imsi = '') {  
    return new Promise((resolve, reject) => {
       const requestOptions = {
         method: 'GET',
@@ -113,7 +115,7 @@ export async function getDemoOwerview(login) {
       }
       //
       if(login=='Root'||login=='root'){
-        fetch(DEMO_OWERVIEW + '?login=' + login + '&imsi=', requestOptions)
+        fetch(DEMO_OWERVIEW + '?login=' + login + '&imsi=' + imsi, requestOptions)
         .then(response => 
           response.json()
         )
@@ -287,30 +289,80 @@ export async function forceReconnectAsync(query) {
   }
 }
 
-export async function getSIMAsync(query) {
+
+export async function getOLDCDRSAsync(query) {
   if (query.imsi !== '') {
     let addStates = '', addActivity = '', addIdentifier = '', findBy = '', addCustomer = ''
     
     if (query.imsi) {      
       findBy = query.imsi
-      addIdentifier = '?simIdentifier=IMSI&'
+      addIdentifier = '?simIdentifier=IMSI'
     }else{
       findBy = query.id
       addIdentifier = '?'
     }
     if (query.ancestors) {
-      addCustomer = 'populate[]=ancestors&'
+      addCustomer = 'populate[]=ancestors'
     }
     if (query.activity) {
-      addActivity = 'extra[]=activity&'
+      addActivity = 'extra[]=activity'
     }
     if (query.states) {
-      addStates = 'extra[]=states&'
+      addStates = 'extra[]=states'
     }
+
+    const andStates = addStates?'&':''
+    const andActivity = addActivity?'&':''
+    const andCustomer = addCustomer?'&':''
+
     const options = {
-      url: SIM_LIST + '/' + findBy + addIdentifier + addStates + addActivity + addCustomer,
+      url: SIM_LIST + '/' + findBy + addIdentifier + andStates + addStates + andActivity + addActivity + andCustomer + addCustomer,
       method: 'get'
     }
+    console.log(options.url)
+    try {
+      const response = await axios.request(getRequestOptions(options))
+      return response
+    } catch (e) {
+      const title = 'Error'
+      const message = 'An CORS issue has been detected, please try again later or contact our support team'
+      this.$alert(message, title, {type: 'error'})
+      throw e
+    }
+  }
+}
+
+export async function getSIMAsync(query) {
+  console.log('q', query)
+  if (query.imsi !== '') {
+    let addStates = '', addActivity = '', addIdentifier = '', findBy = '', addCustomer = ''
+    
+    if (query.imsi) {      
+      findBy = query.imsi
+      addIdentifier = '?simIdentifier=IMSI'
+    }else{
+      findBy = query.id
+      addIdentifier = '?'
+    }
+    if (query.ancestors) {
+      addCustomer = 'populate[]=ancestors'
+    }
+    if (query.activity) {
+      addActivity = 'extra[]=activity'
+    }
+    if (query.states) {
+      addStates = 'extra[]=states'
+    }
+
+    const andStates = addStates?'&':''
+    const andActivity = addActivity?'&':''
+    const andCustomer = addCustomer?'&':''
+
+    const options = {
+      url: SIM_LIST + '/' + findBy + addIdentifier + andStates + addStates + andActivity + addActivity + andCustomer + addCustomer,
+      method: 'get'
+    }
+    console.log(options.url)
     try {
       const response = await axios.request(getRequestOptions(options))
       return response

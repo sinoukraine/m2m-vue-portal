@@ -15,7 +15,7 @@
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>   
-                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>                
+                  <el-dropdown-item command="yearly">Yearly</el-dropdown-item>                
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
@@ -57,7 +57,7 @@
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>      
-                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>            
+                  <el-dropdown-item command="yearly">Yearly</el-dropdown-item>            
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
@@ -99,7 +99,7 @@
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>    
-                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>              
+                  <el-dropdown-item command="yearly">Yearly</el-dropdown-item>              
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
@@ -140,7 +140,7 @@
                   <el-dropdown-item command="daily">Daily</el-dropdown-item>
                   <el-dropdown-item command="weekly">Weekly</el-dropdown-item>
                   <el-dropdown-item command="monthly">Monthly</el-dropdown-item>    
-                  <el-dropdown-item command="yerly">Yerly</el-dropdown-item>              
+                  <el-dropdown-item command="yearly">Yearly</el-dropdown-item>              
               </el-dropdown-menu>
             </el-dropdown>
             <!--<el-radio-group v-model="switchPeriod" v-on:input="handlePeriod" >
