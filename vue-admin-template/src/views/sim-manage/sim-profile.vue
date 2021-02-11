@@ -788,12 +788,11 @@ export default {
       }))
     },
     sendSMS(){
-      if(this.temp.imsi!=undefined){
+        const imsi = this.$route.params.id
         this.$router.push({ path: `/sms/index` })
-        const imsi = this.temp.imsi
-        this.$route.params.imsi = `${imsi}`
-        console.log(imsi)
-      }
+        this.$store.dispatch('dashboard/setIMSI', imsi)
+        //this.$route.params.newimsi = `${imsi}`
+      
     },    
   }
 }

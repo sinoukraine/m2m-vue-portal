@@ -238,7 +238,7 @@ export default {
         { code: '1', name: 'Customer' }
       ],    
       simListQuery: {
-        limit: 5,
+        limit: 1,
         sample: ''
       },
       filterSubmitId: Date.now(),
@@ -255,7 +255,28 @@ export default {
       Loading
   },
   //props : ['imsi'],
+  created() {
+    /*this.$store.watch(
+      (state) => {
+        return this.$store.state.dashboard.imsi // could also put a Getter here
+      },
+      (newValue, oldValue) => {
+        console.log('new',newValue)
+        
+      },
+      {
+        deep: true
+      }
+    )*/
+  },
   watch: {
+    /*'$route.params.newimsi': {
+        handler: function(search) {           
+          
+        },
+        deep: true,
+        immediate: true
+      },*/
     checkedAll(state){
       for (let i = 0; i < this.deviceList.length; i++) {
         this.deviceList[i].state = state
@@ -271,10 +292,13 @@ export default {
     ])
   },
   mounted(){
-    this.simListQuery.sample = this.$route.params.imsi
-    console.log('ggg', this.$route.params.imsi)
-    this.isLoading = true     
-    this.searchSIMList()
+    console.log('eee',this.$store.state.dashboard.imsi)
+    if(this.$store.state.dashboard.imsi){
+      this.simListQuery.sample = this.$store.state.dashboard.imsi    
+      this.$store.dispatch('dashboard/setIMSI', '')      
+      this.isLoading = true     
+      this.searchSIMList()
+    }
   },
   methods: {
     clearFilter() {
@@ -290,24 +314,35 @@ export default {
     searchSIMList() {
       const arr = []
 
-      getSIMList(this.simListQuery).then(response => {
-        response.data.forEach(element => {
-          arr.push({
-            id: element._id,
-            name: element.info.imsi,
-            state: false,
-          })
-        })        
-        this.isLoading = false     
-        this.deviceList = arr
-        
-        this.deviceList[0].state = true
-        this.getHistory()
-      }).catch(e => {
-        this.isLoading = false 
-        this.$alert('The IMSI field length have to be greater than or equal to 4 characters long.', 'M2M Data Message', {type: 'message'})
-    
-      })
+      for (let i = 0; i < this.deviceList.length; i++) {
+        this.deviceList[i].state = false
+      }      
+      this.loadedSMS = []
+      this.messageList = [] 
+
+      console.log(this.simListQuery)
+      if(this.simListQuery.sample!=undefined){
+        getSIMList(this.simListQuery).then(response => {
+          response.data.forEach(element => {
+            arr.push({
+              id: element._id,
+              name: element.info.imsi,
+              state: false,
+            })
+          })        
+          this.isLoading = false     
+          this.deviceList = arr
+          
+          this.deviceList[0].state = true
+          this.getHistory()
+        }).catch(e => {
+          this.isLoading = false 
+          this.$alert('The IMSI field length have to be greater than or equal to 4 characters long.', 'M2M Data Message', {type: 'message'})
+      
+        })
+      } else{
+         this.isLoading = false    
+      }     
     },
     handleChecked({name, state}){
       this.loadedSMS = []
@@ -339,7 +374,7 @@ export default {
                     from: 'me',
                     to: this.deviceList[i].name,
                     text: this.newMessage,
-                    type: 'sent'
+                    type: 'sent',
                   }
                   this.messageList.push(obj)
                 }
@@ -409,7 +444,7 @@ export default {
                  
           obj.timestamp = time   
           obj.from = value.from
-          obj.to = ''
+          obj.to = this.deviceList[0].name
           obj.status = value.status
 
           if (value.message) {
@@ -425,7 +460,7 @@ export default {
                   elToRemove.push(i)
                 }
               })
-              console.log(elToRemove)
+             
               elToRemove.forEach(element => {
                 this.messageList.splice(element, 1)                
               })

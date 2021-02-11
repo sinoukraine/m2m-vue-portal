@@ -782,9 +782,10 @@ export default {
     },    
     async acctivateSIM(){
       let checkSIM = true
+      const arr = []
       for (let i = 0; i < this.multipleSIMSelection.length; i++) {
         if(this.multipleSIMSelection[i].State == 'OnStock' || this.multipleSIMSelection[i].State == 'TestProductive'){
-        
+          arr.push(this.multipleSIMSelection[i].IMSI)
         }else{
           checkSIM = false
         }
@@ -794,6 +795,12 @@ export default {
         this.$alert('Only support the sim state in OnStock / TestProductive', 'M2M Data Message', {type: 'message'}) 
             
       }else{
+        
+        const query = {
+          IMSIs: arr,
+          ServiceProfileCode: this.selectedServiceProfile
+        }   
+
         const response = await setActivateState(query).then(r=>{
           this.$alert('Activated', 'M2M Data Message', {type: 'message'})
           this.getList()
