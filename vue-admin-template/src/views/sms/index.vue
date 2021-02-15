@@ -1,5 +1,5 @@
 <template>
-  <el-container class="chat-container">
+  <el-container class="chat-container sms-page">
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
@@ -538,31 +538,30 @@ export default {
   .rotate-90{
     transform: rotate(90deg);
   }
-  .chat-container{
+  .sms-page.chat-container{
     position: relative;
     height: calc(100vh - 75px);
     width: 100%;
   }
-    .chat-sidebar{
-      background-color: #ffffff;
-      color: #333;
-
-      -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-      box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-    }
-      .sidebar-header{
-        height: 50px;
-        line-height: 50px;
-        overflow: hidden;
-        position: relative;
-        background: #fff;
-        -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-        box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-        z-index: 1;
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-  .list{
+  .sms-page .chat-sidebar{
+    background-color: #ffffff;
+    color: #333;
+    -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+    box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+  }
+  .sms-page .sidebar-header{
+    height: 50px;
+    line-height: 50px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+    -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+    box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+    z-index: 1;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .sms-page .list{
     list-style: none;
     position: relative;
     margin: 0;
@@ -573,7 +572,7 @@ export default {
     width: 100%!important;
     font-size: 14px;
 
-    .item-content{
+    .sms-page .item-content{
       box-sizing: border-box;
       padding-left: 16px;
       min-height: 48px;
@@ -590,7 +589,7 @@ export default {
       -webkit-align-items: center;
       align-items: center;
 
-      .item-append{
+      .sms-page .item-append{
         display: -webkit-box;
         display: -ms-flexbox;
         display: -webkit-flex;
@@ -614,7 +613,7 @@ export default {
         padding-bottom: 8px;
         min-width: 40px;
       }
-      .item-inner{
+      .sms-page .item-inner{
         padding-right: 16px;
         position: relative;
         width: 100%;
@@ -641,7 +640,7 @@ export default {
         -webkit-align-self: stretch;
         align-self: stretch;
 
-        .item-title{
+        .sms-page .item-title{
           min-width: 0;
           -webkit-box-flex: 1;
           -webkit-flex-shrink: 1;
@@ -654,7 +653,7 @@ export default {
           max-width: 100%;
         }
 
-        .item-after{
+        .sms-page .item-after{
           white-space: nowrap;
           color: #757575;
           -webkit-box-flex: 0;
@@ -670,11 +669,9 @@ export default {
           font-size: 14px;
         }
       }
-
     }
-
   }
-  .messages{
+  .sms-page .messages{
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -688,16 +685,15 @@ export default {
     position: relative;
     z-index: 1;
 
-    .messages-title{
+    .sms-page .messages-title{
       text-align: center;
       width: 100%;
       line-height: 1;
-
       font-size: 12px;
       color: rgba(0,0,0,.51);
       margin-top: 16px;
     }
-    .message {
+    .sms-page .message {
       max-width: 70%;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
@@ -713,9 +709,7 @@ export default {
       z-index: 1;
       -webkit-transform: translate3d(0,0,0);
       transform: translate3d(0,0,0);
-
       margin-top: 16px;
-
 
       &.message-sent {
         text-align: right;
@@ -727,7 +721,6 @@ export default {
         -webkit-align-self: flex-end;
         -ms-flex-item-align: end;
         align-self: flex-end;
-
         margin-right: 8px;
 
         .message-content {

@@ -1,5 +1,5 @@
 <template>
-  <el-container class="with-panel-wrapper quikdata-imns-container panel-opened">
+  <el-container class="with-panel-wrapper quikdata-imns-container panel-opened quikdata-imns-page">
      <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
@@ -802,31 +802,27 @@ export default {
   .rotate-90{
     transform: rotate(90deg);
   }
-  .chat-container{
-    position: relative;
-    height: calc(100vh - #{$navbarHeight});
-    width: 100%;
-  }
-    .chat-sidebar{
-      background-color: rgb(255, 255, 255);
-      color: #333;
+ 
+  .quikdata-imns-page .chat-sidebar{
+    background-color: rgb(255, 255, 255);
+    color: #333;
 
-      -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-      box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-    }
-      .sidebar-header{
-        height: 50px;
-        line-height: 50px;
-        overflow: hidden;
-        position: relative;
-        background: #fff;
-        -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-        box-shadow: 0 1px 4px rgba(0,21,41,0.08);
-        z-index: 1;
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-  .list{
+    -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+    box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+  }
+  .quikdata-imns-page .sidebar-header{
+    height: 50px;
+    line-height: 50px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+    -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+    box-shadow: 0 1px 4px rgba(0,21,41,0.08);
+    z-index: 1;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .quikdata-imns-page .list{
     list-style: none;
     position: relative;
     margin: 0;

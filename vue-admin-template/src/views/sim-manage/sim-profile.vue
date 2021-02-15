@@ -4,6 +4,7 @@
         :can-cancel="true" 
         :on-cancel="onCancel"
         :is-full-page="fullPage"></loading>
+    
     <el-dialog class="dialog-download" title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
       <div class="display-flex justify-content-between">
         <div class="buttons-row">
@@ -51,6 +52,84 @@
         <el-table-column label="IMEI" align="center">
           <template >
             <span></span>
+          </template>
+        </el-table-column>
+      </el-table>       
+    </el-dialog>
+
+    <el-dialog class="dialog-download" title="HLR Info" :visible.sync="hlrFormVisible" width="100%" >
+      <div class="display-flex justify-content-between">
+        <div class="buttons-row">
+        </div>
+        <div class="buttons-row white-space-nowrap">
+         <!--<el-button v-waves :loading="downloadLoading" class="button-custom blue-btn" type="primary"  @click="handleSessionsDownload"><item :icon="'save-white'" /></el-button>
+        -->
+        </div>
+      </div>
+
+      <el-row :gutter="16" >
+        <el-col :xs="12" :sm="12" class="pr-0">          
+          <div class="table-container">
+            <el-table
+            :data="simDetailslistLeft"
+            fit
+            :show-header="false"
+            class="modal-info-table"
+          >
+           <el-table-column label="" align="left">
+              <template slot-scope="{row}">
+                <span class="table-title">{{row.title}}</span>
+              </template>
+            </el-table-column>
+           <el-table-column label="" align="right">
+              <template slot-scope="{row}">
+                <span class="table-value">{{row.value}}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+          </div>
+        </el-col>
+        <el-col :xs="12" :sm="12" class="pl-0">
+          <div class="table-container">            
+          <el-table
+            :data="simDetailslistRight"
+            fit
+            :show-header="false"
+            class="modal-info-table"
+          >
+           <el-table-column label="" align="left" >
+              <template slot-scope="{row}">
+                <span class="table-title">{{row.title}}</span>
+              </template>
+            </el-table-column>
+           <el-table-column label="" align="right" >
+              <template slot-scope="{row}">
+                <span class="table-value">{{row.value}}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+          </div>
+        </el-col>
+      </el-row>
+      <el-table
+        :data="hlrList"
+        fit            
+        border
+        class="session-table mt-30"
+      >
+        <el-table-column label="Key" min-width="180px" align="left" >
+          <template slot-scope="{row}">
+            <span>{{row.keyField}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Value" min-width="180px" align="left">
+          <template slot-scope="{row}">
+            <span>{{row.valueField}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Changed" width="90px" align="left">
+          <template slot-scope="{row}">
+            <span>{{row.propertyChanged}}</span>
           </template>
         </el-table-column>
       </el-table>       
@@ -166,8 +245,21 @@
           </div>
         </div>
       </el-row>
-    </el-dialog>
+    </el-dialog>    
+          
     <el-main  class="no-padding">
+      <el-card class="box-card m-30">
+            <div class="vertical-middle px-5">
+              <div class="card-inline card-panel-left font-16">
+                <div class=" font-16 bold color-grey">SIM Session State</div>
+              </div>
+              <div class="card-inline card-panel-right display-flex">
+                <div class="big-round" :class="currentStateColor"></div >
+                <div class="font-14 pl-15 color-grey vertical-middle">{{currentState}} {{lastUpdateTime?'(last update: '+lastUpdateTime+')':''}}</div>
+                
+              </div>
+            </div>
+          </el-card>
       <div class="mixin-components-container">
         <el-row style="margin: 30px">
           <div>
@@ -261,16 +353,16 @@
             </div>
           </el-card>
           <el-card class="box-card mt-30">
-            <div class="lg-card-flex">
-              <div class="card-inline card-panel-left font-16">
+            <div class="">
+              <div class="card-panel-left font-16">
                 <div class=" font-16 bold color-grey">Data Details</div>
-                <p class=" font-14 color-grey">Click on the button to open a popup with info.</p>
               </div>
-              <div class="card-inline card-panel-right">
+              <div class="card-panel-left pt-10">
                 <el-button type="primary" class="green-btn" @click="showSessions"><item :icon="'csp'"/> Session Data</el-button> 
                 <el-button type="primary" class="violet-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS History</el-button>
                 <el-button type="primary" class="blue-btn" @click="showLocation"><item :icon="'map-white'"/> View Map</el-button>
                 <el-button type="primary" class="orange-btn" @click="sendSMS"><item :icon="'sms-white'"/> Send SMS</el-button>
+                <el-button type="primary" class="red-btn" @click="showHLR"><item :icon="'csp'"/> HLR</el-button>
               </div>
             </div>
           </el-card>
@@ -347,6 +439,8 @@ export default {
     return {
       tableKey: 0,
       downloadLoading: false,
+      simDetailslistLeft: [],
+      simDetailslistRight: [],
       isLoading: false,
       fullPage: true,
       simQuery: {
@@ -395,6 +489,9 @@ export default {
         totalDataSessions: 0,
         loaded: false
       },
+      currentState: 'No Data',
+      currentStateColor: 'bg-color-grey',
+      lastUpdateTime: '',
       lineCollection: null,
       lineOptions: {
         scales: {
@@ -423,6 +520,7 @@ export default {
       },
       mapFormVisible: false,      
       sessionFormVisible: false,
+      hlrFormVisible: false,
       smsFormVisible: false,
       zoom: 13,
       center: L.latLng(0, 0),
@@ -455,17 +553,17 @@ export default {
       locationList: [],
       markerLatLng: [0, 0],//47.413220, -1.219482
       sessionList: [],
+      hlrList: [],
       smsUsageList: []
     }
   },
   created() {
     this.searchTotalByPeriod('daily')
-    const today = new Date()
     const current = moment()
     this.cdrsQuery = {
       //id: this.$route.params.id,
       date1: current.clone().startOf('month').format('YYYY-MM-DD'),
-      date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+      date2: moment(curday, 'YYYY-MM-DD').format('YYYY-MM-DD')
     }
     //this.simQuery.id = this.$route.params.id
     this.simQuery.imsi = this.$route.params.id
@@ -525,6 +623,87 @@ export default {
         })
     },
     async getProfile() {
+      let self = this
+      var query = {
+				  IMSIs: [this.$route.params.id]
+				}
+				
+				var settings = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Query",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": query
+				};
+
+        const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
+        const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
+        const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
+        
+				$.ajax(settings).done(function (result) {
+          self.lastUpdateTime = result.rows[0]?.DataUpdateTime.replace("T", " ")
+
+          const simActivityTime = moment(self.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+          if(simActivityTime >= oneDayAgo && simActivityTime < threeDayAgo){
+            self.currentState = 'Productive'
+            self.currentStateColor = 'bg-color-blue'
+          }else if(simActivityTime >= threeDayAgo && simActivityTime < weekAgo){
+            self.currentState = 'Active'
+            self.currentStateColor = 'bg-color-green'
+          }else if(simActivityTime >= weekAgo){
+            self.currentState = 'Suspended'
+            self.currentStateColor = 'bg-color-yellow'
+          }else{
+            self.currentState = 'No Data'
+            self.currentStateColor = 'bg-color-grey'
+          }
+          
+        })
+
+        const token = "00000000-0000-0000-0000-000000000000"
+        const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
+        let resHLR = await responseHLR.json()
+        
+        this.hlrList = resHLR.Data.dataMapField
+        console.log('rrrrrrr ',resHLR)
+
+        let hlrDate1 = resHLR.Data.hlrInfoFieldsField[1].valueField
+        let hlrDate2 = resHLR.Data.hlrInfoFieldsField[3].valueField
+        this.simDetailslistLeft = [{
+          title: resHLR.Data.hlrInfoFieldsField[0].nameField,
+          value: resHLR.Data.hlrInfoFieldsField[0].valueField,
+        },{
+          title: resHLR.Data.hlrInfoFieldsField[2].nameField,
+          value: resHLR.Data.hlrInfoFieldsField[2].valueField,
+        }]
+
+        this.simDetailslistRight = [{
+          title: resHLR.Data.hlrInfoFieldsField[1].nameField,
+          value: hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14),
+        },{
+          title: resHLR.Data.hlrInfoFieldsField[3].nameField,
+          value: hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14),
+        }]
+
+        /*
+        var settings = {
+				  "url": "https://m2mdata.co/jt/GetGetHlrInfo?imsi=" + query.IMSIs,
+				  "method": "GET",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				};
+
+				$.ajax(settings).done(function (result) {
+					console.log('hlr',JSON.parse(result));
+				})*/
+         
+
       const response = await getSIMAsync(this.simQuery)
       this.smsQuery = {
         imsi: response.data.info.imsi,
@@ -698,6 +877,13 @@ export default {
       this.smsUsageList = sortedArr
      setTimeout(() => {
         this.smsFormVisible = true
+        this.isLoading = false
+      },5000)
+    },
+    showHLR(){
+      this.isLoading = true
+      setTimeout(() => {
+        this.hlrFormVisible = true
         this.isLoading = false
       },5000)
     },
@@ -935,6 +1121,15 @@ export default {
     border-color: #ffc496;
     background-color: #ffc496;
   }
+  
+  .red-btn{
+    border-color: #d47980;
+    background-color: #d47980;
+  }
+  .red-btn:hover,.red-btn:active,.red-btn:focus{
+    border-color: #e48990;
+    background-color: #e48990;
+  }
   .dialog-download .el-dialog__body {
     padding: 0 30px 20px;
     color: #606266;
@@ -963,5 +1158,42 @@ export default {
   font-size: 14px;
 }
  
+ .m-30{
+  margin: 30px;
+}
+.pt-10{
+  padding-top:10px;
+}
+.pl-15{
+  padding-left: 15px;
+}
+.px-5{
+  padding: 0 5px;
+}
+.big-round{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.vertical-middle{
+  display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.bg-color-grey{
+  background-color: #e3e3e3;
+}
+
+.bg-color-blue{
+  background-color: rgb(92, 174, 230);
+}
 
 </style>
