@@ -643,27 +643,35 @@ export default {
         const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
         const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
         
-				$.ajax(settings).done(function (result) {
-          self.lastUpdateTime = result.rows[0]?.DataUpdateTime.replace("T", " ")
+				/*$.ajax(settings).done(function (result) {
+          
+          
+        })*/
 
-          const simActivityTime = moment(self.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-          if(simActivityTime >= oneDayAgo && simActivityTime < threeDayAgo){
+
+        const token = "00000000-0000-0000-0000-000000000000"
+        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
+        let resActiveSession = await responseActiveSession.json()
+        
+        console.log(resActiveSession)
+        self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
+
+        const simActivityTime = moment(self.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+          if(simActivityTime < oneDayAgo){
             self.currentState = 'Productive'
             self.currentStateColor = 'bg-color-blue'
-          }else if(simActivityTime >= threeDayAgo && simActivityTime < weekAgo){
+          }else if(simActivityTime >= oneDayAgo && simActivityTime < threeDayAgo){
             self.currentState = 'Active'
             self.currentStateColor = 'bg-color-green'
-          }else if(simActivityTime >= weekAgo){
+          }else if(simActivityTime >= threeDayAgo){            
             self.currentState = 'Suspended'
             self.currentStateColor = 'bg-color-yellow'
           }else{
             self.currentState = 'No Data'
             self.currentStateColor = 'bg-color-grey'
           }
-          
-        })
-
-        const token = "00000000-0000-0000-0000-000000000000"
+   
+      
         const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
         let resHLR = await responseHLR.json()
         
