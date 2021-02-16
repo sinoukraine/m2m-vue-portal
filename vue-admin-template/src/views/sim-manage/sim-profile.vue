@@ -653,7 +653,7 @@ export default {
         const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
         let resActiveSession = await responseActiveSession.json()
         
-        console.log(resActiveSession)
+        if(resActiveSession.Data){
         self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
 
         const simActivityTime = moment(self.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
@@ -670,13 +670,15 @@ export default {
             self.currentState = 'No Data'
             self.currentStateColor = 'bg-color-grey'
           }
-   
+        }else{
+					self.currentState = 'Productive, but no current data session'
+					self.currentStateColor = 'bg-color-blue'					
+				}
       
         const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
         let resHLR = await responseHLR.json()
         
         this.hlrList = resHLR.Data.dataMapField
-        console.log('rrrrrrr ',resHLR)
 
         let hlrDate1 = resHLR.Data.hlrInfoFieldsField[1].valueField
         let hlrDate2 = resHLR.Data.hlrInfoFieldsField[3].valueField
@@ -690,10 +692,10 @@ export default {
 
         this.simDetailslistRight = [{
           title: resHLR.Data.hlrInfoFieldsField[1].nameField,
-          value: hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14),
+          value: hlrDate1=='00000000000000'?'':hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14),
         },{
           title: resHLR.Data.hlrInfoFieldsField[3].nameField,
-          value: hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14),
+          value: hlrDate2=='00000000000000'?'':hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14),
         }]
 
         /*

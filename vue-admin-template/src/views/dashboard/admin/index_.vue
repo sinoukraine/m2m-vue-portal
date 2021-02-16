@@ -393,7 +393,7 @@ export default {
     }
   },
   async mounted() {
-    await this.searchTotalByPeriod('daily')
+    await this.searchTotalByPeriod('monthly')
     await this.searchTable()
 
     /*getUserList(null).then(response => {
