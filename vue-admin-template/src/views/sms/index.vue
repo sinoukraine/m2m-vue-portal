@@ -538,18 +538,18 @@ export default {
   .rotate-90{
     transform: rotate(90deg);
   }
-  .sms-page.chat-container{
+  .chat-container{
     position: relative;
     height: calc(100vh - 75px);
     width: 100%;
   }
-  .sms-page .chat-sidebar{
+   .chat-sidebar{
     background-color: #ffffff;
     color: #333;
     -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
     box-shadow: 0 1px 4px rgba(0,21,41,0.08);
   }
-  .sms-page .sidebar-header{
+   .sidebar-header{
     height: 50px;
     line-height: 50px;
     overflow: hidden;
@@ -561,7 +561,7 @@ export default {
     padding-left: 16px;
     padding-right: 16px;
   }
-  .sms-page .list{
+   .list{
     list-style: none;
     position: relative;
     margin: 0;
@@ -572,7 +572,7 @@ export default {
     width: 100%!important;
     font-size: 14px;
 
-    .sms-page .item-content{
+     .item-content{
       box-sizing: border-box;
       padding-left: 16px;
       min-height: 48px;
@@ -589,7 +589,7 @@ export default {
       -webkit-align-items: center;
       align-items: center;
 
-      .sms-page .item-append{
+       .item-append{
         display: -webkit-box;
         display: -ms-flexbox;
         display: -webkit-flex;
@@ -613,7 +613,7 @@ export default {
         padding-bottom: 8px;
         min-width: 40px;
       }
-      .sms-page .item-inner{
+       .item-inner{
         padding-right: 16px;
         position: relative;
         width: 100%;
@@ -640,7 +640,7 @@ export default {
         -webkit-align-self: stretch;
         align-self: stretch;
 
-        .sms-page .item-title{
+         .item-title{
           min-width: 0;
           -webkit-box-flex: 1;
           -webkit-flex-shrink: 1;
@@ -653,7 +653,7 @@ export default {
           max-width: 100%;
         }
 
-        .sms-page .item-after{
+         .item-after{
           white-space: nowrap;
           color: #757575;
           -webkit-box-flex: 0;
@@ -671,7 +671,7 @@ export default {
       }
     }
   }
-  .sms-page .messages{
+   .messages{
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -685,7 +685,7 @@ export default {
     position: relative;
     z-index: 1;
 
-    .sms-page .messages-title{
+     .messages-title{
       text-align: center;
       width: 100%;
       line-height: 1;
@@ -693,7 +693,7 @@ export default {
       color: rgba(0,0,0,.51);
       margin-top: 16px;
     }
-    .sms-page .message {
+     .message {
       max-width: 70%;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;

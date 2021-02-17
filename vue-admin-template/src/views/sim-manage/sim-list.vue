@@ -369,25 +369,25 @@
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="From IMSI" prop="fromimsi" class="no-margin-bottom">
+                    <el-form-item label="From IMSI" prop="fromimsi" class="">
                     <el-input v-model="listQuery.FromIMSI" placeholder="From IMSI" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="To IMSI" prop="toimsi" class="no-margin-bottom">
+                    <el-form-item label="To IMSI" prop="toimsi" class="">
                     <el-input v-model="listQuery.ToIMSI" placeholder="To IMSI" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="From ICCID" prop="fromiccid" class="no-margin-bottom">
+                    <el-form-item label="From ICCID" prop="fromiccid" class="">
                     <el-input v-model="listQuery.FromICCID" placeholder="From ICCID" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="To ICCID" prop="toiccid" class="no-margin-bottom">
+                    <el-form-item label="To ICCID" prop="toiccid" class="">
                     <el-input v-model="listQuery.ToICCID" placeholder="To ICCID" class="filter-item" />
                     </el-form-item>
-                </el-col>
+                </el-col><!--
                 <el-col :xs="100" class="px-0">
                     <el-form-item label="IMSIs" prop="imsis" class="no-margin-bottom">
                     <el-input type="textarea" v-model="listQuery.IMSIs" placeholder="IMSIs" class="filter-item" />
@@ -402,7 +402,7 @@
                     <el-form-item label="MSISDNs" prop="msisdns" class="no-margin-bottom">
                     <el-input type="textarea" v-model="listQuery.MSISDNs" placeholder="MSISDNs" class="filter-item" />
                     </el-form-item>
-                </el-col>
+                </el-col>-->
                 </el-row>
             </div>
             <!--
@@ -525,6 +525,21 @@ export default {
       ))
 
     return {
+      queryLBS: {
+        imsi: ''
+      },
+      locationList: [
+        {title: 'IMSI', value: ''},
+        {title: 'Network Operator', value: ''},
+        {title: 'Area', value: ''},
+        {title: 'Longitude', value: ''},
+        {title: 'Latitude', value: ''},
+        {title: 'Country', value: ''},
+        {title: 'Cell', value: ''},
+        {title: 'Cell Range', value: ''},
+        {title: 'Current Session Date', value: ''},
+        {title: 'Current Usage', value: ''}
+      ],
       isLoading: false,
       fullPage: true,      
       mapFormVisible: false,
@@ -632,7 +647,6 @@ export default {
       downloadLoading: false,
       multipleSIMSelection: [],
       selectedServiceProfile: 0,
-      locationList: [],
 
       zoom: 13,
       center: L.latLng(0, 0),
@@ -696,77 +710,47 @@ export default {
     },
     showLocation(data){
       this.isLoading = true      
-      this.locationList.length = 10
+      let self = this
 
-      this.locationList.push(
-        {title: 'IMSI', value: data.IMSI},
-        {title: 'Network Operator', value: ''},
-        {title: 'Area', value: ''},
-        {title: 'Cell', value: ''},
-        {title: 'Cell Range', value: ''},
-        {title: 'Current Session Date', value: ''},
-        {title: 'Current Usage', value: ''}
-      )
+      this.queryLBS = {
+				  imsi: [data.IMSI]
+				}
+				
+				var settingsLBS = {
+				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": this.queryLBS
+				};
 
-      //const response = await fetchSIMPosition()
-      //console.log('co',response)
-      //country by coords
-
-      const query_0 = {
-        imsi: data.IMSI,
-        //activity: true
-      }
-      /*const response_0 = await getSIMAsync(query_0)
-      if(!response_0){            
-        this.mapFormVisible = false
-        this.isLoading = false       
-        return
-      }      
-      const query = {
-        id: response_0.data._id
-      }*/
-    getSIM(query_0).then(response_0 => {
-      const query = {
-        id: response_0.data._id
-      }
-      getSIMCoordinates(query).then(response => {
-        const query_1 = {
-          lat: response.data.geometry.coordinates[0],
-          lon: response.data.geometry.coordinates[1]
-        }
-        this.markerLatLng = [query_1.lat, query_1.lon]
-        this.center = L.latLng(query_1.lat, query_1.lon)
-        
-        this.locationList.push(
-          {title: 'Longitude', value: query_1.lat},
-          {title: 'Latitude', value: query_1.lon}
-        )        
-        getSIMCountry(query_1).then(response_1 => {
-          const country = response_1.data?.address?.country
-          this.locationList.push({
-            title: 'Country',
-            value: country
-          })          
-          this.mapFormVisible = true
-          this.isLoading = false
+				$.ajax(settingsLBS).done(function (result) {
+          self.locationList[0].value = result.Data.IMSI
+          self.locationList[1].value = result.Data.LbsNetwork
+          self.locationList[2].value = result.Data.LbsArea
+          self.locationList[6].value = result.Data.LbsRadio
+          self.locationList[7].value = result.Data.LbsRange
+          self.locationList[8].value = result.Data.SessionDay
+          self.locationList[9].value = (result.Data.DataDay/1048576).toFixed(3)
+          const query_1 = {
+            lat: result.Data.LbsLat,
+            lon: result.Data.LbsLng
+          }
+          self.markerLatLng = [query_1.lat, query_1.lon]
+          self.center = L.latLng(query_1.lat, query_1.lon)
+          self.locationList[3].value = query_1.lat
+          self.locationList[4].value = query_1.lon          
+          
+          getSIMCountry(query_1).then(response_1 => {
+            const country = response_1.data.address.country
+            self.locationList[5].value = country
+            self.mapFormVisible = true
+            self.isLoading = false
+          })
         })
-      })
-    })
-      .catch(e=>{
-        this.locationList.push(
-          {title: 'Country', value: ''},
-          {title: 'Longitude', value: '0'},
-          {title: 'Latitude', value: '0'})
-        this.mapFormVisible = true
-        this.isLoading = false
-      })
-      
-        /*this.locationList.push(
-          {title: 'Country', value: ''},
-          {title: 'Longitude', value: ''},
-          {title: 'Latitude', value: ''})
-        this.mapFormVisible = true
-        this.isLoading = false*/
     },
     showStateForm(){
       this.isLoading = true    
@@ -998,6 +982,30 @@ export default {
       }*/
       //this.listQuery.ServiceProfileCodes = [this.$store.getters.userInfo.OrganizeServiceProfileCode]
       //console.log('q',this.listQuery)
+      /*let listQuery = {
+          Page: 1,
+          rows: 10,
+          Order: 'ASC',
+          Sort: 'IMSI',
+          token: '00000000-0000-0000-0000-000000000000'
+      }
+      var settings = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Query",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": listQuery
+				};
+
+				
+				$.ajax(settings).done(function (result) {
+          console.log('lll',result)
+        })*/
+      
+      
       let response = await fetchSIMList(this.listQuery) 
        if(!response){
         return
@@ -1253,10 +1261,31 @@ export default {
     },
     async forceReconnect(){      
       this.isLoading = true
-      const response = await forceReconnectAsync(this.simQuery)          
-      this.isLoading = false
-      this.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
-      this.mapFormVisible = false
+      let self = this
+      //const response = await forceReconnectAsync(this.simQuery)     
+      var queryLBS = {
+				  IMSIs: [this.queryLBS.imsi]
+				}
+				
+				var settingsLBS = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Reboot",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": queryLBS
+				};
+
+				$.ajax(settingsLBS).done(function (result) {
+            self.isLoading = false
+					if(result.MajorCode == '000'){
+            self.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
+          }else{
+            self.$alert('Sim connection was not refreshed', 'M2M Data Message', {type: 'message'})
+          }
+        })    
     },
     /*getStatusText(status){
       return this.$t(this.statusTypeOptions.find( itm => itm.Code === parseInt(status)).Translation)

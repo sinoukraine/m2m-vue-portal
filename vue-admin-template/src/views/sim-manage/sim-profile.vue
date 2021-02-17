@@ -112,7 +112,7 @@
         </el-col>
       </el-row>
       <el-table
-        :data="hlrList"
+        :data="mapList"
         fit            
         border
         class="session-table mt-30"
@@ -251,7 +251,7 @@
       <el-card class="box-card m-30">
             <div class="vertical-middle px-5">
               <div class="card-inline card-panel-left font-16">
-                <div class=" font-16 bold color-grey">SIM Session State</div>
+                <div class=" font-16 bold color-grey">Session Activity</div>
               </div>
               <div class="card-inline card-panel-right display-flex">
                 <div class="big-round" :class="currentStateColor"></div >
@@ -290,74 +290,63 @@
                       <el-input v-model="temp.msisdn" disabled/>
                     </el-form-item>
                   </el-col>
-                  <el-col :xs="24" :sm="12">
-                    <el-form-item label="IMEI" prop="imei">
-                      <el-input  />
+                  <el-col :xs="24" :sm="12">                    
+                    <el-form-item label="Country Code" prop="iccid">
+                      <el-input v-model="temp.country" disabled />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row :gutter="16">
                   <el-col :xs="24" :sm="12">
-                    <el-form-item label="Bussiness Unit" prop="businessUnit">
-                      <el-select v-model="temp.businessUnit" class="filter-item w-100" placeholder="Please select">
-                        <el-option v-for="item in businessUnitOptions" :key="item.code" :label="item.name" :value="item.code" />
-                      </el-select>
+                    <el-form-item label="SMS Country Code" prop="iccid">
+                      <el-input v-model="temp.smscountry" disabled />
                     </el-form-item>
                   </el-col>
                   <el-col :xs="24" :sm="12">
-                    <el-form-item label="CSP" prop="csp">
-                      <el-select v-model="temp.csp" class="filter-item w-100" placeholder="Please select">
-                        <el-option v-for="item in cspOptions" :key="item.code" :label="item.name" :value="item.code" />
-                      </el-select>
+                    <el-form-item label="Customer" prop="iccid">
+                      <el-input v-model="temp.organize" disabled />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row :gutter="16">
                   <el-col :xs="24" :sm="12">
-                    <el-form-item label="State" prop="state">
-                      <el-select class="filter-item w-100" placeholder="Please select">
-                        <el-select v-model="temp.state" class="filter-item w-100" placeholder="Please select">
-                          <el-option v-for="item in stateOptions" :key="item.code" :label="item.name" :value="item.code" />
-                        </el-select>
-                      </el-select>
+                    <el-form-item label="Service Profile" prop="iccid">
+                      <el-input v-model="temp.ssp" disabled />
                     </el-form-item>
                   </el-col>
                   <el-col :xs="24" :sm="12">
-                    <el-form-item label="Solution" prop="solution">
-                      <el-select v-model="temp.solution" class="filter-item w-100" placeholder="Please select">
-                        <el-option v-for="item in solutionOptions" :key="item.code" :label="item.name" :value="item.code" />
-                      </el-select>
+                    <el-form-item label="State" prop="iccid">
+                      <el-input v-model="temp.state" disabled />
                     </el-form-item>
                   </el-col>
                 </el-row>
                 <el-row :gutter="16">
                   <el-col :xs="24" :sm="12">
-                    <el-form-item label="Agent" prop="category">
-                      <el-select class="filter-item w-100" placeholder="Please select">
-
-                      </el-select>
+                    <el-form-item label="Threshold" prop="iccid">
+                      <el-input v-model="temp.threshold" disabled />
                     </el-form-item>
                   </el-col>
-                  <el-col :xs="24" :sm="12">
-                    <el-form-item label="Customer" prop="key">
-                      <el-select class="filter-item w-100" placeholder="Please select">
-
-                      </el-select>
+                  <el-col :xs="24" :sm="12">                    
+                    <el-form-item label="IPAddress" prop="iccid">
+                      <el-input v-model="temp.ip" disabled />
                     </el-form-item>
                   </el-col>
                 </el-row>
               </el-form>
             </div>
             <div class="el-card__footer w-100" >
+              <el-button type="primary" class="dark-btn" style="margin-left:10px" @click="refreshState">
+                <item :icon="'update-white'"/> Refresh</el-button>               
               <el-button class="blue-btn" type="primary">Save</el-button>
+                
             </div>
           </el-card>
-          <el-card class="box-card mt-30">
+          <el-card class="box-card mt-30 card-details">
             <div class="">
               <div class="card-panel-left font-16">
                 <div class=" font-16 bold color-grey">Data Details</div>
               </div>
-              <div class="card-panel-left pt-10">
+              <div class="card-panel-left pt-20">
                 <el-button type="primary" class="green-btn" @click="showSessions"><item :icon="'csp'"/> Session Data</el-button> 
                 <el-button type="primary" class="violet-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS History</el-button>
                 <el-button type="primary" class="blue-btn" @click="showLocation"><item :icon="'map-white'"/> View Map</el-button>
@@ -410,6 +399,7 @@ import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
 import Item from '@/layout/components/Sidebar/Item'
 import { getSIMAsync, getCDRS, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync, getSMSHistoryAsync, getDemoOwerview } from '@/api/sim'
+import { fetchSIMList } from '@/api/user'
 import VueApexCharts from 'vue-apexcharts'
 
 const curday = new Date()
@@ -437,10 +427,25 @@ export default {
       ))
 
     return {
+      simDetailslistLeft: [{
+        title: 'Imsi',
+        value: '',
+      },{
+        title: 'MSISDN',
+        value: '',
+      },{
+        title: 'Visitor Location Register',
+        value: '',
+      }],
+      simDetailslistRight: [{
+        title: 'Packet Switched Up Time',
+        value: '',
+      },{
+        title: 'Circuit Switch Up Time',
+        value: '',
+      }],
       tableKey: 0,
       downloadLoading: false,
-      simDetailslistLeft: [],
-      simDetailslistRight: [],
       isLoading: false,
       fullPage: true,
       simQuery: {
@@ -489,8 +494,8 @@ export default {
         totalDataSessions: 0,
         loaded: false
       },
-      currentState: 'No Data',
-      currentStateColor: 'bg-color-grey',
+      currentState: 'Productive, but no current data session',
+      currentStateColor: 'bg-color-blue',
       lastUpdateTime: '',
       lineCollection: null,
       lineOptions: {
@@ -550,10 +555,22 @@ export default {
         },*/
       ],
       markerIcon: customicon,
-      locationList: [],
+      locationList: [
+        {title: 'IMSI', value: ''},
+        {title: 'Network Operator', value: ''},
+        {title: 'Area', value: ''},
+        {title: 'Longitude', value: ''},
+        {title: 'Latitude', value: ''},
+        {title: 'Country', value: ''},
+        {title: 'Cell', value: ''},
+        {title: 'Cell Range', value: ''},
+        {title: 'Current Session Date', value: ''},
+        {title: 'Current Usage', value: ''}
+      ],
       markerLatLng: [0, 0],//47.413220, -1.219482
       sessionList: [],
       hlrList: [],
+      mapList: [],
       smsUsageList: []
     }
   },
@@ -624,10 +641,10 @@ export default {
     },
     async getProfile() {
       let self = this
-      var query = {
+     var query = {
 				  IMSIs: [this.$route.params.id]
 				}
-				
+		 /*		
 				var settings = {
 				  "url": "https://test.m2mdata.co/JT/Sim/Query",
 				  "method": "POST",
@@ -637,38 +654,51 @@ export default {
 					"Content-Type": "application/x-www-form-urlencoded"
 				  },
 				  "data": query
-				};
+        };*/
+      let responseProfile = await fetchSIMList(query) 
+      if(responseProfile){        
+        console.log('data', responseProfile)
+        let objProfile = responseProfile.rows[0]
+        this.temp = {
+          imsi: objProfile.IMSI,
+          iccid: objProfile.ICCID,
+          msisdn: objProfile.MSISDN,
+          ip: objProfile.IPAddress,
+          datacountry: objProfile.DataCountryCode,
+          organize: objProfile.OrganizeName,
+          ssp: objProfile.ServiceProfileName,
+          state: objProfile.State,
+          threshold: objProfile.ThresholdName,
+          smscountry: objProfile.SMSCountryCode,
+        }
+      }
+        
+          
 
         const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
         const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
         const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
         
-				/*$.ajax(settings).done(function (result) {
-          
-          
-        })*/
-
-
         const token = "00000000-0000-0000-0000-000000000000"
         const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
         let resActiveSession = await responseActiveSession.json()
         
         if(resActiveSession.Data){
-        self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
+          self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
 
-        const simActivityTime = moment(self.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-          if(simActivityTime < oneDayAgo){
+          const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+          if(simActivityTime > oneDayAgo){
             self.currentState = 'Productive'
             self.currentStateColor = 'bg-color-blue'
-          }else if(simActivityTime >= oneDayAgo && simActivityTime < threeDayAgo){
+          }else if(simActivityTime <= oneDayAgo && simActivityTime > threeDayAgo){
             self.currentState = 'Active'
             self.currentStateColor = 'bg-color-green'
-          }else if(simActivityTime >= threeDayAgo){            
+          }else if(simActivityTime <= threeDayAgo){            
             self.currentState = 'Suspended'
             self.currentStateColor = 'bg-color-yellow'
           }else{
-            self.currentState = 'No Data'
-            self.currentStateColor = 'bg-color-grey'
+            self.currentState = 'Productive, but no current data session'
+            self.currentStateColor = 'bg-color-blue'
           }
         }else{
 					self.currentState = 'Productive, but no current data session'
@@ -678,25 +708,27 @@ export default {
         const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
         let resHLR = await responseHLR.json()
         
-        this.hlrList = resHLR.Data.dataMapField
-
-        let hlrDate1 = resHLR.Data.hlrInfoFieldsField[1].valueField
-        let hlrDate2 = resHLR.Data.hlrInfoFieldsField[3].valueField
-        this.simDetailslistLeft = [{
-          title: resHLR.Data.hlrInfoFieldsField[0].nameField,
-          value: resHLR.Data.hlrInfoFieldsField[0].valueField,
-        },{
-          title: resHLR.Data.hlrInfoFieldsField[2].nameField,
-          value: resHLR.Data.hlrInfoFieldsField[2].valueField,
-        }]
-
-        this.simDetailslistRight = [{
-          title: resHLR.Data.hlrInfoFieldsField[1].nameField,
-          value: hlrDate1=='00000000000000'?'':hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14),
-        },{
-          title: resHLR.Data.hlrInfoFieldsField[3].nameField,
-          value: hlrDate2=='00000000000000'?'':hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14),
-        }]
+        let mapList = resHLR.Data.dataMapField
+        let hlrList = resHLR.Data.hlrInfoFieldsField
+        
+        let hlrDate1 = hlrList.find(el=>el.nameField==this.simDetailslistRight[0].title).valueField
+				let hlrDate2 = hlrList.find(el=>el.nameField==this.simDetailslistRight[1].title).valueField
+          
+        this.simDetailslistLeft[0].value = hlrList.find(el=>el.nameField==this.simDetailslistLeft[0].title).valueField
+        this.simDetailslistLeft[1].value = mapList.find(el=>el.keyField==this.simDetailslistLeft[1].title).valueField	
+        this.simDetailslistLeft[2].value = hlrList.find(el=>el.nameField==this.simDetailslistLeft[2].title).valueField	
+        this.simDetailslistRight[0].value = hlrDate1=='00000000000000'?'':hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14)
+        this.simDetailslistRight[1].value = hlrDate2=='00000000000000'?'':hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14)
+        
+        this.mapList = mapList
+        let indexToRemove1 = this.mapList.findIndex(el=>el.keyField=='MSISDN')
+        if(indexToRemove1!=-1){
+          this.mapList.splice(indexToRemove1, 1)
+        }
+        let indexToRemove2 = this.mapList.findIndex(el=>el.keyField=='APN2')
+        if(indexToRemove2!=-1){
+          this.mapList.splice(indexToRemove2, 1)
+        }
 
         /*
         var settings = {
@@ -719,11 +751,7 @@ export default {
         imsi: response.data.info.imsi,
       }
       this.cdrsQuery.id = response.data._id
-      this.temp = {
-        imsi: response.data.info.imsi,
-        iccid: response.data.info.iccid,
-        msisdn: response.data.info.msisdn,
-      }
+      
       this.simQuery.id = response.data._id
       /*this.panelData = {
         totalDataUsage: 23,
@@ -744,15 +772,8 @@ export default {
         let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
       }*/
       
-      this.locationList.push(
-        {title: 'IMSI', value: response.data.info.imsi},
-        {title: 'Network Operator', value: network},
-        {title: 'Area', value: ''},
-        {title: 'Cell', value: ''},
-        {title: 'Cell Range', value: ''},
-        {title: 'Current Session Date', value: endTime.slice(0,19).replace('T', ' ')},
-        {title: 'Current Usage', value: response.data?.extra?.activity?.totals?.totalDataUsage}
-      )
+      //this.locationList[8].value = endTime.slice(0,19).replace('T', ' ')
+      //this.locationList[9].value = response.data?.extra?.activity?.totals?.totalDataUsage
       
       const response_1 = await getCDRSAsync(this.cdrsQuery)      
       const arrLabel = [], arrData = []
@@ -864,12 +885,62 @@ export default {
           }
         ]}*/
     },    
-    async forceReconnect(){      
+    refreshState(){
       this.isLoading = true
-      const response = await forceReconnectAsync(this.simQuery)          
-      this.isLoading = false
-      this.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
-      this.mapFormVisible = false
+      let self = this
+      //const response = await forceReconnectAsync(this.simQuery)     
+      var queryLBS = {
+				  imsi: [this.$route.params.id]
+				}
+				
+				var settingsLBS = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Refresh",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": queryLBS
+				};
+
+				$.ajax(settingsLBS).done(function (result) {
+            self.isLoading = false
+					if(result.MajorCode == '000'){
+            self.$alert('Sim state refreshed', 'M2M Data Message', {type: 'message'})
+          }else{
+            self.$alert('Sim state was not refreshed', 'M2M Data Message', {type: 'message'})
+          }
+        }) 
+    },
+    forceReconnect(){      
+      this.isLoading = true
+      let self = this
+      //const response = await forceReconnectAsync(this.simQuery)     
+      var queryLBS = {
+				  IMSIs: [this.$route.params.id]
+				}
+				
+				var settingsLBS = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Reboot",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": queryLBS
+				};
+
+				$.ajax(settingsLBS).done(function (result) {
+            self.isLoading = false
+					if(result.MajorCode == '000'){
+            self.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
+          }else{
+            self.$alert('Sim connection was not refreshed', 'M2M Data Message', {type: 'message'})
+          }
+        })     
+      
     },
     async showSMSUsage(){
       this.isLoading = true
@@ -910,32 +981,74 @@ export default {
     },
     showLocation(){
       this.isLoading = true
+      let self = this
+        /*var queryLBS = {
+				  imsi: this.$route.params.id
+				}
+				
+				var settingsLBS = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Refresh",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": queryLBS
+				};
+
+				$.ajax(settingsLBS).done(function (result) {
+					console.log('lbs',result)
+				})*/
+
       //country by coords
-      this.locationList.length = 10
-      const query = {
+
+       var queryLBS = {
+				  imsi: [this.$route.params.id]
+				}
+				
+				var settingsLBS = {
+				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": queryLBS
+				};
+
+				$.ajax(settingsLBS).done(function (result) {
+          console.log('lbs',result)
+          self.locationList[0].value = result.Data.IMSI
+          self.locationList[1].value = result.Data.LbsNetwork
+          self.locationList[2].value = result.Data.LbsArea
+          self.locationList[6].value = result.Data.LbsRadio
+          self.locationList[7].value = result.Data.LbsRange
+          self.locationList[8].value = result.Data.SessionDay
+          self.locationList[9].value = (result.Data.DataDay/1048576).toFixed(3)
+          const query_1 = {
+            lat: result.Data.LbsLat,
+            lon: result.Data.LbsLng
+          }
+          self.markerLatLng = [query_1.lat, query_1.lon]
+          self.center = L.latLng(query_1.lat, query_1.lon)
+          self.locationList[3].value = query_1.lat
+          self.locationList[4].value = query_1.lon          
+          
+          getSIMCountry(query_1).then(response_1 => {
+            const country = response_1.data.address.country
+            self.locationList[5].value = country
+            self.mapFormVisible = true
+            self.isLoading = false
+          })
+        })
+
+      /*const query = {
         id: this.simQuery.id
       }
       getSIMCoordinates(query).then(response => {
-        const query_1 = {
-          lat: response.data.geometry.coordinates[0],
-          lon: response.data.geometry.coordinates[1]
-        }
-        this.markerLatLng = [query_1.lat, query_1.lon]
-        this.center = L.latLng(query_1.lat, query_1.lon)
-        this.locationList.push(
-          {title: 'Longitude', value: query_1.lat},
-          {title: 'Latitude', value: query_1.lon}
-        ) 
-        
-        getSIMCountry(query_1).then(response_1 => {
-          const country = response_1.data.address.country
-          this.locationList.push({
-            title: 'Country',
-            value: country
-          })          
-          this.mapFormVisible = true
-          this.isLoading = false
-        })
+       
       }).catch(e=>{
         this.locationList.push(
           {title: 'Country', value: ''},
@@ -943,7 +1056,7 @@ export default {
           {title: 'Latitude', value: '0'})
         this.mapFormVisible = true
         this.isLoading = false
-      })
+      })*/
     },
     handleSessionsDownload() {
       this.downloadLoading = true
@@ -1174,6 +1287,9 @@ export default {
 .pt-10{
   padding-top:10px;
 }
+.pt-20{
+  padding-top:20px;
+}
 .pl-15{
   padding-left: 15px;
 }
@@ -1204,6 +1320,11 @@ export default {
 
 .bg-color-blue{
   background-color: rgb(92, 174, 230);
+}
+
+.card-details .el-button {
+    margin: 0px 10px 10px 0px;
+
 }
 
 </style>
