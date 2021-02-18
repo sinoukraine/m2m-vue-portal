@@ -497,8 +497,8 @@ export default {
         totalDataSessions: 0,
         loaded: false
       },
-      currentState: 'Productive, but no current data session',
-      currentStateColor: 'bg-color-blue',
+      currentState: 'No data',
+      currentStateColor: 'bg-color-grey',
       lastUpdateTime: '',
       lineCollection: null,
       lineOptions: {
@@ -835,40 +835,64 @@ export default {
           state: objProfile.State,
           threshold: objProfile.ThresholdName,
           smscountry: objProfile.SMSCountryCode,
-        }
-      }
+        }      
         
-          
-
         const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
         const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
         const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
         
-        const token = "00000000-0000-0000-0000-000000000000"
-        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
-        let resActiveSession = await responseActiveSession.json()
+        //const token = "00000000-0000-0000-0000-000000000000"
+        //const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
+        //let resActiveSession = await responseActiveSession.json()
         
-        if(resActiveSession.Data){
+        /*if(resActiveSession.Data){
           self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
 
+          console.log('npdd', resActiveSession.Data)
+          self.currentState = this.temp.state
           const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+          
           if(simActivityTime > oneDayAgo){
-            self.currentState = 'Productive'
             self.currentStateColor = 'bg-color-blue'
           }else if(simActivityTime <= oneDayAgo && simActivityTime > threeDayAgo){
-            self.currentState = 'Active'
             self.currentStateColor = 'bg-color-green'
-          }else if(simActivityTime <= threeDayAgo){            
-            self.currentState = 'Suspended'
+          }else if(simActivityTime <= threeDayAgo){      
             self.currentStateColor = 'bg-color-yellow'
           }else{
-            self.currentState = 'Productive, but no current data session'
-            self.currentStateColor = 'bg-color-blue'
+            self.currentStateColor = 'bg-color-grey'
           }
         }else{
-					self.currentState = 'Productive, but no current data session'
-					self.currentStateColor = 'bg-color-blue'					
-				}
+					self.currentState = this.temp.state + ', but no current data sessions'
+					self.currentStateColor = 'bg-color-grey'					
+        }*/
+
+        self.currentState = this.temp.state
+        if(this.temp.state == 'Suspended'){
+          self.currentStateColor = 'bg-color-yellow'
+        }else if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
+          self.currentStateColor = 'bg-color-grey'
+          if(this.temp.state == 'Productive' || this.temp.state == 'TestProductive'){
+            self.currentStateColor = 'bg-color-blue'
+            self.currentState = this.temp.state + ', but no current data session'
+          }
+        }else if(objProfile.DataUpdateTime == null){
+          self.currentStateColor = 'bg-color-grey'
+          if(this.temp.state == 'Productive' || this.temp.state == 'TestProductive'){
+            self.currentStateColor = 'bg-color-blue'
+            self.currentState = this.temp.state + ', but no current data session'
+          }
+        }else{
+          const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+          console.log(simActivityTime, oneDayAgo)
+          this.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
+          
+          if(simActivityTime >= oneDayAgo){
+            self.currentStateColor = 'bg-color-green'
+          }else {
+            self.currentStateColor = 'bg-color-yellow'
+          }
+        }
+      }
       
         const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
         let resHLR = await responseHLR.json()
@@ -1331,6 +1355,14 @@ export default {
 
 .bg-color-blue{
   background-color: rgb(92, 174, 230);
+}
+
+.bg-color-yellow{
+  background-color: #ffb880;
+}
+
+.bg-color-green{
+  background-color: #34bfa3;
 }
 
 .card-details .el-button {

@@ -203,7 +203,7 @@
                 </el-table-column>
                 <el-table-column v-if="checkboxRAG" :label="$t('RAG')" align="center" min-width="60px">
                   <template slot-scope="{row}" align="center">
-                    <div class="square" :style="'background-color:'+row.rag+';'"></div>
+                    <div class="square" :class="row.rag"></div>
                   </template>
                 </el-table-column>
                 <el-table-column v-if="checkboxOrganize" :label="$t('CUSTOMER')" align="left" min-width="100px">
@@ -1012,8 +1012,33 @@ export default {
       }
       response.rows.forEach(async element => {         
         //console.log('r',element)
-        let rag = 'rgb(204,204,204)'
-         
+        
+        let rag = 'bg-color-grey'
+
+        if(element.State == 'Suspended'){
+          rag = 'bg-color-yellow'
+        }else if(element.SMSMOUpdateTime == null && element.DataUpdateTime == null){
+          rag = 'bg-color-grey'
+          if(element.State == 'Productive' || element.State == 'TestProductive'){
+            rag = 'bg-color-blue'
+          }
+        }else if(element.DataUpdateTime == null){
+          rag = 'bg-color-grey'
+          if(element.State == 'Productive' || element.State == 'TestProductive'){
+            rag = 'bg-color-blue'
+          }
+        }else{
+          const simActivityTime = moment(element.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+          
+          if(simActivityTime >= oneDayAgo){
+            rag = 'bg-color-green'
+          }else {
+            rag = 'bg-color-yellow'
+          }
+        }
+        
+        
+         /*
         const simActivityTime = moment(element.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
         if(simActivityTime >= oneDayAgo){
           rag = '#41bea2'
@@ -1021,7 +1046,7 @@ export default {
           rag = '#ffb880'
         }else{
           rag = '#d77980'
-        }
+        }*/
 
         arr.push({
           IMSI: element.IMSI,
@@ -1483,6 +1508,23 @@ div.square {
 
 .bg-white .el-dialog__header{
     border-bottom: 1px solid #e3e3e3;
+}
+
+
+.bg-color-grey{
+  background-color: #e3e3e3;
+}
+
+.bg-color-blue{
+  background-color: rgb(92, 174, 230);
+}
+
+.bg-color-yellow{
+  background-color: #ffb880;
+}
+
+.bg-color-green{
+  background-color: #34bfa3;
 }
 
 
