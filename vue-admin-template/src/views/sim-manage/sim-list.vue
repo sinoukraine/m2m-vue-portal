@@ -1013,6 +1013,7 @@ export default {
       response.rows.forEach(async element => {         
         //console.log('r',element)
         
+        
         let rag = 'bg-color-grey'
 
         if(element.State == 'Suspended'){
