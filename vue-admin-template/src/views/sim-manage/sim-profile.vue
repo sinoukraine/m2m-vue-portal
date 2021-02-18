@@ -724,8 +724,8 @@ export default {
         const averageData = totalData/response_1.data.length
 
       let sortedArr = sessionArr.sort(function(a,b){
-        var c = new Date(a.startTime)
-        var d = new Date(b.startTime)
+        let c = new Date(a.startTime)
+        let d = new Date(b.startTime)
         return d-c
       })
 
@@ -806,7 +806,7 @@ export default {
 
 
 
-        var query = {
+        let query = {
 				  IMSIs: [this.$route.params.id]
 				}
 		 /*		
@@ -924,11 +924,11 @@ export default {
       this.isLoading = true
       let self = this
       //const response = await forceReconnectAsync(this.simQuery)     
-      var queryLBS = {
+      let queryLBS = {
 				  imsi: [this.$route.params.id]
 				}
 				
-				var settingsLBS = {
+				let settingsLBS = {
 				  "url": "https://test.m2mdata.co/JT/Sim/Refresh",
 				  "method": "POST",
 				  "timeout": 0,
@@ -952,11 +952,11 @@ export default {
       this.isLoading = true
       let self = this
       //const response = await forceReconnectAsync(this.simQuery)     
-      var queryLBS = {
+      let queryLBS = {
 				  IMSIs: [this.$route.params.id]
 				}
 				
-				var settingsLBS = {
+				let settingsLBS = {
 				  "url": "https://test.m2mdata.co/JT/Sim/Reboot",
 				  "method": "POST",
 				  "timeout": 0,
@@ -986,8 +986,8 @@ export default {
         return
       }
       let sortedArr = response.data.sort(function(a,b){
-        var c = new Date(a.insertedDate)
-        var d = new Date(b.insertedDate)
+        let c = new Date(a.insertedDate)
+        let d = new Date(b.insertedDate)
         return d-c
       })
       this.smsUsageList = sortedArr
@@ -1038,11 +1038,11 @@ export default {
 
       //country by coords
 
-       var queryLBS = {
+       let queryLBS = {
 				  imsi: [this.$route.params.id]
 				}
 				
-				var settingsLBS = {
+				let settingsLBS = {
 				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
 				  "method": "POST",
 				  "timeout": 0,

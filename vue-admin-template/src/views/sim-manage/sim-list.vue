@@ -716,7 +716,7 @@ export default {
 				  imsi: [data.IMSI]
 				}
 				
-				var settingsLBS = {
+				let settingsLBS = {
 				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
 				  "method": "POST",
 				  "timeout": 0,
@@ -1013,7 +1013,7 @@ export default {
       response.rows.forEach(async element => {         
         //console.log('r',element)
         
-        
+
         let rag = 'bg-color-grey'
 
         if(element.State == 'Suspended'){
@@ -1289,11 +1289,11 @@ export default {
       this.isLoading = true
       let self = this
       //const response = await forceReconnectAsync(this.simQuery)     
-      var queryLBS = {
+      let queryLBS = {
 				  IMSIs: [this.queryLBS.imsi]
 				}
 				
-				var settingsLBS = {
+				let settingsLBS = {
 				  "url": "https://test.m2mdata.co/JT/Sim/Reboot",
 				  "method": "POST",
 				  "timeout": 0,
