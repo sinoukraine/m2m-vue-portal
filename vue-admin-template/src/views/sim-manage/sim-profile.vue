@@ -110,7 +110,7 @@
           </el-table>
           </div>
         </el-col>
-      </el-row>
+      </el-row><!--
       <el-table
         :data="mapList"
         fit            
@@ -132,7 +132,7 @@
             <span>{{row.propertyChanged}}</span>
           </template>
         </el-table-column>
-      </el-table>       
+      </el-table>       -->
     </el-dialog>
 
     <el-dialog class="dialog-download" title="SMS History" :visible.sync="smsFormVisible" width="100%" >
@@ -355,9 +355,9 @@
               </div>
             </div>
           </el-card>
-          <div id="chart" class="sim-container">
+          <!--<div id="chart" class="sim-container">
               
-            </div>
+            </div>-->
           <div class="chart-container line-chart-container mt-30">
             <div style="display:flex;justify-content: center;">
                 <div style="display:flex">
@@ -442,6 +442,9 @@ export default {
         value: '',
       },{
         title: 'Circuit Switch Up Time',
+        value: '',
+      },{
+        title: 'EPCMMERealm',
         value: '',
       }],
       tableKey: 0,
@@ -641,94 +644,7 @@ export default {
     },
     async getProfile() {
       let self = this
-     var query = {
-				  IMSIs: [this.$route.params.id]
-				}
-		 /*		
-				var settings = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Query",
-				  "method": "POST",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				  "data": query
-        };*/
-      let responseProfile = await fetchSIMList(query) 
-      if(responseProfile){        
-        console.log('data', responseProfile)
-        let objProfile = responseProfile.rows[0]
-        this.temp = {
-          imsi: objProfile.IMSI,
-          iccid: objProfile.ICCID,
-          msisdn: objProfile.MSISDN,
-          ip: objProfile.IPAddress,
-          datacountry: objProfile.DataCountryCode,
-          organize: objProfile.OrganizeName,
-          ssp: objProfile.ServiceProfileName,
-          state: objProfile.State,
-          threshold: objProfile.ThresholdName,
-          smscountry: objProfile.SMSCountryCode,
-        }
-      }
-        
-          
-
-        const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
-        const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
-        const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
-        
-        const token = "00000000-0000-0000-0000-000000000000"
-        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
-        let resActiveSession = await responseActiveSession.json()
-        
-        if(resActiveSession.Data){
-          self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
-
-          const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-          if(simActivityTime > oneDayAgo){
-            self.currentState = 'Productive'
-            self.currentStateColor = 'bg-color-blue'
-          }else if(simActivityTime <= oneDayAgo && simActivityTime > threeDayAgo){
-            self.currentState = 'Active'
-            self.currentStateColor = 'bg-color-green'
-          }else if(simActivityTime <= threeDayAgo){            
-            self.currentState = 'Suspended'
-            self.currentStateColor = 'bg-color-yellow'
-          }else{
-            self.currentState = 'Productive, but no current data session'
-            self.currentStateColor = 'bg-color-blue'
-          }
-        }else{
-					self.currentState = 'Productive, but no current data session'
-					self.currentStateColor = 'bg-color-blue'					
-				}
-      
-        const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
-        let resHLR = await responseHLR.json()
-        
-        let mapList = resHLR.Data.dataMapField
-        let hlrList = resHLR.Data.hlrInfoFieldsField
-        
-        let hlrDate1 = hlrList.find(el=>el.nameField==this.simDetailslistRight[0].title).valueField
-				let hlrDate2 = hlrList.find(el=>el.nameField==this.simDetailslistRight[1].title).valueField
-          
-        this.simDetailslistLeft[0].value = hlrList.find(el=>el.nameField==this.simDetailslistLeft[0].title).valueField
-        this.simDetailslistLeft[1].value = mapList.find(el=>el.keyField==this.simDetailslistLeft[1].title).valueField	
-        this.simDetailslistLeft[2].value = hlrList.find(el=>el.nameField==this.simDetailslistLeft[2].title).valueField	
-        this.simDetailslistRight[0].value = hlrDate1=='00000000000000'?'':hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14)
-        this.simDetailslistRight[1].value = hlrDate2=='00000000000000'?'':hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14)
-        
-        this.mapList = mapList
-        let indexToRemove1 = this.mapList.findIndex(el=>el.keyField=='MSISDN')
-        if(indexToRemove1!=-1){
-          this.mapList.splice(indexToRemove1, 1)
-        }
-        let indexToRemove2 = this.mapList.findIndex(el=>el.keyField=='APN2')
-        if(indexToRemove2!=-1){
-          this.mapList.splice(indexToRemove2, 1)
-        }
+     
 
         /*
         var settings = {
@@ -780,7 +696,9 @@ export default {
       let sessionArr = []
       let totalData = 0
       let totalSMS = 0
+      console.log('r_11',response_1)
       response_1.data.forEach(element => {
+        
           //usageLabels.push(element.date.slice(0, 10))          
           //usageData.push(element.totals?.data.originalUnits/1048576)
 
@@ -884,6 +802,99 @@ export default {
             data: usageData
           }
         ]}*/
+
+
+
+
+        var query = {
+				  IMSIs: [this.$route.params.id]
+				}
+		 /*		
+				var settings = {
+				  "url": "https://test.m2mdata.co/JT/Sim/Query",
+				  "method": "POST",
+				  "timeout": 0,
+				  "headers": {
+					"token": "00000000-0000-0000-0000-000000000000",
+					"Content-Type": "application/x-www-form-urlencoded"
+				  },
+				  "data": query
+        };*/
+      let responseProfile = await fetchSIMList(query) 
+      if(responseProfile){        
+        console.log('data', responseProfile)
+        let objProfile = responseProfile.rows[0]
+        this.temp = {
+          imsi: objProfile.IMSI,
+          iccid: objProfile.ICCID,
+          msisdn: objProfile.MSISDN,
+          ip: objProfile.IPAddress,
+          datacountry: objProfile.DataCountryCode,
+          organize: objProfile.OrganizeName,
+          ssp: objProfile.ServiceProfileName,
+          state: objProfile.State,
+          threshold: objProfile.ThresholdName,
+          smscountry: objProfile.SMSCountryCode,
+        }
+      }
+        
+          
+
+        const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
+        const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
+        const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
+        
+        const token = "00000000-0000-0000-0000-000000000000"
+        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
+        let resActiveSession = await responseActiveSession.json()
+        
+        if(resActiveSession.Data){
+          self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
+
+          const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
+          if(simActivityTime > oneDayAgo){
+            self.currentState = 'Productive'
+            self.currentStateColor = 'bg-color-blue'
+          }else if(simActivityTime <= oneDayAgo && simActivityTime > threeDayAgo){
+            self.currentState = 'Active'
+            self.currentStateColor = 'bg-color-green'
+          }else if(simActivityTime <= threeDayAgo){            
+            self.currentState = 'Suspended'
+            self.currentStateColor = 'bg-color-yellow'
+          }else{
+            self.currentState = 'Productive, but no current data session'
+            self.currentStateColor = 'bg-color-blue'
+          }
+        }else{
+					self.currentState = 'Productive, but no current data session'
+					self.currentStateColor = 'bg-color-blue'					
+				}
+      
+        const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
+        let resHLR = await responseHLR.json()
+        
+        let mapList = resHLR.Data.dataMapField
+        let hlrList = resHLR.Data.hlrInfoFieldsField
+        
+        let hlrDate1 = hlrList.find(el=>el.nameField==this.simDetailslistRight[0].title).valueField
+				let hlrDate2 = hlrList.find(el=>el.nameField==this.simDetailslistRight[1].title).valueField
+          
+        this.simDetailslistLeft[0].value = hlrList.find(el=>el.nameField==this.simDetailslistLeft[0].title).valueField
+        this.simDetailslistLeft[1].value = mapList.find(el=>el.keyField==this.simDetailslistLeft[1].title)?.valueField	
+        this.simDetailslistLeft[2].value = hlrList.find(el=>el.nameField==this.simDetailslistLeft[2].title).valueField	
+        this.simDetailslistRight[0].value = hlrDate1=='00000000000000'?'':hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14)
+        this.simDetailslistRight[1].value = hlrDate2=='00000000000000'?'':hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14)
+        this.simDetailslistRight[2].value = mapList.find(el=>el.keyField==this.simDetailslistRight[2].title)?.valueField	
+        
+        this.mapList = mapList
+        let indexToRemove1 = this.mapList.findIndex(el=>el.keyField=='MSISDN')
+        if(indexToRemove1!=-1){
+          this.mapList.splice(indexToRemove1, 1)
+        }
+        let indexToRemove2 = this.mapList.findIndex(el=>el.keyField=='APN2')
+        if(indexToRemove2!=-1){
+          this.mapList.splice(indexToRemove2, 1)
+        }
     },    
     refreshState(){
       this.isLoading = true
