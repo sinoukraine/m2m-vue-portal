@@ -319,21 +319,20 @@ export async function getOLDCDRSAsync(query) {
       url: SIM_LIST + '/' + findBy + addIdentifier + andStates + addStates + andActivity + addActivity + andCustomer + addCustomer,
       method: 'get'
     }
-    console.log(options.url)
     try {
       const response = await axios.request(getRequestOptions(options))
       return response
     } catch (e) {
       const title = 'Error'
       const message = 'An CORS issue has been detected, please try again later or contact our support team'
-      this.$alert(message, title, {type: 'error'})
+      //this.$alert(message, title, {type: 'error'})
+      //return null
       throw e
     }
   }
 }
 
 export async function getSIMAsync(query) {
-  console.log('q', query)
   if (query.imsi !== '') {
     let addStates = '', addActivity = '', addIdentifier = '', findBy = '', addCustomer = ''
     
@@ -362,14 +361,13 @@ export async function getSIMAsync(query) {
       url: SIM_LIST + '/' + findBy + addIdentifier + andStates + addStates + andActivity + addActivity + andCustomer + addCustomer,
       method: 'get'
     }
-    console.log(options.url)
     try {
       const response = await axios.request(getRequestOptions(options))
       return response
     } catch (e) {
       const title = 'Error'
       const message = 'An CORS issue has been detected, please try again later or contact our support team'
-      this.$alert(message, title, {type: 'error'})
+      //this.$alert(message, title, {type: 'error'})
       throw e
     }
   }

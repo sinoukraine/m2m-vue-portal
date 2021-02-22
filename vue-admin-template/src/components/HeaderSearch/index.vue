@@ -20,7 +20,7 @@
 <script>
 // fuse is a lightweight fuzzy-search module
 // make search results more in line with expectations
-
+import { fetchSIMList } from "@/api/user";
 import { getSIMList } from '@/api/sim'
 import Fuse from 'fuse.js'
 import path from 'path'
@@ -130,21 +130,30 @@ export default {
       }
       return res
     },
-    searchIMSI(query) {
+    async searchIMSI(query) {
       const arr = []
       this.simListQuery = {
-        limit: 5,
-        sample: query
+        Rows: 5,
+        FromIMSI: query.padEnd(15, "0"),
       }
-      getSIMList(this.simListQuery).then(response => {
-        response.data.forEach(element => {
+      let response = await fetchSIMList(this.simListQuery) 
+      
+        console.log(response)
+      if(!response.rows.length){
+        return
+      }else{
+      }
+      
+      /*getSIMList(this.simListQuery).then(response => {*/
+        response.rows.forEach(element => {
+          console.log('w',element)
           arr.push({
-            code: element._id,
-            title: element.info.imsi
+            code: element.IMSI,
+            title: element.IMSI
           })
         })
         this.options = arr
-      })      
+      //})      
     },
     querySearch(query) {
       if (query !== '') {        

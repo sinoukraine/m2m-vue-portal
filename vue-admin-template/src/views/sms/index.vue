@@ -208,6 +208,7 @@ import Confirm from './message-box/confirm'
 import { create } from 'vue-modal-dialogs'
 import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync, sendCommandAsync } from '@/api/sim'
 
+import { fetchSIMList } from "@/api/user";
 const confirm = create(Confirm, 'title', 'content')
 
 export default {
@@ -311,7 +312,7 @@ export default {
       this.deviceList = []
       this.searchSIMList()
     },
-    searchSIMList() {
+    async searchSIMList() {
       const arr = []
 
       for (let i = 0; i < this.deviceList.length; i++) {
@@ -320,9 +321,40 @@ export default {
       this.loadedSMS = []
       this.messageList = [] 
 
-      console.log(this.simListQuery)
+      //console.log(this.simListQuery)
       if(this.simListQuery.sample!=undefined){
-        getSIMList(this.simListQuery).then(response => {
+       
+       this.simListQuery = {
+          Rows: 5,
+          IMSIs: [this.simListQuery.sample],
+        }
+        let response = await fetchSIMList(this.simListQuery).catch(e => {
+          this.isLoading = false 
+          this.$alert('Can not find this SIM number', 'M2M Data Message', {type: 'message'})
+      
+        }) 
+        
+        if(response.rows.length){
+
+          console.log('all',response.rows)
+          response.rows.forEach(element => {
+            arr.push({
+              id: element.IMSI,
+              name: element.IMSI,
+              state: false,
+            })
+          })     
+          this.isLoading = false     
+          this.deviceList = arr
+          
+          this.deviceList[0].state = true
+          this.getHistory()
+        }else{
+          this.isLoading = false 
+          this.$alert('Can not find this SIM number', 'M2M Data Message', {type: 'message'})
+
+        }
+       /*getSIMList(this.simListQuery).then(response => {
           response.data.forEach(element => {
             arr.push({
               id: element._id,
@@ -339,7 +371,7 @@ export default {
           this.isLoading = false 
           this.$alert('The IMSI field length have to be greater than or equal to 4 characters long.', 'M2M Data Message', {type: 'message'})
       
-        })
+        })*/
       } else{
          this.isLoading = false    
       }     
@@ -349,7 +381,8 @@ export default {
       this.messageList = [] 
       this.getHistory()
     },
-    async sendMessage(){      
+    async sendMessage(){     
+      let self = this 
       if(this.newMessage){
         if(this.deviceList.length) {
           const someArr = this.deviceList.some(el => el.state === true)   
@@ -360,7 +393,76 @@ export default {
  
             for (let i = 0; i < this.deviceList.length; i++) {
               if(this.deviceList[i].state) {
-                const query = {
+                
+                
+                var query = {
+                  IMSI: this.deviceList[i].name,
+                  SMS: this.newMessage
+                }
+				/*
+                var settings = {
+                  "url": "https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId="+query.IMSI+"&message="+query.SMS+"",
+                  "method": "GET",
+                  "timeout": 0,
+                  "headers": {
+                  "token": "00000000-0000-0000-0000-000000000000",
+                  "Content-Type": "application/x-www-form-urlencoded"
+                  },
+                  //"data": query
+                }*/
+                
+              const result = await fetch("https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId="+query.IMSI+"&message="+encodeURIComponent(query.SMS)).catch(e=>{
+                console.log(e)
+                   self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
+                 return
+              })
+                let jsonResult = await result.json()
+                //$.ajax(settings).done(function (result) {
+                console.log(jsonResult)
+                if(jsonResult.MajorCode=='000'){
+                    const obj = {
+                      new: true,
+                      timestamp: time,
+                      from: 'me',
+                      to: this.deviceList[i].name,
+                      text: this.newMessage,
+                      type: 'sent',
+                    }
+                    self.messageList.push(obj)
+                  
+
+                  this.newMessage = ''
+                  this.$nextTick(() => {
+                    const el = this.$el.getElementsByClassName('unreaded')[0];
+                  
+                    if (el) {
+                      el.scrollIntoView({behavior: 'smooth'});
+                    }
+                      
+                  })
+                    
+                     if(!self.intervalForReply){
+                    self.intervalForReply = setInterval(function () {          
+                      self.getHistory()
+                    }, 30000)
+                  }
+
+                    }else{
+                       self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
+                 
+                    }
+                  //this.isLoading = false  
+                  
+                 
+                //}).fail(async function (e){
+                  //console.log('err = '+e);
+                //     self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
+                 
+                
+              
+                //})
+                
+                /*~~~const query = {
                   imsi: this.deviceList[i].name,
                   content: this.newMessage
                 }
@@ -377,27 +479,11 @@ export default {
                     type: 'sent',
                   }
                   this.messageList.push(obj)
-                }
+                }*/
               }
             }      
            
-            this.newMessage = ''
-            this.$nextTick(() => {
-              const el = this.$el.getElementsByClassName('unreaded')[0];
             
-              if (el) {
-                el.scrollIntoView({behavior: 'smooth'});
-              }
-                
-            })
-            //this.isLoading = false  
-            
-            if(!this.intervalForReply){
-              const self = this
-              this.intervalForReply = setInterval(function () {          
-                self.getHistory()
-              }, 30000)
-            }
           }else{
             this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
         
@@ -415,20 +501,48 @@ export default {
           const query = {
             imsi: this.deviceList[index].name
           } 
-          const response = await getSMSHistoryAsync(query).catch(e=>[])
+          
+          let self = this
+          var settings = {
+					  "url": "//test4.m2mdata.co/JT/SMS/History",
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						"IMSI":  query.imsi,
+						"PAGE": "1",
+						"pagesize": "100",
+					  }
+					};
+
+					$.ajax(settings).done(function (response) {           
+            /*let sortedArr = response.Data.sort(function(a,b){
+              let c = new Date(a.CreateTime)
+              let d = new Date(b.CreateTime)
+              return d-c
+            })
+            console.log('OKKK-his',sortedArr) */
+            concatArr = concatArr.concat(response.Data)
+            i++
+            if(i == arr.length) {
+              self.isLoading = true
+              let sortedArr = concatArr.sort(function(a,b){
+                var c = new Date(a.CreateTime)
+                var d = new Date(b.CreateTime)
+                return d-c
+              })
+              self.setHistory(sortedArr.reverse())       
+            }
+          }).fail(function (e){
+            return
+          })
+          /*~~~const response = await getSMSHistoryAsync(query).catch(e=>[])
           if (response.data) {
             concatArr = concatArr.concat(response.data)          						
-          }          
-        }
-        i++
-        if(i == arr.length) {
-          this.isLoading = true
-          let sortedArr = concatArr.sort(function(a,b){
-            var c = new Date(a.insertedDate)
-            var d = new Date(b.insertedDate)
-            return d-c
-          })
-          this.setHistory(sortedArr.reverse())       
+          }*/        
         }
       })
     },
@@ -436,24 +550,24 @@ export default {
       arr.forEach(value => {
         let obj = {}
 
-        if (this.loadedSMS.indexOf( value.from + ' ' + value.insertedDate + value.message[0] ) == -1){
+        if (this.loadedSMS.indexOf( value.CenterNumber + ' ' + value.CreateTime + value.Message[0] ) == -1){
           
-          this.loadedSMS.push(value.from + ' ' + value.insertedDate + value.message[0])
-          const datetime = moment.utc(value.insertedDate).toDate()						
+          this.loadedSMS.push(value.CenterNumber + ' ' + value.CreateTime + value.Message[0])
+          const datetime = moment.utc(value.CreateTime).toDate()						
 					const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
                  
           obj.timestamp = time   
-          obj.from = value.from
+          obj.from = value.CenterNumber
           obj.to = this.deviceList[0].name
-          obj.status = value.status
+          obj.status = value.State==0?'Error':value.State==1?'Sent':value.State==2?'Submitted':value.State==3?'Delivered':'Received'
 
-          if (value.message) {
-            obj.text = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+          if (value.Message) {
+            obj.text = value.Message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
           }
 							
-          if (value.direction == 'Outbound') {      
+          if (value.Direction == 2) {      
             obj.type = 'sent'
-            if(value.status == 'Delivered' || value.status == 'Submitted'){
+            if(value.State == 3 || value.State == 2 || value.State == 1 || value.State == 0){
               const elToRemove = []
               this.messageList.map((el, i) => {
                 if(el.text === obj.text && el.hasOwnProperty('new')){
@@ -471,7 +585,7 @@ export default {
                 }
               })*/
             }
-          }else if(value.direction == 'Inbound'){
+          }else if(value.direction == 1){
             obj.type = 'received'
           }
 

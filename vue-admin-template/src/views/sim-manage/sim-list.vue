@@ -574,7 +574,7 @@ export default {
       isListLoading: true,
       listQuery: {
         Page: 1,
-        Rows: 20,
+        Rows: 10,
         Order: 'ASC',
         Sort: 'IMSI',
       },
@@ -969,51 +969,94 @@ export default {
     },
     async getList() {
       const arr = []
-      const currentTime = moment()
-      const oneDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
-      const threeDayAgo = moment(currentTime, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
-
-      this.isListLoading = true
-      /*this.listQuery.Status = []
-      for(let element in this.searchedStates){
-        if(this.searchedStates[element]){
-          this.listQuery.Status.push(element)
-        }        
-      }*/
-      //this.listQuery.ServiceProfileCodes = [this.$store.getters.userInfo.OrganizeServiceProfileCode]
-      //console.log('q',this.listQuery)
-      /*let listQuery = {
-          Page: 1,
-          rows: 10,
-          Order: 'ASC',
-          Sort: 'IMSI',
-          token: '00000000-0000-0000-0000-000000000000'
-      }
-      var settings = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Query",
-				  "method": "POST",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				  "data": listQuery
-				};
-
-				
-				$.ajax(settings).done(function (result) {
-          console.log('lll',result)
-        })*/
-      
+      let currentTime = moment();
+      let halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
+      let oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
+      let threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
+          
+      this.isListLoading = true         
       
       let response = await fetchSIMList(this.listQuery) 
        if(!response){
         return
       }
-      response.rows.forEach(async element => {         
-        //console.log('r',element)
+      response.rows.forEach(async element => {
+        const activityTime = element.DataUpdateTime;
+        let rag = 'bg-color-grey'
         
+        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${element.IMSI}`)
+        let resActiveSession = await responseActiveSession.json()
+                        
+        if(resActiveSession.Data){
+          if(resActiveSession.Data.startDateField == null){
+            
+          rag = 'bg-color-grey'
+          }else if(resActiveSession.Data.lastInterimDateField == null){
+            rag = 'bg-color-green'
+          }else{
+            const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+          
+          if(simActivityTime >= halfDayAgo){
+              rag = 'bg-color-green'
+            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+              rag = 'bg-color-yellow'
+            }else {
+              rag = 'bg-color-red'
+            }
+          }
+        }else{
+        
+        const responseHlr = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${element.IMSI}`)
+        let resHlr = await responseHlr.json()
+                        
+        if(resHlr.Data){
+          if(resHlr.Data?.hlrInfoFieldsField == undefined){		
+          
+            rag = 'bg-color-grey'
+          }else{
+            
+            let chooseHlrDate = ''
+            if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField != '00000000000000'){
+              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField
+              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+            }else if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField != '00000000000000'){
+            
+              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField
+              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+              
+            }
+            
+            if(chooseHlrDate.length){
+              const simActivityTime = moment(chooseHlrDate, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+              
+              if(simActivityTime >= halfDayAgo){
+                rag = 'bg-color-green'
+              }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+                rag = 'bg-color-yellow'
+              }else {
+                rag = 'bg-color-red'
+              }											
+            }
+          }
+        }else{
+          if(element.SMSMOUpdateTime == null && element.DataUpdateTime == null){
+            rag = 'bg-color-grey'
+          }else if(element.DataUpdateTime == null){
+            rag = 'bg-color-grey'
+          }else{
+            const simActivityTime = moment(element.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+            if(simActivityTime >= halfDayAgo){
+              rag = 'bg-color-green'
+            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+              rag = 'bg-color-yellow'
+            }else {
+              rag = 'bg-color-red'
+            }
+          }
+        }
+        }
 
+        /*~~~
         let rag = 'bg-color-grey'
 
         if(element.State == 'Suspended'){
@@ -1036,19 +1079,8 @@ export default {
           }else {
             rag = 'bg-color-yellow'
           }
-        }
-        
-        
-         /*
-        const simActivityTime = moment(element.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-        if(simActivityTime >= oneDayAgo){
-          rag = '#41bea2'
-        }else if(simActivityTime >= threeDayAgo){
-          rag = '#ffb880'
-        }else{
-          rag = '#d77980'
         }*/
-
+        
         arr.push({
           IMSI: element.IMSI,
           ICCID: element.ICCID,
@@ -1527,7 +1559,9 @@ div.square {
 .bg-color-green{
   background-color: #34bfa3;
 }
-
+.bg-color-red{
+  background-color: #d47980;
+}
 
 @media (min-width: 768px){
     .lg-pr-0{

@@ -152,27 +152,27 @@
       >
         <el-table-column label="Date" align="center" min-width="100px" >
           <template slot-scope="{row}">
-            <span>{{row.insertedDate.slice(0,19).replace('T', ' ')}}</span>
+            <span>{{row.CreateTime.slice(0,19).replace('T', ' ')}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Direction" align="center">
           <template slot-scope="{row}">
-            <span>{{row.direction}}</span>
+            <span>{{row.Direction==2?'Outbound':'Inbound'}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Sender" align="center">
           <template slot-scope="{row}">
-            <span>{{row.from}}</span>
+            <span>{{row.CenterNumber}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Message" align="center">
           <template slot-scope="{row}">
-            <span>{{row.message}}</span>
+            <span>{{row.Message}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Status" align="center">
           <template slot-scope="{row}">
-            <span>{{row.status}}</span>
+            <span>{{row.State==0?'Error':row.State==1?'Sent':row.State==2?'Submitted':row.State==3?'Delivered':'Received'}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Reference" align="center">
@@ -644,26 +644,12 @@ export default {
     },
     async getProfile() {
       let self = this
-     
 
-        /*
-        var settings = {
-				  "url": "https://m2mdata.co/jt/GetGetHlrInfo?imsi=" + query.IMSIs,
-				  "method": "GET",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				};
-
-				$.ajax(settings).done(function (result) {
-					console.log('hlr',JSON.parse(result));
-				})*/
-         
-
-      const response = await getSIMAsync(this.simQuery)
-      this.smsQuery = {
+      const response = await getSIMAsync(this.simQuery).catch(e=>{console.log('ERRR-sim')
+      })
+      if(response != undefined){
+        console.log('OKKK-sim', response)
+        this.smsQuery = {
         imsi: response.data.info.imsi,
       }
       this.cdrsQuery.id = response.data._id
@@ -691,107 +677,114 @@ export default {
       //this.locationList[8].value = endTime.slice(0,19).replace('T', ' ')
       //this.locationList[9].value = response.data?.extra?.activity?.totals?.totalDataUsage
       
-      const response_1 = await getCDRSAsync(this.cdrsQuery)      
-      const arrLabel = [], arrData = []
-      let sessionArr = []
-      let totalData = 0
-      let totalSMS = 0
-      console.log('r_11',response_1)
-      response_1.data.forEach(element => {
+      const response_1 = await getCDRSAsync(this.cdrsQuery).catch(e=>{console.log('ERRR-sess')})
+     if(response_1!=undefined){
+        const arrLabel = [], arrData = []
+        let sessionArr = []
+        let totalData = 0
+        let totalSMS = 0
         
-          //usageLabels.push(element.date.slice(0, 10))          
-          //usageData.push(element.totals?.data.originalUnits/1048576)
-
-          arrLabel.push(element.date.slice(0, 10))   
-          let chartData = isNaN(parseFloat(element.totals?.data.originalUnits/1048576))?0:element.totals?.data.originalUnits/1048576
-          arrData.push((+chartData).toFixed(1))
-          totalData += +chartData
-          let chartSMS = isNaN(parseFloat(element.totals?.sms?.originalUnits))?0:element.totals?.sms?.originalUnits
-          totalSMS += +chartSMS
-            if(element.hasOwnProperty('samples')){
-              if(element.samples !== null){
-                sessionArr = (element.samples.map(el => ({...el, updateDate: element.date}))).concat(sessionArr)
-           
-              }
-            }
-            
-
-           // let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
+        console.log('OKKK-sess', response_1)
+        response_1.data.forEach(element => {
           
+            //usageLabels.push(element.date.slice(0, 10))          
+            //usageData.push(element.totals?.data.originalUnits/1048576)
 
-      })
-
-        const averageData = totalData/response_1.data.length
-
-      let sortedArr = sessionArr.sort(function(a,b){
-        let c = new Date(a.startTime)
-        let d = new Date(b.startTime)
-        return d-c
-      })
-
-      this.sessionList = sortedArr
-     
-      
-      this.chartOptions = {
-          chart: {
-            height: 350,
-            offsetX: 0,
-            type: 'line',
-          },          
-          stroke: {
-            width: [0, 1, 1]
-          },          
-          markers: {
-            size: [0, 4, 4]
-          },
-          colors: ['rgb(182, 162, 222)', '#ffb880', '#d77980'],
-          dataLabels: {
-            enabled: false
-          },          
-            legend: {
-              show: false
-            },
-          grid: {
-            show: true,
-            xaxis: {
-              categories: arrLabel,
-              lines: {
-                show: true
-              }
-            },
-            yaxis: {
-              lines: {
-                show: true
-              },
-            }
-          },
-          yaxis: {            
-              labels: {
-                formatter: function(val, index) {
-                  return val.toFixed(2)
+            arrLabel.push(element.date.slice(0, 10))   
+            let chartData = isNaN(parseFloat(element.totals?.data.originalUnits/1048576))?0:element.totals?.data.originalUnits/1048576
+            arrData.push((+chartData).toFixed(1))
+            totalData += +chartData
+            let chartSMS = isNaN(parseFloat(element.totals?.sms?.originalUnits))?0:element.totals?.sms?.originalUnits
+            totalSMS += +chartSMS
+              if(element.hasOwnProperty('samples')){
+                if(element.samples !== null){
+                  sessionArr = (element.samples.map(el => ({...el, updateDate: element.date}))).concat(sessionArr)
+            
                 }
               }
-          },
-          xaxis: {
-            categories: arrLabel
-          }
-        }
+              
 
-        this.series = [{
-          name: 'Data Usage',
-          data: arrData,
-          type: 'column'
-        },
-        {
-          name: 'Average',
-          type: 'line',
-          data: arrData.map(el=>el=averageData)
-        },
-        {
-          name: 'Limit',
-          type: 'line',
-          data: arrData.map(el=>el=totalSMS)
-        }]
+            // let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
+            
+
+        })
+
+          const averageData = totalData/response_1.data.length
+
+        let sortedArr = sessionArr.sort(function(a,b){
+          let c = new Date(a.startTime)
+          let d = new Date(b.startTime)
+          return d-c
+        })
+
+        this.sessionList = sortedArr
+      
+        
+        this.chartOptions = {
+            chart: {
+              height: 350,
+              offsetX: 0,
+              type: 'line',
+            },          
+            stroke: {
+              width: [0, 1, 1]
+            },          
+            markers: {
+              size: [0, 4, 4]
+            },
+            colors: ['rgb(182, 162, 222)', '#ffb880', '#d77980'],
+            dataLabels: {
+              enabled: false
+            },          
+              legend: {
+                show: false
+              },
+            grid: {
+              show: true,
+              xaxis: {
+                categories: arrLabel,
+                lines: {
+                  show: true
+                }
+              },
+              yaxis: {
+                lines: {
+                  show: true
+                },
+              }
+            },
+            yaxis: {            
+                labels: {
+                  formatter: function(val, index) {
+                    return val.toFixed(2)
+                  }
+                }
+            },
+            xaxis: {
+              categories: arrLabel
+            }
+          }
+
+          this.series = [{
+            name: 'Data Usage',
+            data: arrData,
+            type: 'column'
+          },
+          {
+            name: 'Average',
+            type: 'line',
+            data: arrData.map(el=>el=averageData)
+          },
+          {
+            name: 'Limit',
+            type: 'line',
+            data: arrData.map(el=>el=totalSMS)
+          }]
+      }  
+      }
+
+      
+      
 
       /*this.lineCollection = {
         labels: usageLabels,
@@ -822,7 +815,6 @@ export default {
         };*/
       let responseProfile = await fetchSIMList(query) 
       if(responseProfile){        
-        console.log('data', responseProfile)
         let objProfile = responseProfile.rows[0]
         this.temp = {
           imsi: objProfile.IMSI,
@@ -837,37 +829,109 @@ export default {
           smscountry: objProfile.SMSCountryCode,
         }      
         
+         let currentTime = moment();
+      let halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
+      let oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
+      let threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
+          /*
         const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
         const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
         const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
-        
-        //const token = "00000000-0000-0000-0000-000000000000"
-        //const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${query.IMSIs}`)
-        //let resActiveSession = await responseActiveSession.json()
-        
-        /*if(resActiveSession.Data){
-          self.lastUpdateTime = resActiveSession.Data.startDateField.replace("T", " ").replace("Z", "")
-
-          console.log('npdd', resActiveSession.Data)
-          self.currentState = this.temp.state
-          const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-          
-          if(simActivityTime > oneDayAgo){
-            self.currentStateColor = 'bg-color-blue'
-          }else if(simActivityTime <= oneDayAgo && simActivityTime > threeDayAgo){
-            self.currentStateColor = 'bg-color-green'
-          }else if(simActivityTime <= threeDayAgo){      
-            self.currentStateColor = 'bg-color-yellow'
-          }else{
-            self.currentStateColor = 'bg-color-grey'
-          }
-        }else{
-					self.currentState = this.temp.state + ', but no current data sessions'
-					self.currentStateColor = 'bg-color-grey'					
-        }*/
+        */
 
         self.currentState = this.temp.state
-        if(this.temp.state == 'Suspended'){
+        
+        const activityTime = objProfile.DataUpdateTime;
+        let rag = 'bg-color-grey'
+        
+        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${objProfile.IMSI}`)
+        let resActiveSession = await responseActiveSession.json()
+                        
+        if(resActiveSession.Data){
+          if(resActiveSession.Data.startDateField == null){
+            
+          rag = 'bg-color-grey'
+          }else if(resActiveSession.Data.lastInterimDateField == null){
+            rag = 'bg-color-green'
+
+            this.lastUpdateTime = resActiveSession.Data.startDateField
+          
+          }else{
+            const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+          
+            this.lastUpdateTime = resActiveSession.Data.lastInterimDateField
+
+          if(simActivityTime >= halfDayAgo){
+              rag = 'bg-color-green'
+            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+              rag = 'bg-color-yellow'
+            }else {
+              rag = 'bg-color-red'
+            }
+          }
+        }else{
+        
+        const responseHlr = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${objProfile.IMSI}`)
+        let resHlr = await responseHlr.json()
+                        
+        if(resHlr.Data){
+          if(resHlr.Data?.hlrInfoFieldsField == undefined){		
+          
+            rag = 'bg-color-grey'
+          }else{
+            
+            let chooseHlrDate = ''
+            if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField != '00000000000000'){
+              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField
+              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+            }else if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField != '00000000000000'){
+            
+              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField
+              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+              
+            }
+            
+            if(chooseHlrDate.length){
+              const simActivityTime = moment(chooseHlrDate, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+              this.lastUpdateTime = chooseHlrDate
+          
+              if(simActivityTime >= halfDayAgo){
+                rag = 'bg-color-green'
+              }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+                rag = 'bg-color-yellow'
+              }else {
+                rag = 'bg-color-red'
+              }											
+            }
+          }
+        }else{
+          if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
+            rag = 'bg-color-grey'
+          }else if(objProfile.DataUpdateTime == null){
+            rag = 'bg-color-grey'
+          }else{
+            const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+            this.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
+          
+            if(simActivityTime >= halfDayAgo){
+              rag = 'bg-color-green'
+            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+              rag = 'bg-color-yellow'
+            }else {
+              rag = 'bg-color-red'
+            }
+          }
+        }
+        }
+
+        self.currentStateColor = rag
+        
+        if(rag == 'bg-color-grey'){
+          this.lastUpdateTime = ''
+          self.currentState = this.temp.state + ', but no current data session'
+        }
+        
+        /*~~~if(this.temp.state == 'Suspended'){
           self.currentStateColor = 'bg-color-yellow'
         }else if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
           self.currentStateColor = 'bg-color-grey'
@@ -883,7 +947,6 @@ export default {
           }
         }else{
           const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-          console.log(simActivityTime, oneDayAgo)
           this.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
           
           if(simActivityTime >= oneDayAgo){
@@ -891,7 +954,7 @@ export default {
           }else {
             self.currentStateColor = 'bg-color-yellow'
           }
-        }
+        }*/
       }
       
         const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
@@ -907,7 +970,9 @@ export default {
         this.simDetailslistLeft[1].value = mapList.find(el=>el.keyField==this.simDetailslistLeft[1].title)?.valueField	
         this.simDetailslistLeft[2].value = hlrList.find(el=>el.nameField==this.simDetailslistLeft[2].title).valueField	
         this.simDetailslistRight[0].value = hlrDate1=='00000000000000'?'':hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12) + ':' + hlrDate1.slice(12,14)
+        this.simDetailslistRight[0].title = 'Data Connect Up Time'
         this.simDetailslistRight[1].value = hlrDate2=='00000000000000'?'':hlrDate2.slice(0,4) + '-' + hlrDate2.slice(4,6) + '-' + hlrDate2.slice(6,8) + ' ' + hlrDate2.slice(8,10) + ':' + hlrDate2.slice(10,12) + ':' + hlrDate2.slice(12,14)
+        this.simDetailslistRight[1].title = 'SMS Connect Up Time'
         this.simDetailslistRight[2].value = mapList.find(el=>el.keyField==this.simDetailslistRight[2].title)?.valueField	
         
         this.mapList = mapList
@@ -978,23 +1043,56 @@ export default {
       
     },
     async showSMSUsage(){
+      let self = this
       this.isLoading = true
-      const response = await getSMSHistoryAsync(this.smsQuery)
-      if(!response){        
+      /*const query = {
+        imsi: this.$route.params.id
+      }*/
+
+      var settings = {
+					  "url": "//test4.m2mdata.co/JT/SMS/History",
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						"IMSI": this.$route.params.id,
+						"PAGE": "1",
+						"pagesize": "100",
+					  }
+					};
+
+					$.ajax(settings).done(function (response) {           
+            let sortedArr = response.Data.sort(function(a,b){
+              let c = new Date(a.CreateTime)
+              let d = new Date(b.CreateTime)
+              return d-c
+            })
+            self.smsUsageList = sortedArr 
+            console.log('OKKK-his',self.smsUsageList) 
+            setTimeout(() => {
+              self.smsFormVisible = true
+              self.isLoading = false
+            },5000)
+          }).fail(function (e){
+            self.smsFormVisible = false
+            self.isLoading = false
+            
+            self.smsFormVisible = true
+            self.smsUsageList = []
+            return
+          })
+        /*const response = await getSMSHistoryAsync(query).catch(e=>{
         this.smsFormVisible = false
         this.isLoading = false
-        return
-      }
-      let sortedArr = response.data.sort(function(a,b){
-        let c = new Date(a.insertedDate)
-        let d = new Date(b.insertedDate)
-        return d-c
-      })
-      this.smsUsageList = sortedArr
-     setTimeout(() => {
+        
         this.smsFormVisible = true
-        this.isLoading = false
-      },5000)
+        this.smsUsageList = []
+        return
+      })
+      */
     },
     showHLR(){
       this.isLoading = true
@@ -1111,7 +1209,7 @@ export default {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
         const tHeader = ['Date', 'Direction', 'Sender', 'Message', 'Status', 'Reference']
-        const filterVal = ['insertedDate', 'direction', 'from', 'message', 'status', 'reference']
+        const filterVal = ['CreatedTime', 'Direction', 'CenterNumber', 'Message', 'State', 'reference']
         const data = this.formatJson(this.smsUsageList, filterVal)
         excel.export_json_to_excel({
           header: tHeader,
@@ -1363,6 +1461,10 @@ export default {
 
 .bg-color-green{
   background-color: #34bfa3;
+}
+
+.bg-color-red{
+  background-color: #d47980;
 }
 
 .card-details .el-button {
