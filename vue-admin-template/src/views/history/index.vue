@@ -135,6 +135,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 import Item from '@/layout/components/Sidebar/Item'
 import waves from '@/directive/waves'
 import { getSIMList, getSMSHistoryAsync } from '@/api/sim'
+import { fetchSIMList } from "@/api/user";
 import moment from 'moment'
 
 const today = new Date()
@@ -231,15 +232,31 @@ export default {
       this.imsiArr = []
       this.searchedIMSI = val.title
       this.listHistoryQuery.imsi = val.title
+      console.log('val',this.listHistoryQuery.imsi)
     },
-    searchIMSI(query) {
+    async searchIMSI(query) {
       const arr = []      
       this.imsiArr = []
+      
       this.simListQuery = {
-        limit: 5,
-        sample: query
+        Rows: 5,
+        FromIMSI: query.padEnd(15, "0"),
       }
-      getSIMList(this.simListQuery).then(response => {
+      let response = await fetchSIMList(this.simListQuery) 
+      
+        console.log(response)
+        if(!response.rows.length){
+          return
+        }
+        response.rows.forEach(element => {
+          arr.push({
+            code: element.IMSI,
+            title: element.IMSI
+          })
+        })
+        this.imsiArr = arr
+      
+      /*getSIMList(this.simListQuery).then(response => {
         response.data.forEach(element => {
           arr.push({
             code: element._id,
@@ -247,7 +264,7 @@ export default {
           })
         })
         this.imsiArr = arr
-      })      
+      })*/      
     },
     querySearchIMSI(query) {
       if (query !== '') {        
@@ -263,7 +280,39 @@ export default {
         this.isLoading = true
         this.commandList = []
         let concatArr = []
-          const query = {
+          
+          
+          let self = this
+          var settings = {
+					  "url": "https://test4.m2mdata.co/JT/SMS/History",
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						"IMSI":  this.listHistoryQuery.imsi,
+						"PAGE": "1",
+						"pagesize": "100",
+					  }
+					};
+
+					$.ajax(settings).done(function (response) {     
+            concatArr = response.Data
+            console.log(response)
+              self.isLoading = true
+              let sortedArr = concatArr.sort(function(a,b){
+                var c = new Date(a.CreateTime)
+                var d = new Date(b.CreateTime)
+                return d-c
+              })
+              self.setHistory(sortedArr)       
+              
+          }).fail(function (e){
+            return
+          })
+          /*const query = {
             imsi: this.listHistoryQuery.imsi
           } 
 
@@ -279,6 +328,9 @@ export default {
             return d-c
           })
           this.setHistory(sortedArr)
+          */
+
+
       }else{
         this.$alert('Please choose a SIM', 'M2M Data command', {type: 'command'})
       } 
@@ -288,23 +340,27 @@ export default {
       arr.forEach(value => {
         let obj = {}
 
-        if (this.loadedSMS.indexOf( value.from + ' ' + value.insertedDate ) == -1){
+        if (this.loadedSMS.indexOf( value.CenterNumber + ' ' + value.CreateTime + value.Message[0] ) == -1){
           
-          this.loadedSMS.push(value.from + ' ' + value.insertedDate)
-          const datetime = moment.utc(value.insertedDate).toDate()						
+          this.loadedSMS.push(value.CenterNumber + ' ' + value.CreateTime + value.Message[0])
+          const datetime = moment.utc(value.CreateTime).toDate()						
 					//const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
           obj.datetime = new Date(datetime).getTime()
-          obj.timestamp = datetime   
-          obj.from = value.from
+          
+          const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
+                 
+          obj.timestamp = time    
+          obj.from = value.CenterNumber
           obj.to = ''
 
-          if (value.message) {
-            obj.text = value.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+          if (value.Message) {
+            obj.text = value.Message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
           }
 							
-          if (value.direction == 'Outbound') {      
+          if (value.Direction == 2) {      
             obj.type = 'sent'
-            if(value.status == 'Delivered' || value.status == 'Submitted'){
+            if(value.State == 3 || value.State == 2 || value.State == 1 || value.State == 0){
+              
               const elToRemove = []
               newArr.map((el, i) => {
                 if(el.text === obj.text && el.hasOwnProperty('new')){
@@ -315,7 +371,7 @@ export default {
                 newArr.splice(element, 1)                
               })
             }
-          }else if(value.direction == 'Inbound'){
+          }else if(value.Direction == 1){
             obj.type = 'received'
           }
           newArr.push(obj)

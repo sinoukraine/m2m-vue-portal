@@ -574,7 +574,8 @@ export default {
       sessionList: [],
       hlrList: [],
       mapList: [],
-      smsUsageList: []
+      smsUsageList: [],
+			month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     }
   },
   created() {
@@ -829,6 +830,10 @@ export default {
           smscountry: objProfile.SMSCountryCode,
         }      
         
+        let rag = 'bg-color-grey'
+        let update = ''
+        let jsonDataArr = []
+
          let currentTime = moment();
       let halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
       let oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
@@ -842,7 +847,6 @@ export default {
         self.currentState = this.temp.state
         
         const activityTime = objProfile.DataUpdateTime;
-        let rag = 'bg-color-grey'
         
         const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${objProfile.IMSI}`)
         let resActiveSession = await responseActiveSession.json()
@@ -850,18 +854,27 @@ export default {
         if(resActiveSession.Data){
           if(resActiveSession.Data.startDateField == null){
             
-          rag = 'bg-color-grey'
+          //rag = 'bg-color-grey'
           }else if(resActiveSession.Data.lastInterimDateField == null){
             rag = 'bg-color-green'
 
-            this.lastUpdateTime = resActiveSession.Data.startDateField
+            let startDate = moment.utc(resActiveSession.Data.startDateField).toDate()
+            let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
+              console.log('gr1',resActiveSession.Data)
+            this.lastUpdateTime = utcDate
+            //this.lastUpdateTime = resActiveSession.Data.startDateField
           
           }else{
             const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
           
-            this.lastUpdateTime = resActiveSession.Data.lastInterimDateField
+            let startDate = moment.utc(resActiveSession.Data.lastInterimDateField).toDate()
+						let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
+										 
+            this.lastUpdateTime = utcDate
+            //this.lastUpdateTime = resActiveSession.Data.lastInterimDateField
 
           if(simActivityTime >= halfDayAgo){
+            console.log('gr2',simActivityTime)
               rag = 'bg-color-green'
             }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
               rag = 'bg-color-yellow'
@@ -869,8 +882,65 @@ export default {
               rag = 'bg-color-red'
             }
           }
-        }else{
+        }
         
+
+          var listQuery_1 = {
+            imsi: objProfile.IMSI
+        }
+        
+        var settings_1 = {
+            "url": "https://test4.m2mdata.co/JT/Sim/GETSESSIONS",
+            "method": "POST",
+            "timeout": 0,
+            "headers": {
+            "token": "00000000-0000-0000-0000-000000000000",
+            "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "data": listQuery_1
+        };
+                            				
+          	
+          $.ajax(settings_1).done(  function (result_1) {           
+            if(result_1.Data != null && result_1.Data.length){
+              let dataArr = result_1.Data.split('\r\n')
+              dataArr.pop()									
+              dataArr.forEach((element, index) => {
+                let dataJson = element.split(',')
+                let startDate = moment.utc(dataJson[4]).toDate()
+                let endDate = moment.utc(dataJson[5]).toDate()											
+                
+                let jsonDataObj = {
+                  startUTC: startDate,
+                  start: startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2),
+                  end: endDate.getDate() + ' ' + self.month_names_short[endDate.getMonth()] + ' ' + endDate.getFullYear() + ' ' + ('0' + endDate.getHours()).slice(-2) + ':' + ('0' + endDate.getMinutes()).slice(-2) + ':' + ('0' + endDate.getSeconds()).slice(-2),
+                  total: dataJson[3],
+                  operator: dataJson[1]+dataJson[2]
+                }
+                jsonDataArr.push(jsonDataObj)
+              })						
+console.log('len', self.lastUpdateTime.length)
+          if(self.lastUpdateTime.length==0){		
+            let sortedArr = jsonDataArr.sort(function(a,b){
+                var c = new Date(a.start)
+                var d = new Date(b.start)
+                return d-c
+              })
+              
+              const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+              self.lastUpdateTime = sortedArr[0].end
+
+              if(simActivityTime >= halfDayAgo){
+                rag = 'bg-color-green'
+              }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+                rag = 'bg-color-yellow'
+              }else {
+                rag = 'bg-color-red'
+              }									
+            }
+          }
+
+        /*
         const responseHlr = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${objProfile.IMSI}`)
         let resHlr = await responseHlr.json()
                         
@@ -921,15 +991,19 @@ export default {
               rag = 'bg-color-red'
             }
           }
-        }
-        }
+        }*/
 
         self.currentStateColor = rag
         
-        if(rag == 'bg-color-grey'){
-          this.lastUpdateTime = ''
-          self.currentState = this.temp.state + ', but no current data session'
+        if(rag == 'bg-color-grey' && self.temp.state == 'Productive'){
+          self.lastUpdateTime = ''
+          self.currentState = self.temp.state + ', but no current data session'
         }
+
+        })
+      
+
+        
         
         /*~~~if(this.temp.state == 'Suspended'){
           self.currentStateColor = 'bg-color-yellow'
@@ -1141,7 +1215,7 @@ export default {
 				}
 				
 				let settingsLBS = {
-				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
+				  "url": "https://test4.m2mdata.co/JT/Sim/QueryLBSInfo",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -1164,17 +1238,26 @@ export default {
             lat: result.Data.LbsLat,
             lon: result.Data.LbsLng
           }
-          self.markerLatLng = [query_1.lat, query_1.lon]
-          self.center = L.latLng(query_1.lat, query_1.lon)
-          self.locationList[3].value = query_1.lat
-          self.locationList[4].value = query_1.lon          
-          
-          getSIMCountry(query_1).then(response_1 => {
-            const country = response_1.data.address.country
-            self.locationList[5].value = country
-            self.mapFormVisible = true
-            self.isLoading = false
-          })
+          if(result.Data.LbsLat != null){
+          self.markerLatLng = [query_1?.lat, query_1?.lon]
+          self.center = L.latLng(query_1?.lat, query_1?.lon)
+          self.locationList[3].value = query_1?.lat
+          self.locationList[4].value = query_1?.lon       
+            getSIMCountry(query_1).then(response_1 => {
+              const country = response_1.data.address.country
+              self.locationList[5].value = country
+              self.mapFormVisible = true
+              self.isLoading = false
+            })
+          }else{
+            self.markerLatLng = [0, 0]
+            self.center = L.latLng(0, 0)
+            self.locationList[3].value = ''
+            self.locationList[4].value = ''   
+            self.locationList[5].value = ''
+              self.mapFormVisible = true
+              self.isLoading = false
+          }
         })
 
       /*const query = {

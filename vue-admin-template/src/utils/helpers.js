@@ -1,4 +1,5 @@
 const DOMAIN1 = 'https://test.m2mdata.co/'
+const DOMAIN2 = 'https://test4.m2mdata.co/'
 
 export const API_METHODS = {
   DOMAIN1,
@@ -26,17 +27,17 @@ export const API_METHODS = {
   USER_DELETE: DOMAIN1 + 'service/User/Remove',
   USER_RESET_PASSWORD: DOMAIN1 + 'Service/User/ResetPassword',
   
-  SIM_GET_LIST: DOMAIN1 + 'service/JTSim/Query',
-  SIM_CREATE: DOMAIN1 + 'service/JTSim/Add',
-  SIM_EDIT: DOMAIN1 + 'service/JTSim/Edit',
-  SIM_DELETE: DOMAIN1 + 'service/JTSim/Remove',
+  SIM_GET_LIST: DOMAIN2 + 'JT/Sim/Query',
+  SIM_CREATE: DOMAIN2 + 'JT/Sim/Add',
+  SIM_EDIT: DOMAIN2 + 'JT/Sim/Edit',
+  SIM_DELETE: DOMAIN2 + 'JT/Sim/Remove',
   SIM_GET_SERVICE_PROFILE_OPTIONS: DOMAIN1 + 'service/JTSim/GetServiceProfileOptions',
-  SIM_SET_SERVICE_PROFILE: DOMAIN1 + 'service/JTSim/SetSimServiceProfile',
-  SIM_SET_ACTIVATE: DOMAIN1 + 'service/JTSim/Activate',
-  SIM_SET_SUSPEND: DOMAIN1 + 'service/JTSim/Suspend',
-  SIM_SET_RESUME: DOMAIN1 + 'service/JTSim/Resume',
-  SIM_SET_TERMINATE: DOMAIN1 + 'service/JTSim/Terminate',
-  SIM_GET_POSITION: DOMAIN1 + 'service/JT/Sim/QueryLBSInfo',
+  SIM_SET_SERVICE_PROFILE: DOMAIN2 + 'JT/Sim/SetSimServiceProfile',
+  SIM_SET_ACTIVATE: DOMAIN2 + 'JT/Sim/Activate',
+  SIM_SET_SUSPEND: DOMAIN2 + 'JT/Sim/Suspend',
+  SIM_SET_RESUME: DOMAIN2 + 'JT/Sim/Resume',
+  SIM_SET_TERMINATE: DOMAIN2 + 'JT/Sim/Terminate',
+  SIM_GET_POSITION: DOMAIN2 + 'JT/Sim/QueryLBSInfo',
   
 
   CUSTOMER_GET_LIST: DOMAIN1 + 'service/Organize/Query',

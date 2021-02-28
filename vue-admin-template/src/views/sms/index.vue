@@ -585,7 +585,7 @@ export default {
                 }
               })*/
             }
-          }else if(value.direction == 1){
+          }else if(value.Direction == 1){
             obj.type = 'received'
           }
 

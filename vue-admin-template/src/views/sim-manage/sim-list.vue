@@ -196,7 +196,7 @@
                     <span>{{ row.ServiceProfile }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxState" label="State" min-width="80px" >
+                <el-table-column v-if="checkboxState" label="State" width="90px" >
                   <template slot-scope="{row}">
                     <span>{{ row.State }}</span>
                   </template>
@@ -259,6 +259,11 @@
                 <el-table-column v-if="checkboxCustomField5" :label="$t('CUSTOMFIELD5')"  align="left" min-width="120px">
                   <template slot-scope="{row}">
                     <span>{{ row.CustomField5 }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column :label="'Update time'"  align="left" min-width="90px">
+                  <template slot-scope="{row}">
+                    <span>{{ row.update }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="Actions" align="center" width="100" class-name="small-padding fixed-width" fixed="right">
@@ -361,6 +366,11 @@
           <div class="padding-horizontal-x2 pb-3">                
                 <input type="submit" class="display-none">
                 <el-row :gutter="16">
+                <el-col :xs="100" class="px-0">
+                    <el-form-item label="Query" prop="fromimsi" class="">
+                    <el-input v-model="listQuery.q" placeholder="IMSI, ICCID, MSISDN..." class="filter-item" />
+                    </el-form-item>
+                </el-col>
                 <el-col :xs="100" class="px-0">
                    <el-form-item label="Organize" prop="OrganizeCode">
                     <el-select v-model="listQuery.OrganizeCode">
@@ -600,6 +610,7 @@ export default {
       roleTypeOptions: [],
       parentOptions: [],
       countryOptions: [],
+			month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       //provinceOptions: [],
       //cityOptions: [],
       serviceProfileOptions: [],
@@ -717,7 +728,7 @@ export default {
 				}
 				
 				let settingsLBS = {
-				  "url": "https://test.m2mdata.co/JT/Sim/QueryLBSInfo",
+				  "url": "https://test4.m2mdata.co/JT/Sim/QueryLBSInfo",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -739,17 +750,28 @@ export default {
             lat: result.Data.LbsLat,
             lon: result.Data.LbsLng
           }
-          self.markerLatLng = [query_1.lat, query_1.lon]
-          self.center = L.latLng(query_1.lat, query_1.lon)
-          self.locationList[3].value = query_1.lat
-          self.locationList[4].value = query_1.lon          
+             
+          if(result.Data.LbsLat != null){
+          self.markerLatLng = [query_1?.lat, query_1?.lon]
+          self.center = L.latLng(query_1?.lat, query_1?.lon)
+          self.locationList[3].value = query_1?.lat
+          self.locationList[4].value = query_1?.lon       
+            getSIMCountry(query_1).then(response_1 => {
+              const country = response_1.data.address.country
+              self.locationList[5].value = country
+              self.mapFormVisible = true
+              self.isLoading = false
+            })
+          }else{
+            self.markerLatLng = [0, 0]
+            self.center = L.latLng(0, 0)
+            self.locationList[3].value = ''
+            self.locationList[4].value = ''   
+            self.locationList[5].value = ''
+              self.mapFormVisible = true
+              self.isLoading = false
+          }
           
-          getSIMCountry(query_1).then(response_1 => {
-            const country = response_1.data.address.country
-            self.locationList[5].value = country
-            self.mapFormVisible = true
-            self.isLoading = false
-          })
         })
     },
     showStateForm(){
@@ -786,8 +808,12 @@ export default {
         }   
 
         const response = await setActivateState(query).then(r=>{
+          if(r.MajorCode == '000'){            
           this.$alert('Activated', 'M2M Data Message', {type: 'message'})
           this.getList()
+          }else{
+            this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+          }
         }).catch(e=>{
           this.$alert('SIM/s can not be activated', 'M2M Data Message', {type: 'message'})
         })
@@ -845,27 +871,39 @@ export default {
         switch(this.selectedState){
           case '0':
             const response1 = await setSuspendState(query).then(r=>{
-              this.$alert('Set suspend successfuly', 'M2M Data Message', {type: 'message'})
+              if(r.MajorCode == '000'){            
+          this.$alert('Set suspend successfuly', 'M2M Data Message', {type: 'message'})
               this.stateFormVisible = false
               this.getList()
+              }else{
+                this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+              }
             }).catch(e=>{
               this.$alert('SIM/s can not be suspended', 'M2M Data Message', {type: 'message'})
             })
             break;
           case '1':
             const response2 = await setResumeState(query).then(r=>{
-              this.$alert('Set resume successfuly', 'M2M Data Message', {type: 'message'})
+              if(r.MajorCode == '000'){            
+          this.$alert('Set resume successfuly', 'M2M Data Message', {type: 'message'})
               this.stateFormVisible = false
               this.getList()
+              }else{
+              this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+            }
             }).catch(e=>{
               this.$alert('SIM/s can not resume', 'M2M Data Message', {type: 'message'})
             })
             break;
           case '2':
             const response3 = await setTerminateState(query).then(r=>{
-              this.$alert('SIM/s terminated', 'M2M Data Message', {type: 'message'})
+              if(r.MajorCode == '000'){            
+          this.$alert('SIM/s terminated', 'M2M Data Message', {type: 'message'})
               this.stateFormVisible = false
               this.getList()
+              }else{
+              this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+            }
             }).catch(e=>{
               this.$alert('SIM/s can not be terminated', 'M2M Data Message', {type: 'message'})
             })
@@ -889,9 +927,13 @@ export default {
           ServiceProfileCode: this.selectedServiceProfile
         }   
         const response = await setServiceProfileOptions(query).then(r=>{
-          this.$alert('Service Profile was set successfully', 'M2M Data Message', {type: 'message'})
-          this.sspFormVisible = false
-          this.getList()
+          if(r.MajorCode == '000'){            
+            this.$alert('Service Profile was set successfully', 'M2M Data Message', {type: 'message'})
+            this.sspFormVisible = false
+            this.getList()
+          }else{
+            this.$alert('CSP was not submitted', 'M2M Data Message', {type: 'message'})
+          }
         }).catch(e=>{
           this.$alert('Something wrong...', 'M2M Data Message', {type: 'message'})
         })
@@ -968,6 +1010,7 @@ export default {
           this.$router.push({ path: '/' })*/
     },
     async getList() {
+      let self = this
       const arr = []
       let currentTime = moment();
       let halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
@@ -980,22 +1023,34 @@ export default {
        if(!response){
         return
       }
-      response.rows.forEach(async element => {
-        const activityTime = element.DataUpdateTime;
+      response.rows.forEach(async element_1 => {
+        const activityTime = element_1.DataUpdateTime;
         let rag = 'bg-color-grey'
-        
-        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${element.IMSI}`)
+        let update = ''
+        let jsonDataArr = []
+        let dataSession = 0
+        let totalSumm = 0
+
+        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${element_1.IMSI}`)
         let resActiveSession = await responseActiveSession.json()
                         
         if(resActiveSession.Data){
           if(resActiveSession.Data.startDateField == null){
             
-          rag = 'bg-color-grey'
+          
           }else if(resActiveSession.Data.lastInterimDateField == null){
             rag = 'bg-color-green'
+            let startDate = moment.utc(resActiveSession.Data.startDateField).toDate()
+            let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
+              
+            update = utcDate
           }else{
             const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-          
+            let startDate = moment.utc(resActiveSession.Data.lastInterimDateField).toDate()
+						let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
+										 
+            update = utcDate
+                    
           if(simActivityTime >= halfDayAgo){
               rag = 'bg-color-green'
             }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
@@ -1004,110 +1059,98 @@ export default {
               rag = 'bg-color-red'
             }
           }
-        }else{
+        } 
         
-        const responseHlr = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${element.IMSI}`)
-        let resHlr = await responseHlr.json()
-                        
-        if(resHlr.Data){
-          if(resHlr.Data?.hlrInfoFieldsField == undefined){		
-          
-            rag = 'bg-color-grey'
-          }else{
-            
-            let chooseHlrDate = ''
-            if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField != '00000000000000'){
-              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField
-              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
-            }else if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField != '00000000000000'){
-            
-              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField
-              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
+        var listQuery_1 = {
+            imsi: element_1.IMSI
+        }
+        
+        var settings_1 = {
+            "url": "https://test4.m2mdata.co/JT/Sim/GETSESSIONS",
+            "method": "POST",
+            "timeout": 0,
+            "headers": {
+            "token": "00000000-0000-0000-0000-000000000000",
+            "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "data": listQuery_1
+        };
+                            				
+          	
+          $.ajax(settings_1).done(  function (result_1) {           
+            if(result_1.Data != null && result_1.Data.length){
+              let dataArr = result_1.Data.split('\r\n')
+              dataArr.pop()									
+              dataArr.forEach((element, index) => {
+                let dataJson = element.split(',')
+                let startDate = moment.utc(dataJson[4]).toDate()
+                let endDate = moment.utc(dataJson[5]).toDate()											
+                
+                let jsonDataObj = {
+                  startUTC: startDate,
+                  start: startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2),
+                  end: endDate.getDate() + ' ' + self.month_names_short[endDate.getMonth()] + ' ' + endDate.getFullYear() + ' ' + ('0' + endDate.getHours()).slice(-2) + ':' + ('0' + endDate.getMinutes()).slice(-2) + ':' + ('0' + endDate.getSeconds()).slice(-2),
+                  total: dataJson[3],
+                  operator: dataJson[1]+dataJson[2]
+                }
+                jsonDataArr.push(jsonDataObj)
+              })								
+                         
+              dataSession = jsonDataArr.filter(el=>{
+                let isTrue = moment(el.startUTC, 'YYYY-MM-DD').format('YYYY-MM-DD')>=moment(halfDayAgo, 'YYYY-MM-DD').format('YYYY-MM-DD')
+                if(isTrue){
+                  totalSumm += +el.total
+                }
+                return isTrue
+              }).length
+              //console.log(dataSessionArr)//.length
+
               
-            }
-            
-            if(chooseHlrDate.length){
-              const simActivityTime = moment(chooseHlrDate, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+          if(update.length==0){		
+            let sortedArr = jsonDataArr.sort(function(a,b){
+                var c = new Date(a.start)
+                var d = new Date(b.start)
+                return d-c
+              })
               
+              const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+              update = sortedArr[0].end
+
               if(simActivityTime >= halfDayAgo){
                 rag = 'bg-color-green'
               }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
                 rag = 'bg-color-yellow'
               }else {
                 rag = 'bg-color-red'
-              }											
+              }									
             }
           }
-        }else{
-          if(element.SMSMOUpdateTime == null && element.DataUpdateTime == null){
-            rag = 'bg-color-grey'
-          }else if(element.DataUpdateTime == null){
-            rag = 'bg-color-grey'
-          }else{
-            const simActivityTime = moment(element.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-            if(simActivityTime >= halfDayAgo){
-              rag = 'bg-color-green'
-            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-              rag = 'bg-color-yellow'
-            }else {
-              rag = 'bg-color-red'
-            }
-          }
-        }
-        }
-
-        /*~~~
-        let rag = 'bg-color-grey'
-
-        if(element.State == 'Suspended'){
-          rag = 'bg-color-yellow'
-        }else if(element.SMSMOUpdateTime == null && element.DataUpdateTime == null){
-          rag = 'bg-color-grey'
-          if(element.State == 'Productive' || element.State == 'TestProductive'){
-            rag = 'bg-color-blue'
-          }
-        }else if(element.DataUpdateTime == null){
-          rag = 'bg-color-grey'
-          if(element.State == 'Productive' || element.State == 'TestProductive'){
-            rag = 'bg-color-blue'
-          }
-        }else{
-          const simActivityTime = moment(element.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-          
-          if(simActivityTime >= oneDayAgo){
-            rag = 'bg-color-green'
-          }else {
-            rag = 'bg-color-yellow'
-          }
-        }*/
         
-        arr.push({
-          IMSI: element.IMSI,
-          ICCID: element.ICCID,
-          MSISDN: element.MSISDN,
-          ServiceProfile: element.ServiceProfileCode,
-          State: element.State,
-          rag,
-          OrganizeName: element.OrganizeName,          
-          dataSession: element.SessionDay,     
-          dataUsage: element.DataDay?(element.DataDay/1048576).toFixed(3):0,     
-          PayPlan: element.PayPlanCode,
-          IPAddress: element.IPAddress,
-          CustomField1: element.CustomField1,
-          CustomField2: element.CustomField2,
-          CustomField3: element.CustomField3,
-          CustomField4: element.CustomField4,
-          CustomField5: element.CustomField5,
+          arr.push({
+            IMSI: element_1.IMSI,
+            ICCID: element_1.ICCID,
+            MSISDN: element_1.MSISDN,
+            ServiceProfile: element_1.ServiceProfileCode,
+            State: element_1.State,
+            rag,
+            update,
+            OrganizeName: element_1.OrganizeName,          
+            dataSession,     
+            dataUsage: totalSumm?(totalSumm/1048576).toFixed(3):0,     
+            PayPlan: element_1.PayPlanCode,
+            IPAddress: element_1.IPAddress,
+            CustomField1: element_1.CustomField1,
+            CustomField2: element_1.CustomField2,
+            CustomField3: element_1.CustomField3,
+            CustomField4: element_1.CustomField4,
+            CustomField5: element_1.CustomField5,
+          })
+        
+          self.isListLoading = false
+          self.total = response.total
+          self.list = arr
         })
-      })
-      
-      this.isListLoading = false
-      this.total = response.total
-      this.list = arr
-      /*this.parentOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }].concat(this.list)*/
+      })    
     },
     /*async getParentRoles(token){
       if(!token) token = this.$store.getters.userInfo.Token
