@@ -21,37 +21,22 @@
       >
         <el-table-column label="Start Date" width="90" align="center" >
           <template slot-scope="{row}">
-            <span>{{row.startTime.slice(0,19).replace('T', ' ')}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Update Date" align="center">
-          <template slot-scope="{row}">
-            <span>{{row.updateDate.slice(0,10)}}</span>
+            <span>{{row.start}}</span>
           </template>
         </el-table-column>
         <el-table-column label="End Date" width="90" align="center">
           <template slot-scope="{row}">
-            <span>{{row.endTime.slice(0,19).replace('T', ' ')}}</span>
+            <span>{{row.end}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Total Bytes" align="center">
           <template slot-scope="{row}">
-            <span>{{row.originalUnits}}</span>
+            <span>{{row.total}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Operator" align="center">
           <template slot-scope="{row}">
-            <span>{{row.network}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Cell Info" align="center">
-          <template >
-            <span></span>
-          </template>
-        </el-table-column>
-        <el-table-column label="IMEI" align="center">
-          <template >
-            <span></span>
+            <span>{{row.operator}}</span>
           </template>
         </el-table-column>
       </el-table>       
@@ -152,12 +137,12 @@
       >
         <el-table-column label="Date" align="center" min-width="100px" >
           <template slot-scope="{row}">
-            <span>{{row.CreateTime.slice(0,19).replace('T', ' ')}}</span>
+            <span>{{row.CreateTime}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Direction" align="center">
           <template slot-scope="{row}">
-            <span>{{row.Direction==2?'Outbound':'Inbound'}}</span>
+            <span>{{row.Direction}}</span>
           </template>
         </el-table-column>
         <el-table-column label="Sender" align="center">
@@ -172,12 +157,7 @@
         </el-table-column>
         <el-table-column label="Status" align="center">
           <template slot-scope="{row}">
-            <span>{{row.State==0?'Error':row.State==1?'Sent':row.State==2?'Submitted':row.State==3?'Delivered':'Received'}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Reference" align="center">
-          <template >
-            <span></span>
+            <span>{{row.State}}</span>
           </template>
         </el-table-column>
       </el-table>       
@@ -681,7 +661,7 @@ export default {
       const response_1 = await getCDRSAsync(this.cdrsQuery).catch(e=>{console.log('ERRR-sess')})
      if(response_1!=undefined){
         const arrLabel = [], arrData = []
-        let sessionArr = []
+        //let sessionArr = []
         let totalData = 0
         let totalSMS = 0
         
@@ -697,12 +677,12 @@ export default {
             totalData += +chartData
             let chartSMS = isNaN(parseFloat(element.totals?.sms?.originalUnits))?0:element.totals?.sms?.originalUnits
             totalSMS += +chartSMS
-              if(element.hasOwnProperty('samples')){
+              /*~~sesif(element.hasOwnProperty('samples')){
                 if(element.samples !== null){
                   sessionArr = (element.samples.map(el => ({...el, updateDate: element.date}))).concat(sessionArr)
             
                 }
-              }
+              }*/
               
 
             // let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
@@ -712,13 +692,13 @@ export default {
 
           const averageData = totalData/response_1.data.length
 
-        let sortedArr = sessionArr.sort(function(a,b){
+        /*let sortedArr = sessionArr.sort(function(a,b){
           let c = new Date(a.startTime)
           let d = new Date(b.startTime)
           return d-c
-        })
+        })*/
 
-        this.sessionList = sortedArr
+        //this.sessionList = sortedArr
       
         
         this.chartOptions = {
@@ -782,7 +762,18 @@ export default {
             data: arrData.map(el=>el=totalSMS)
           }]
       }  
+
+
+
+
+
+
       }
+
+
+
+
+      
 
       
       
@@ -919,13 +910,18 @@ export default {
                 }
                 jsonDataArr.push(jsonDataObj)
               })						
-console.log('len', self.lastUpdateTime.length)
-          if(self.lastUpdateTime.length==0){		
+
+
             let sortedArr = jsonDataArr.sort(function(a,b){
                 var c = new Date(a.start)
                 var d = new Date(b.start)
                 return d-c
               })
+
+          self.sessionList = sortedArr
+
+          if(self.lastUpdateTime.length==0){		
+            
               
               const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
               self.lastUpdateTime = sortedArr[0].end
@@ -1144,7 +1140,10 @@ console.log('len', self.lastUpdateTime.length)
               let d = new Date(b.CreateTime)
               return d-c
             })
-            self.smsUsageList = sortedArr 
+            //let renderArr = sortedArr.map(el=>{el.CenterNumber.toString())
+            let renderArr = sortedArr.map(el => ({...el, CreateTime: el.CreateTime.slice(0,19).replace('T', ' '), CenterNumber: el.CenterNumber.toString(), Direction: el.Direction==2?'Outbound':'Inbound', State: el.State==0?'Error':el.State==1?'Sent':el.State==2?'Submitted':el.State==3?'Delivered':'Received'}))
+            
+            self.smsUsageList = renderArr 
             console.log('OKKK-his',self.smsUsageList) 
             setTimeout(() => {
               self.smsFormVisible = true
@@ -1277,8 +1276,8 @@ console.log('len', self.lastUpdateTime.length)
     handleSessionsDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Start Date', 'Update Date', 'End Date', 'Total Bytes', 'Operator', 'Cell Info', 'IMEI']
-        const filterVal = ['startTime', 'updateDate', 'endTime', 'originalUnits', 'network', '', '']
+        const tHeader = ['Start Date', 'End Date', 'Total Bytes', 'Operator']
+        const filterVal = ['start',  'end', 'total', 'operator']
         const data = this.formatJson(this.sessionList, filterVal)
         excel.export_json_to_excel({
           header: tHeader,
@@ -1291,8 +1290,8 @@ console.log('len', self.lastUpdateTime.length)
     handleSMSUsageDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['Date', 'Direction', 'Sender', 'Message', 'Status', 'Reference']
-        const filterVal = ['CreatedTime', 'Direction', 'CenterNumber', 'Message', 'State', 'reference']
+        const tHeader = ['Date', 'Direction', 'Sender', 'Message', 'Status']
+        const filterVal = ['CreateTime', 'Direction', 'CenterNumber', 'Message', 'State']
         const data = this.formatJson(this.smsUsageList, filterVal)
         excel.export_json_to_excel({
           header: tHeader,

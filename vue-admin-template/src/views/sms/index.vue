@@ -389,7 +389,7 @@ export default {
           if(someArr) {
             //this.isLoading = true 
             const datetime = moment.utc().toDate()						
-            const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
+            const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + datetime.getFullYear() + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
  
             for (let i = 0; i < this.deviceList.length; i++) {
               if(this.deviceList[i].state) {

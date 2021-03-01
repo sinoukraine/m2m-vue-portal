@@ -148,6 +148,8 @@ export default {
   directives: { waves },
   data() {
     return {
+      oldHistoryArray: [],
+      page: 1,
       checkboxSent: true,
       checkboxReceived: true, 
       isShowNow: false,
@@ -215,7 +217,9 @@ export default {
     handleFilter() {
       this.isShowNow = false
       this.commandList = []
-      this.loadedSMS = []
+      this.loadedSMS = []      
+      this.oldHistoryArray = []
+      this.page = 1
       this.getHistory()
     },
     isShowcommand(command){
@@ -224,7 +228,7 @@ export default {
                   &&(command.type=='sent'&&this.checkboxSent||command.type=='received'&&this.checkboxReceived)
       if(isShow){
         this.isShowNow = true
-      }
+      }else{}
       return isShow
       //command.timestamp>=new Date(listHistoryQuery.date1).getTime()&&command.timestamp<=new Date(listHistoryQuery.date2).getTime()
     },
@@ -240,7 +244,7 @@ export default {
       
       this.simListQuery = {
         Rows: 5,
-        FromIMSI: query.padEnd(15, "0"),
+        q: query,
       }
       let response = await fetchSIMList(this.simListQuery) 
       
@@ -268,16 +272,16 @@ export default {
     },
     querySearchIMSI(query) {
       if (query !== '') {        
-        if(query.length > 3) {
+        if(query.length > 4) {
           this.searchIMSI(query)
         }      
       } else {
         this.imsiArr = []
       }
     },
-    async getHistory(){     
-      if(this.listHistoryQuery.imsi.length){
-        this.isLoading = true
+    getHistory(){     
+      if(this.listHistoryQuery.imsi.toString().length == 15){
+        //this.isLoading = true
         this.commandList = []
         let concatArr = []
           
@@ -293,43 +297,67 @@ export default {
 					  },
 					  "data": {
 						"IMSI":  this.listHistoryQuery.imsi,
-						"PAGE": "1",
+						"PAGE": this.page,
 						"pagesize": "100",
 					  }
 					};
 
 					$.ajax(settings).done(function (response) {     
-            concatArr = response.Data
-            console.log(response)
-              self.isLoading = true
-              let sortedArr = concatArr.sort(function(a,b){
+            //concatArr = response.Data
+            //console.log(response)
+             
+              
+          if (response.MajorCode == '000') {
+						if (response.Data.length) {
+              let historyArray = response.Data
+              
+              if(self.page > 1){
+									self.oldHistoryArray= self.oldHistoryArray.concat(historyArray);
+								}else{
+                  self.isLoading = true
+									self.oldHistoryArray= historyArray;													
+								}
+									let incr = self.page + 1;
+									
+									self.page = incr
+									
+									self.getHistory()
+              }else{
+								if(self.oldHistoryArray.length > 0){
+									self.oldHistoryArray.sort(function(a,b){
+										var c = new Date(a.CreateTime);
+										var d = new Date(b.CreateTime);
+										return d-c;
+									});
+									self.setHistory(self.oldHistoryArray)
+								}else{
+									//self.requestCommandOldHistory([])
+								}
+              }
+          }else{
+
+          }
+
+              /*let sortedArr = concatArr.sort(function(a,b){
                 var c = new Date(a.CreateTime)
                 var d = new Date(b.CreateTime)
                 return d-c
               })
-              self.setHistory(sortedArr)       
+              self.setHistory(sortedArr) */      
               
           }).fail(function (e){
             return
           })
-          /*const query = {
-            imsi: this.listHistoryQuery.imsi
-          } 
 
-          const response = await getSMSHistoryAsync(query).catch(e=>[])
-          if (response.data) {
-            concatArr = response.data    						
-          }else{            
-            this.$alert('No data for this time period', 'M2M Data command', {type: 'command'})
-          }  
-          let sortedArr = concatArr.sort(function(a,b){
-            var c = new Date(a.insertedDate)
-            var d = new Date(b.insertedDate)
-            return d-c
-          })
-          this.setHistory(sortedArr)
-          */
 
+
+
+
+
+
+
+
+        
 
       }else{
         this.$alert('Please choose a SIM', 'M2M Data command', {type: 'command'})
@@ -347,7 +375,7 @@ export default {
 					//const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
           obj.datetime = new Date(datetime).getTime()
           
-          const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
+          const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()]+ ' ' + datetime.getFullYear() + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
                  
           obj.timestamp = time    
           obj.from = value.CenterNumber
@@ -374,11 +402,13 @@ export default {
           }else if(value.Direction == 1){
             obj.type = 'received'
           }
+
+          
           newArr.push(obj)
           
         }
       })
-      this.$nextTick(() => {        
+      this.$nextTick(() => {     
         this.commandList = newArr
         /*if(!this.isShowNow && this.commandList.length){
           this.$alert('No data for this time period', 'M2M Data command', {type: 'command'})
