@@ -11,6 +11,7 @@
       <el-col :xs="24" :sm="24" :lg="12" style="">
         <box-card :box="boxData"
           @change="searchComparing"
+            v-loading="listLoadingBox"
         />
       </el-col>
     </el-row>
@@ -188,6 +189,7 @@ export default {
         },
         mapLoading: true,
         listLoading: true,
+        listLoadingBox: true,
         list: [],        
         switchTablePeriod: 'Last day',
         stateData: [],
@@ -196,9 +198,82 @@ export default {
   },
   methods: {
     async searchComparing(data){      
-      this.listLoading = true
+      this.listLoadingBox = true
       
-      await getDemoOwerview(this.$store.state.user.login).then(response => {
+       let self = this
+          var settings = {
+					  "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						//"IMSI":  this.listHistoryQuery.imsi,
+						}
+					};
+
+					$.ajax(settings).done(function (response) { 
+            if(response.MajorCode == '000'){
+              let total = response.Data   
+              switch (data){
+                case 'Data Sessions':
+                  self.boxData = {
+                      day: total.SessionDay,
+                      month: total.SessionMonth,
+                      year: total.SessionYear,
+                      preDay: total.PreSessionDay,
+                      preMonth: total.PreSessionMonth,
+                      preYear: total.PreSessionYear,
+                      loaded: true,
+                      report: 'Data Sessions'
+                    }                 
+               break
+               case 'Data Usage':
+                  self.boxData = {
+                      day: total.DataDay,
+                      month: total.DataMonth,
+                      year: total.DataYear,
+                      preDay: total.PreDataDay,
+                      preMonth: total.PreDataMonth,
+                      preYear: total.PreDataYear,
+                      loaded: true,
+                      report: 'Data Usage'
+                    }                 
+               break
+               case 'SMS Usage':
+                  self.boxData = {
+                      day: total.SMSMODay + total.SMSMTDay,
+                      month: total.SMSMOMonth + total.SMSMTMonth,
+                      year: total.SMSMOYear + total.SMSMTYear,
+                      preDay: total.PreSMSMODay + total.PreSMSMTDay,
+                      preMonth: total.PreSMSMOMonth + total.PreSMSMTMonth,
+                      preYear: total.PreSMSMOYear + total.PreSMSMTYear,
+                      loaded: true,
+                      report: 'SMS Usage'
+                    }                 
+               break
+               case 'Online Numbers':
+                  self.boxData = {
+                      day: total.DurationDay,
+                      month: total.DurationMonth,
+                      year: total.DurationYear,
+                      preDay: total.PreDurationDay,
+                      preMonth: total.PreDurationMonth,
+                      preYear: total.PreDurationYear,
+                      loaded: true,
+                      report: 'Online Numbers'
+                    }                 
+               break
+              }
+              self.listLoadingBox = false
+            }
+          })
+
+            
+
+      /*await getDemoOwerview(this.$store.state.user.login).then(response => {
         switch (data){
           case 'Data Sessions':
             this.boxData = {
@@ -236,18 +311,90 @@ export default {
               report: data
             }
           break
-        }        
-        this.listLoading = false
-      })
+        }    
+      })*/
     },
     async searchTotalByPeriod(period) {
         const gdpData = []
         const colors = []
         let cc 
 
+        
+      let self = this
+          var settings = {
+					  "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						//"IMSI":  this.listHistoryQuery.imsi,
+						}
+					};
+
+					$.ajax(settings).done(function (response) { 
+            console.log('rrr', response)
+            if(response.MajorCode == '000'){
+              let total = response.Data              
+              switch (period){
+                case 'daily':
+                    self.panelData = {
+                        totalDataUsage: total.DataDay ? total.DataDay/1048576 : 0,
+                        totalSMSUsage: total.SMSMODay + total.SMSMTDay,
+                        totalDuration: total.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionDay,
+                        loaded: true
+                    }
+                break
+                case 'weekly':
+                    self.panelData = {
+                        totalDataUsage: total.DataWeek ? total.DataWeek/1048576 : 0,
+                        totalSMSUsage: total.SMSMOWeek + total.SMSMTWeek,
+                        totalDuration: total.DurationWeek,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionWeek,
+                        loaded: true
+                    }
+                break
+                case 'monthly':
+                    self.panelData = {
+                        totalDataUsage: total.DataMonth ? total.DataMonth/1048576 : 0,
+                        totalSMSUsage: total.SMSMOMonth + total.SMSMTMonth,
+                        totalDuration: total.DurationMonth,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionMonth,
+                        loaded: true
+                    }
+                break
+                case 'yearly':
+                    self.panelData = {
+                        totalDataUsage: total.DataYear ? total.DataYear/1048576 : 0,
+                        totalSMSUsage: total.SMSMOYear + total.SMSMTYear,
+                        totalDuration: total.DurationYear,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionYear,
+                        loaded: true
+                    }
+                break
+            }
+
+            self.boxData = {
+              day: total.SessionDay,
+              month: total.SessionMonth,
+              year: total.SessionYear,
+              preDay: total.PreSessionDay,
+              preMonth: total.PreSessionMonth,
+              preYear: total.PreSessionYear,
+              loaded: true,
+              report: 'Data Sessions'
+            }
+            self.listLoadingBox = false
+
+          }            
+        })
+
         await getDemoOwerview(this.$store.state.user.login).then(response => {
           console.log('r',response)
-            switch (period){
+            /*switch (period){
                 case 'daily':
                     this.panelData = {
                         totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_DAY/1048576 : 0,
@@ -284,17 +431,17 @@ export default {
                         loaded: true
                     }
                 break
-            } 
+            }*/ 
             this.stateData = response.Table1.length ? response.Table1.map(element => {return {name: element.DEVICE_STATUS_CODE,value: element.JTOV_SIM_NUMBERS}}) : []
             this.cspData = response.Table2.length ? response.Table2.map(element => {return {name: element.DEVICE_OFFER,value: element.JTOV_SIM_NUMBERS}}) : []
          
-            this.boxData = {
+            /*this.boxData = {
               day: response.Table3.length ? response.Table3[0].JTOV_SESSION_DAY : 0,
               month: response.Table3.length ? response.Table3[0].JTOV_SESSION_MONTH : 0,
               year: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
               loaded: true,
               report: 'Data Sessions'
-            }
+            }*/
 
             if (this.mapLoading){
                 this.mapLoading = false
@@ -393,7 +540,7 @@ export default {
     }
   },
   async mounted() {
-    await this.searchTotalByPeriod('monthly')
+    await this.searchTotalByPeriod('daily')
     await this.searchTable()
 
     /*getUserList(null).then(response => {
@@ -579,4 +726,8 @@ export default {
   .mb-30{
     margin-bottom:30px;
   }
+  
+  .el-progress .el-progress__text{
+      display: none
+    }
 </style>

@@ -21,18 +21,18 @@
     
       <div class="progress-item">
         <span>{{box.report}} this year</span>
-        <el-progress :percentage="percentFrom(box.year)"  :format="format"/>
-        <div class="percent-compare" style="color:rgb(64, 191, 162)"><i class="el-icon-top"/>{{compareFrom(box.year)}}%</div>
+        <el-progress :color="compareFrom(box.year, box.preYear)>0?'#28a5e0':'rgb(212, 121, 128)'" :percentage="percentFrom(box.year, box.preYear,'year')"  :format="format"/>
+        <div class="percent-compare" >{{box.year}} <span class="" :style="{color: compareFrom(box.year, box.preYear)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}"  style="margin-left:5px;"><i  :class="compareFrom(box.year, box.preYear)>=0?'el-icon-top':'el-icon-bottom'"/>{{compareFrom(box.year, box.preYear)}}%</span></div>
       </div>
       <div class="progress-item">
         <span>{{box.report}} this month</span>
-        <el-progress :percentage="percentFrom(box.month)"  :format="format"/>
-        <div class="percent-compare"  style="color:rgb(64, 191, 162)"><i class="el-icon-top" />{{compareFrom(box.month)}}%</div>
+        <el-progress :color="compareFrom(box.month, box.preMonth)>0?'#28a5e0':'rgb(212, 121, 128)'" :percentage="percentFrom(box.month, box.preMonth,'month')"  :format="format"/>
+        <div class="percent-compare" >{{box.month}} <span class="" :style="{color: compareFrom(box.month, box.preMonth)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}"  style="margin-left:5px;"><i  :class="compareFrom(box.month, box.preMonth)>=0?'el-icon-top':'el-icon-bottom'"/>{{compareFrom(box.month, box.preMonth)}}%</span></div>
       </div>
       <div class="progress-item">
         <span>{{box.report}} this day</span>
-        <el-progress :percentage="percentFrom(box.day)"  :format="format"/>
-        <div class="percent-compare" style="color:rgb(212, 121, 128)"><i class="el-icon-bottom" />{{compareFrom(box.day)}}%</div>
+        <el-progress :color="compareFrom(box.day, box.preDay)>0?'#28a5e0':'rgb(212, 121, 128)'" :percentage="percentFrom(box.day, box.preDay,'day')"  :format="format"/>
+        <div class="percent-compare" >{{box.day}} <span class="" :style="{color: compareFrom(box.day, box.preDay)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}" style="margin-left:5px;"><i :class="compareFrom(box.day, box.preDay)>=0?'el-icon-top':'el-icon-bottom'" />{{compareFrom(box.day, box.preDay)}}%</span></div>
       </div>
   </el-card>
 </template>
@@ -55,6 +55,11 @@ export default {
   },
   data() {
     return {
+        boxer: {
+          day: 0,
+          month: 0,
+          year: 0
+        },
       statisticsData: {
         article_count: 1024,
         pageviews_count: 1024
@@ -70,42 +75,49 @@ export default {
     ]),
   },
   methods: {
-    percentFrom(data){
-      switch (this.$props['box'].report){
+    percentFrom(data, pre, cur){
+      console.log('prop', data, pre)
+      
+            let perc = ((data-pre)*100/data)
+      switch (this.$props['box'].report){        
           case 'Data Sessions':
-            return (data*140/2000000)
+            if(perc < 0) perc = -perc
+            return perc
           break
           case 'Data Usage':
-            return (data/11000)
+            if(perc < 0) perc = -perc
+            return perc
           break
           case 'SMS Usage':            
-            return (data/200)
+            if(perc < 0) perc = -perc
+            return perc
           break
           case 'Online Numbers':
-            return (data/1000)
+            if(perc < 0) perc = -perc
+            return perc
           break
         }     
     },    
-    compareFrom(data){
+    compareFrom(data, pre){
       switch (this.$props['box'].report){
           case 'Data Sessions':
-            return (data*140/2000000).toFixed(2)
+            return ((data-pre)*100/data).toFixed(2)
           break
           case 'Data Usage':
-            return (data/11000).toFixed(2)
+            return ((data-pre)*100/data).toFixed(2)
           break
           case 'SMS Usage':
-            return (data/200).toFixed(2)
+            return ((data-pre)*100/data).toFixed(2)
           break
           case 'Online Numbers':
-            return (data/1000).toFixed(2)
+            return ((data-pre)*100/data).toFixed(2)
           break
         }     
     },  
     format(percentage) {
       switch (this.$props['box'].report){
           case 'Data Sessions':
-            return (percentage*2000000/140).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            return (percentage).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
           break
           case 'Data Usage':
             return (percentage*11000).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -200,6 +212,8 @@ export default {
     box-shadow: none;
     border: none;
   }
+  
+    
 </style>
 
 <style  scoped>
@@ -210,10 +224,11 @@ export default {
       height: 301px;
     }
     .percent-compare{
-      width: 100px;
-      right: 0px;
+      width: 170px;
+      right: 35px;
       margin-top: -15px;
       position: absolute;
+      text-align: right;
     }
     .percent-compare i{
       font-size: 14px;
