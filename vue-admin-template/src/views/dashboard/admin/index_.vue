@@ -232,12 +232,12 @@ export default {
                break
                case 'Data Usage':
                   self.boxData = {
-                      day: total.DataDay,
-                      month: total.DataMonth,
-                      year: total.DataYear,
-                      preDay: total.PreDataDay,
-                      preMonth: total.PreDataMonth,
-                      preYear: total.PreDataYear,
+                      day: total.DataDay ? total.DataDay/1048576 : 0,
+                      month: total.DataMonth ? total.DataMonth/1048576 : 0,
+                      year: total.DataYear ? total.DataYear/1048576 : 0,
+                      preDay: total.PreDataDay ? total.PreDataDay/1048576 : 0,
+                      preMonth: total.PreDataMonth ? total.PreDataMonth/1048576 : 0,
+                      preYear: total.PreDataYear ? total.PreDataYear/1048576 : 0,
                       loaded: true,
                       report: 'Data Usage'
                     }                 
@@ -256,12 +256,12 @@ export default {
                break
                case 'Online Numbers':
                   self.boxData = {
-                      day: total.DurationDay,
-                      month: total.DurationMonth,
-                      year: total.DurationYear,
-                      preDay: total.PreDurationDay,
-                      preMonth: total.PreDurationMonth,
-                      preYear: total.PreDurationYear,
+                      day: total.OnlineNumbersDay,
+                      month: total.OnlineNumbersMonth,
+                      year: total.OnlineNumbersYear,
+                      preDay: total.PreOnlineNumbersDay,
+                      preMonth: total.PreOnlineNumbersMonth,
+                      preYear: total.PreOnlineNumbersYear,
                       loaded: true,
                       report: 'Online Numbers'
                     }                 
@@ -343,7 +343,7 @@ export default {
                     self.panelData = {
                         totalDataUsage: total.DataDay ? total.DataDay/1048576 : 0,
                         totalSMSUsage: total.SMSMODay + total.SMSMTDay,
-                        totalDuration: total.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDuration: total.OnlineNumbersDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
                         totalDataSessions: total.SessionDay,
                         loaded: true
                     }
@@ -352,7 +352,7 @@ export default {
                     self.panelData = {
                         totalDataUsage: total.DataWeek ? total.DataWeek/1048576 : 0,
                         totalSMSUsage: total.SMSMOWeek + total.SMSMTWeek,
-                        totalDuration: total.DurationWeek,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDuration: total.OnlineNumbersWeek,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
                         totalDataSessions: total.SessionWeek,
                         loaded: true
                     }
@@ -361,7 +361,7 @@ export default {
                     self.panelData = {
                         totalDataUsage: total.DataMonth ? total.DataMonth/1048576 : 0,
                         totalSMSUsage: total.SMSMOMonth + total.SMSMTMonth,
-                        totalDuration: total.DurationMonth,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDuration: total.OnlineNumbersMonth,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
                         totalDataSessions: total.SessionMonth,
                         loaded: true
                     }
@@ -370,7 +370,7 @@ export default {
                     self.panelData = {
                         totalDataUsage: total.DataYear ? total.DataYear/1048576 : 0,
                         totalSMSUsage: total.SMSMOYear + total.SMSMTYear,
-                        totalDuration: total.DurationYear,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDuration: total.OnlineNumbersYear,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
                         totalDataSessions: total.SessionYear,
                         loaded: true
                     }
@@ -715,7 +715,7 @@ export default {
     }
     
     .el-progress-bar{
-      width: 80%;
+      width: 75%;
 
     }
     .box-header{

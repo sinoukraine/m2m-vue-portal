@@ -22,17 +22,17 @@
       <div class="progress-item">
         <span>{{box.report}} this year</span>
         <el-progress :color="compareFrom(box.year, box.preYear)>0?'#28a5e0':'rgb(212, 121, 128)'" :percentage="percentFrom(box.year, box.preYear,'year')"  :format="format"/>
-        <div class="percent-compare" >{{box.year}} <span class="" :style="{color: compareFrom(box.year, box.preYear)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}"  style="margin-left:5px;"><i  :class="compareFrom(box.year, box.preYear)>=0?'el-icon-top':'el-icon-bottom'"/>{{compareFrom(box.year, box.preYear)}}%</span></div>
+        <div class="percent-compare" >{{box.year!=undefined?box.year.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","):''}} <span class="" :style="{color: compareFrom(box.year, box.preYear)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}"  style="margin-left:5px;"><i  :class="compareFrom(box.year, box.preYear)>=0?'el-icon-top':'el-icon-bottom'"/>{{compareFrom(box.year, box.preYear)}}%</span></div>
       </div>
       <div class="progress-item">
         <span>{{box.report}} this month</span>
         <el-progress :color="compareFrom(box.month, box.preMonth)>0?'#28a5e0':'rgb(212, 121, 128)'" :percentage="percentFrom(box.month, box.preMonth,'month')"  :format="format"/>
-        <div class="percent-compare" >{{box.month}} <span class="" :style="{color: compareFrom(box.month, box.preMonth)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}"  style="margin-left:5px;"><i  :class="compareFrom(box.month, box.preMonth)>=0?'el-icon-top':'el-icon-bottom'"/>{{compareFrom(box.month, box.preMonth)}}%</span></div>
+        <div class="percent-compare" >{{box.month!=undefined?box.month.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","):''}} <span class="" :style="{color: compareFrom(box.month, box.preMonth)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}"  style="margin-left:5px;"><i  :class="compareFrom(box.month, box.preMonth)>=0?'el-icon-top':'el-icon-bottom'"/>{{compareFrom(box.month, box.preMonth)}}%</span></div>
       </div>
       <div class="progress-item">
         <span>{{box.report}} this day</span>
         <el-progress :color="compareFrom(box.day, box.preDay)>0?'#28a5e0':'rgb(212, 121, 128)'" :percentage="percentFrom(box.day, box.preDay,'day')"  :format="format"/>
-        <div class="percent-compare" >{{box.day}} <span class="" :style="{color: compareFrom(box.day, box.preDay)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}" style="margin-left:5px;"><i :class="compareFrom(box.day, box.preDay)>=0?'el-icon-top':'el-icon-bottom'" />{{compareFrom(box.day, box.preDay)}}%</span></div>
+        <div class="percent-compare" >{{box.day!=undefined?box.day.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","):''}} <span class="" :style="{color: compareFrom(box.day, box.preDay)>=0?'rgb(64, 191, 162)':'rgb(212, 121, 128)'}" style="margin-left:5px;"><i :class="compareFrom(box.day, box.preDay)>=0?'el-icon-top':'el-icon-bottom'" />{{compareFrom(box.day, box.preDay)}}%</span></div>
       </div>
   </el-card>
 </template>
@@ -224,7 +224,7 @@ export default {
       height: 301px;
     }
     .percent-compare{
-      width: 170px;
+      width: 200px;
       right: 35px;
       margin-top: -15px;
       position: absolute;
