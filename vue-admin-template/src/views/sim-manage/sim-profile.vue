@@ -851,7 +851,7 @@ export default {
 
             let startDate = moment.utc(resActiveSession.Data.startDateField).toDate()
             let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
-              console.log('gr1',resActiveSession.Data)
+              
             this.lastUpdateTime = utcDate
             //this.lastUpdateTime = resActiveSession.Data.startDateField
           
@@ -923,8 +923,10 @@ export default {
           if(self.lastUpdateTime.length==0){		
             
               
-              const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+              //~~const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
               self.lastUpdateTime = sortedArr[0].end
+              
+              const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
 
               if(simActivityTime >= halfDayAgo){
                 rag = 'bg-color-green'

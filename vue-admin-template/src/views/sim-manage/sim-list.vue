@@ -1056,6 +1056,7 @@ export default {
             }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
               rag = 'bg-color-yellow'
             }else {
+              console.log('red1', simActivityTime, oneDayAgo, halfDayAgo)
               rag = 'bg-color-red'
             }
           }
@@ -1113,14 +1114,17 @@ export default {
                 return d-c
               })
               
-              const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+              //~~const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
+              
               update = sortedArr[0].end
+              const simActivityTime = moment(update, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
 
               if(simActivityTime >= halfDayAgo){
                 rag = 'bg-color-green'
               }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
                 rag = 'bg-color-yellow'
               }else {
+              console.log('red2', simActivityTime, oneDayAgo, halfDayAgo)
                 rag = 'bg-color-red'
               }									
             }
