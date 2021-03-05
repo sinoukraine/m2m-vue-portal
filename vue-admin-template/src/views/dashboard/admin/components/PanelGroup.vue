@@ -32,7 +32,7 @@
               <img src="loading.gif" width="50">
             </div>
             <div v-else>
-              <count-to :start-val="0" :end-val="+total.totalDataSessions" :duration="2600" class="card-panel-num" />  
+              <count-to :start-val="0" :end-val="+total.totalDataSessions"  :duration="2600" class="card-panel-num" />  
               
             </div>
           </div>
@@ -46,7 +46,7 @@
     <div class="card-panel justify-content-between bg-violet" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left font-16">
-            Data Usage
+            Data Usage {{all?'':'(Bytes)'}}
           </div>
           <div class="card-inline card-panel-right">
             <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
@@ -129,7 +129,7 @@
     <div class="card-panel justify-content-between bg-red" >
         <div class="card-panel-icon-wrapper card-top">
           <div class="card-inline card-panel-left font-16">
-            Online Numbers
+            {{all?'Online Numbers':'Duration'}}
           </div>
           <div class="card-inline card-panel-right">
             <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click" @command="handlePeriod">
@@ -177,7 +177,7 @@ export default {
   components: {
     CountTo
   },
-  props: ['lg','total'],
+  props: ['lg','total','all'],
   data() {
     return {
       loading: true,

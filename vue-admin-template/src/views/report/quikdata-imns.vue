@@ -138,30 +138,75 @@
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
-            </el-table-column>
-            <el-table-column label="Data Usage(MB)" width="160px" align="center">
+            </el-table-column>            
+            <el-table-column label="Service Profile" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ (row.totalDataUsage/1000000).toFixed(3) }}</span>
+                <span>{{ row.csp }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Flow Usage" width="160px" align="center">
+            <el-table-column label="Data Usage(Daily)" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.totalFlowUsage }}</span>
+                <span>{{ row.totald }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="SMS Usage" width="160px" align="center">
+            <el-table-column label="Data Usage(Weekly)" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.totalSmsUsage }}</span>
+                <span>{{ row.totalw }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Days" width="160px" align="center">
+            <el-table-column label="Data Usage(Monthly)" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.days }}</span>
+                <span>{{ row.totalm }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Data Usage(Yearly)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.totaly }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="SMS Usage(Daily)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.smsd }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="SMS Usage(Weekly)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.smsw }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="SMS Usage(Monthly)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.smsm }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="SMS Usage(Yearly)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.smsy }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Sessions (Daily)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.sessionsd }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Sessions (Weekly)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.sessionsw }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Sessions (Monthly)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.sessionsm }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Sessions (Yearly)" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.sessionsy }}</span>
               </template>
             </el-table-column>
             <el-table-column label="LastUpdate" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.lastUpdate.slice(0, 10) }}</span>
+                <span>{{ row.lastUpdate }}</span>
               </template>
             </el-table-column>
             <!--<el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width">
@@ -177,11 +222,11 @@
           </el-table>
         </div>
 
-        <pagination v-show="total>0" 
+        <!--<pagination v-show="total>0" 
           :total="total" 
           :page.sync="page"           
         :page-size="limit"
-        />
+        />-->
 
       </el-main>
 
@@ -210,7 +255,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row :gutter="16" style="border-bottom: 1px solid #e3e3e3">
+          <!--<el-row :gutter="16" style="border-bottom: 1px solid #e3e3e3">
             <el-col :xs="100" :sm="100" :md="100" :lg="100">
               <el-form-item label="" prop="title">
                 <span class="label-span">Start date</span>
@@ -219,19 +264,20 @@
                 <el-date-picker v-model="listQuery.date2" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
               </el-form-item>
             </el-col>
-          </el-row>
+          </el-row>-->
           <el-row :gutter="16" style="">
             <el-col :xs="100" :sm="100" :md="100" :lg="100">
               <!--<el-form-item label="" prop="title">
+                
+              </el-form-item>-->
+              <el-form-item label="" prop="title">
+                <span class="label-span">Sort</span>
+                <el-select v-model="selectedOrder" placeholder="SIM"  class="filter-item w-100" style="width: 100%;">
+                  <el-option v-for="item in orderOptions" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
                 <span class="label-span">Period</span>
                 <el-select v-model="selectedPeriod" placeholder="Period" clearable class="filter-item w-100" style="width: 100%;">
                   <el-option v-for="item in periodOptions" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-              </el-form-item>-->
-              <el-form-item label="" prop="title">
-                <span class="label-span">SIM</span>
-                <el-select v-model="selectedSIMLimit" placeholder="SIM"  class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in limitOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>
                 <span class="label-span">Ordering by</span>
                 <el-select v-model="selectedType" placeholder="Order"  class="filter-item w-100" style="width: 100%;">
@@ -265,7 +311,10 @@ const categoryTypeOptions = [
   { code: 'Event', name: 'Data Usage' }
 ]
 const periodOptions = [
-  { code: '0', name: '10 days' }
+  { code: 'D', name: 'Today' },
+  { code: 'W', name: 'Week' },
+  { code: 'M', name: 'Month' },
+  { code: 'Y', name: 'Year' }
 ]
 const limitOptions = [
   { code: '10', name: 'TOP 10' },
@@ -282,8 +331,17 @@ const statusOptions = [
 ]
 
 const typeOptions = [
-  { code: 'data', name: 'Data' },
-  { code: 'sms', name: 'SMS' }
+  { code: 'D', name: 'Data' },
+  { code: 'S', name: 'SMS' }
+]
+
+const orderOptions = [
+  { code: 'DataDay', name: 'Data Daily' },
+  { code: 'DataMonth', name: 'Data Monthly' },
+  { code: 'DataWeek', name: 'Data Weekly' },
+  { code: 'DataYear', name: 'Data Yearly' },
+  { code: 'SMSMODay', name: 'SMS Daily' },
+  { code: 'SessionDay', name: 'Session Daily' },
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -345,14 +403,18 @@ export default {
   },
   data() {
     return {      
+      
+        tablePeriod: 'Today',
+        tableData: 'data',
       filterSubmitId: Date.now(),
       isLoading: false,
       fullPage: true,
       simFormVisible: false,
       selectedCustomer: '0',
-      selectedPeriod: '0',
+      selectedPeriod: 'D',
       selectedSIMLimit: '10',
-      selectedType: 'data',
+      selectedType: 'D',
+      selectedOrder: 'DataDay',
       isChartShown: false,
       series: [{
         data: []
@@ -392,7 +454,7 @@ export default {
       categoryTypeOptions,
       typeOptions,
       periodOptions,
-      limitOptions,
+      orderOptions,
       customerListOption,
       statusOptions,
       // sortOptions: [{ label: 'ID Ascending', code: '+code' }, { label: 'ID Descending', code: '-code' }],
@@ -465,127 +527,151 @@ export default {
   methods: {      
     async showSIMDetails(data){        
         this.isLoading = true 
-        const query = {
-          imsi: data.imsi,
-          //activity: true
-        }
+        console.log('d', data)
+        this.simDetailslistLeft = [{
+              title: 'IMSI',
+              value: data.imsi,
+            },{
+              title: 'ICCID',
+              value: data.iccid,
+            },{
+              title: 'MSISDN',
+              value: data.msisdn,
+            },{
+              title: 'State',
+              value: data.state,      
+            }]
+
+            this.simDetailslistRight = [{
+              title: 'Provider',
+              value: data.LbsNetwork,
+            },{
+              title: 'Data Usage Threshold (MB/month)',
+              value: data.Threshold,
+            },{
+              title: 'Customer',
+              value: data.customer,
+            },{
+              title: 'Update Time',
+              value: data.lastUpdate,      
+            }]
+        /*
         const response = await getSIMAsync(query)
         
         if(!response){          
           this.isLoading = false 
           return
-        }
+        }*/
 
-        this.simDetailslistLeft = [{
-          title: 'IMSI',
-          value: data.imsi,
-        },{
-          title: 'ICCID',
-          value: response.data.info.iccid,
-        },{
-          title: 'MSISDN',
-          value: response.data.info.msisdn,
-        },{
-          title: 'Description',
-          value: response.data.info.description,      
-        }]
-
-        this.simDetailslistRight = [{
-          title: 'Provider',
-          value: response.data.info.provider,
-        },{
-          title: 'Data Usage Threshold (MB/month)',
-          value: response.data.settings.dataUsageThresholds.daily?.name,
-        },{
-          title: 'Customer',
-          value: data.customer,
-        },{
-          title: '.',
-          value: '',      
-        }]
-        
-        const query_1 = {
-          id: response.data._id,
-          date1: moment(today, 'YYYY-MM-DD').add(-10, 'days').format('YYYY-MM-DD'),
-          date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
-        }
-        
-        const response_1 = await getCDRSAsync(query_1)
-        const arrLabel = [], arrData = []
-        let totalData = 0
-        response_1.data.forEach(element => {
-          arrLabel.push(element.date.slice(0, 10))
-          let chartData = element.totals?.data.originalUnits/1048576
-          arrData.push((+chartData).toFixed(1))
-          totalData += +chartData
-        })
-        const averageData = totalData/response_1.data.length
-
-        this.chartOptions = {
-          chart: {
-            height: 350,
-            offsetX: 0,
-            type: 'line',
-          },          
-          stroke: {
-            width: [0, 1, 1]
-          },          
-          markers: {
-            size: [0, 4, 4]
+        let self = this
+        var settings = {
+          "url": 'https://test4.m2mdata.co/JT/Report/DailyUsage?IMSI='+data.imsi,
+          "method": "POST",
+          "timeout": 0,
+          "headers": {
+          "token": "00000000-0000-0000-0000-000000000000",
+          "Content-Type": "application/x-www-form-urlencoded"
           },
-          colors: ['rgb(182, 162, 222)', '#ffb880', '#d77980'],
-          dataLabels: {
-            enabled: false
-          },          
-            legend: {
-              show: false
-            },
-          grid: {
-            show: true,
-            xaxis: {
-              categories: arrLabel,
-              lines: {
-                show: true
-              }
-            },
-            yaxis: {
-              lines: {
-                show: true
-              },
-            }
-          },
-          yaxis: {            
-              labels: {
-                formatter: function(val, index) {
-                  return val.toFixed(2)
-                }
-              }
-          },
-          xaxis: {
-            categories: arrLabel
+          "data": {
+            "Since": moment(today, 'YYYY-MM-DD').add(-10, 'days').format('YYYY-MM-DD'),
+            "page": "1",
+            "rows": "100"
           }
-        }
+        };
 
-        this.series = [{
-          name: 'Data Usage',
-          data: arrData,
-          type: 'column'
-        },
-        {
-          name: 'Average',
-          type: 'line',
-          data: arrData.map(el=>el=averageData)
-        },
-        {
-          name: 'Limit',
-          type: 'line',
-          data: arrData.map(el=>el=5)
-        }]
+        $.ajax(settings).done(function (response) { 
+          console.log(response.Data)
+          if(response.Data.length){
 
-        this.isChartShown = true
+            const arrLabel = [], arrData = []
+            let totalData = 0
+            response.Data.forEach(element => {
+              arrLabel.push(element.Date.slice(0, 10))
+              let chartData = element.Usage/1048576
+              arrData.push((+chartData).toFixed(1))
+              totalData += +chartData
+            })
+            const averageData = totalData/response.Data.length
 
-        this.simFormVisible = true  
-        this.isLoading = false 
+            self.chartOptions = {
+              chart: {
+                height: 350,
+                offsetX: 0,
+                type: 'line',
+              },          
+              stroke: {
+                width: [0, 1, 1]
+              },          
+              markers: {
+                size: [0, 4, 4]
+              },
+              colors: ['rgb(182, 162, 222)', '#ffb880', '#d77980'],
+              dataLabels: {
+                enabled: false
+              },          
+                legend: {
+                  show: false
+                },
+              grid: {
+                show: true,
+                xaxis: {
+                  categories: arrLabel,
+                  lines: {
+                    show: true
+                  }
+                },
+                yaxis: {
+                  lines: {
+                    show: true
+                  },
+                }
+              },
+              yaxis: {            
+                  labels: {
+                    formatter: function(val, index) {
+                      return val.toFixed(2)
+                    }
+                  }
+              },
+              xaxis: {
+                categories: arrLabel
+              }
+            }
+
+            self.series = [{
+              name: 'Data Usage',
+              data: arrData,
+              type: 'column'
+            },
+            {
+              name: 'Average',
+              type: 'line',
+              data: arrData.map(el=>el=averageData)
+            },
+            {
+              name: 'Limit',
+              type: 'line',
+              data: arrData.map(el=>el=5)
+            }]
+            /*
+            const query_1 = {
+              id: response.data._id,
+              date1: moment(today, 'YYYY-MM-DD').add(-10, 'days').format('YYYY-MM-DD'),
+              date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+            }
+            
+            const response_1 = await getCDRSAsync(query_1)
+           */
+
+            self.isChartShown = true
+
+            self.simFormVisible = true  
+            self.isLoading = false 
+            
+          }
+        })
+
+        
     },
     closeSIMDetails(){      
         this.simFormVisible = false  
@@ -622,15 +708,78 @@ export default {
     async getList() {
       this.listLoading = true
 
-      getCustomerList().then(response => {
+
+      /*~~getCustomerList().then(response => {
         this.customerListOption.length = 0
         this.customerListOption.push({ code: '0', name: 'All' })
         response.data.forEach(element => {
           this.customerListOption.push({ code: element._id, name: element.info.name })
         })
-      })
+      })*/
 
-      const response = await getCDRSListAsync(this.listQuery)
+      this.list = []
+      let pref_1 = this.selectedType
+      let sort = this.selectedOrder
+      let pref_2 = this.selectedPeriod    
+      this.listLoading = true
+      //const today = new Date()
+      
+      const current = moment()          
+
+      let self = this
+      var settings = {
+        "url": 'https://test4.m2mdata.co/JT/Sim/Query',
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+        "token": "00000000-0000-0000-0000-000000000000",
+        "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "data": {
+          'UsageReportType': pref_1 + pref_2,
+          'sort': sort,
+          'order': 'desc' 
+        }
+      };
+
+      $.ajax(settings).done(function (response) { 
+          let rows = response.rows   
+          
+          const arrTable = []
+
+          rows.forEach((element, index) => {
+            //const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+            //const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
+            //const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
+            arrTable.push({
+              imsi: element.IMSI.toString(),
+              iccid: element.ICCID.toString(),
+              msisdn: element.MSISDN.toString(),
+              customer: element.OrganizeName,
+              csp: element.ServiceProfileName,              
+              totald: (element.DataDay/1048576).toFixed(3),
+              totalw: (element.DataWeek/1048576).toFixed(3),
+              totalm: (element.DataMonth/1048576).toFixed(3),
+              totaly: (element.DataYear/1048576).toFixed(3),
+              smsd: element.SMSMODay + element.SMSMTDay,
+              smsw: element.SMSMOWeek + element.SMSMTWeek,
+              smsm: element.SMSMOMonth + element.SMSMTMonth,
+              smsy: element.SMSMOYear + element.SMSMTYear,
+              sessionsd: element.SessionDay,
+              sessionsw: element.SessionWeek,
+              sessionsm: element.SessionMonth,
+              sessionsy: element.SessionYear,
+              state: element.State,
+              LbsNetwork: element.LbsNetwork,              
+              Threshold: element.ThresholdName,      
+              lastUpdate: element.DataUpdateTime!==null?element.DataUpdateTime.slice(0, 10):''
+          })
+        })
+
+        self.list = arrTable
+        self.listLoading = false
+      })
+      /*~~const response = await getCDRSListAsync(this.listQuery)
       if(!response){
         return
       }
@@ -642,6 +791,7 @@ export default {
 
         this.list = response.data
       //})
+      */
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -769,8 +919,8 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['imsi', 'customer', 'totalDataUsage', 'totalFlowUsage', 'totalSmsUsage', 'days', 'lastUpdate']
-        const filterVal = ['imsi', 'customer', 'totalDataUsage', 'totalFlowUsage', 'totalSmsUsage', 'days', 'lastUpdate']
+        const tHeader = ['iccid', 'imsi','state', 'msisdn', 'customer', 'csp', 'Data Usage Day', 'Data Ussage Week', 'Data Ussage Month', 'Data Ussage Year', 'SMS Ussage Day', 'SMS Ussage Week', 'SMS Ussage Month', 'SMS Ussage Year', 'Session Day', 'Session Week', 'Session Month', 'Session Year', 'Last update']
+        const filterVal = ['iccid', 'imsi','state', 'msisdn', 'customer', 'csp', 'totald', 'totalw', 'totalm', 'totaly', 'smsd', 'smsw', 'smsm', 'smsy', 'sessionsd', 'sessionsw', 'sessionsm', 'sessionsy', 'lastUpdate']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,

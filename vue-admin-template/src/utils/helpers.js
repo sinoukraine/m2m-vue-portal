@@ -1,10 +1,11 @@
-const DOMAIN1 = 'https://test.m2mdata.co/'
+const DOMAIN = 'https://test.m2mdata.co/'
+const DOMAIN1 = 'https://test4.m2mdata.co/'
 const DOMAIN2 = 'https://test4.m2mdata.co/'
 
 export const API_METHODS = {
   DOMAIN1,
 
-  LOGIN: DOMAIN1 + 'service/User/Auth',
+  LOGIN: DOMAIN2 + 'service/User/Auth',
   REMOTE_LOGIN: DOMAIN1 + 'service/User/ReAuth',
 
   GET_LOCALE: DOMAIN1 + 'service/language/json',
@@ -40,7 +41,7 @@ export const API_METHODS = {
   SIM_GET_POSITION: DOMAIN2 + 'JT/Sim/QueryLBSInfo',
   
 
-  CUSTOMER_GET_LIST: DOMAIN1 + 'service/Organize/Query',
+  CUSTOMER_GET_LIST: DOMAIN + 'service/Organize/Query',
   CUSTOMER_CREATE: DOMAIN1 + 'service/Organize/Add',
   CUSTOMER_EDIT: DOMAIN1 + 'service/Organize/Edit',
   CUSTOMER_CHANGE_STATE: DOMAIN1 + 'service/Organize/SetState',

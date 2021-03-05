@@ -26,7 +26,6 @@ export async function qtLogin(query) {
   }else{    
     data = getFormDataFromObject(query)
   }
-  console.log('start',query)
   try {
     const response = await axios.post(API_METHODS.LOGIN, data );
     if(response.data.MajorCode === '000'){

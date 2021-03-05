@@ -3,7 +3,8 @@
     <el-row :gutter="40" >
       <el-col :xs="24" :sm="24" :lg="12" style="">
         <panel-group
-          :lg="'12'"
+          :all="true" 
+          :lg="12"
           :total="panelData"
           @change="searchTotalByPeriod"
         />
@@ -24,9 +25,9 @@
             </div>
             <div class="card-inline card-panel-right d-flex">
             <el-radio-group v-model="switchTablePeriod" @input="handleTablePeriod" >
-                <el-radio-button label="Last day" type="outline"/>
+                <el-radio-button label="Today" type="outline"/>
                 <el-radio-button label="Week" type="outline"/>
-                <el-radio-button label="This Month" type="outline"/>
+                <el-radio-button label="Month" type="outline"/>
             </el-radio-group>
             <el-dropdown class="menu-container right-menu-item hover-effect pointer" trigger="click" @command="handleTableData">
               <div class="menu-wrapper">
@@ -38,9 +39,9 @@
               </el-dropdown-menu>
             </el-dropdown>
             </div>
-        </div>
+        </div><!--:key="tableKey"-->
         <el-table
-            :key="tableKey"
+            
             v-loading="listLoading"
             :data="list"
             fit
@@ -55,7 +56,9 @@
             </el-table-column>
            <el-table-column label="IMSI" align="center" width="160px">
               <template slot-scope="{row}">
-                <span>{{ row.imsi }}</span>
+                 <router-link class="link" :to="{ path: `/sim-list/${row.imsi}` }">
+                    {{ row.imsi }}
+                  </router-link>
               </template>
             </el-table-column>
             <el-table-column label="Customer"  min-width="120px" align="center">
@@ -63,14 +66,14 @@
                 <span>{{ row.customer }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Data Usage(MB)" width="120px" align="center">
+            <el-table-column label="Service Profile" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.total }}</span>
+                <span>{{ row.csp }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Flow" width="58px" align="center">
+            <el-table-column label="Data Usage(MB)" width="100px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.flow }}</span>
+                <span>{{ row.total }}</span>
               </template>
             </el-table-column>
             <el-table-column label="SMS Usage" width="58px" align="center">
@@ -78,14 +81,14 @@
                 <span>{{ row.sms }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Days" width="50px" align="center">
+            <el-table-column label="Sessions" width="75px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.days }}</span>
+                <span>{{ row.sessions }}</span>
               </template>
             </el-table-column>
             <el-table-column label="Last Update" width="120px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.lastUpdate.slice(0,10) }}</span>
+                <span>{{ row.lastUpdate }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -173,7 +176,7 @@ export default {
   },
   data() {
     return {
-        tablePeriod: 'Last day',
+        tablePeriod: 'Today',
         tableData: 'data',
         boxData: {
           day: 0,
@@ -191,12 +194,120 @@ export default {
         listLoading: true,
         listLoadingBox: true,
         list: [],        
-        switchTablePeriod: 'Last day',
+        switchTablePeriod: 'Today',
         stateData: [],
         cspData: []        
     }
   },
   methods: {
+    async initDasboard(){
+      this.listLoadingBox = true
+      let self = this
+
+      var settings = {
+        "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+        "token": "00000000-0000-0000-0000-000000000000",
+        "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "data": {        
+        }
+      };
+
+      $.ajax(settings).done(function (response) { 
+        if(response.MajorCode == '000'){
+          let total = response.Data   
+          self.boxData = {
+            day: total.SessionDay,
+            month: total.SessionMonth,
+            year: total.SessionYear,
+            preDay: total.PreSessionDay,
+            preMonth: total.PreSessionMonth,
+            preYear: total.PreSessionYear,
+            loaded: true,
+            report: 'Data Sessions'
+          }     
+          self.listLoadingBox = false    
+          
+          self.panelData = {
+            totalDataUsage: total.DataDay ? total.DataDay/1048576 : 0,
+            totalSMSUsage: total.SMSMODay + total.SMSMTDay,
+            totalDuration: total.OnlineNumbersDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+            totalDataSessions: total.SessionDay,
+            loaded: true
+          }
+
+          console.log(total)
+          const newCspArr = []         
+          const cspArr = Object.keys(total.ServiceProfiles)
+          cspArr.forEach(element => {
+            newCspArr.push({
+              name: element, 
+              value: total.ServiceProfiles[element]
+            })
+          })
+          self.cspData = newCspArr
+
+          const newStateArr = []         
+          const stateArr = Object.keys(total.Status)
+          stateArr.forEach(element => {
+            newStateArr.push({
+              name: element, 
+              value: total.Status[element]
+            })
+          })
+          self.stateData = newStateArr
+
+          self.searchTable()
+         
+          const gdpData = []
+          const colors = []
+          let cc 
+
+          self.mapLoading = false
+          /*total.Countries.forEach(element => {
+              gdpData[element.JTOV_DATA_COUNTRY_CODE] = element.JTOV_SIM_NUMBERS
+          })*/     
+          const countryArr = Object.keys(total.Countries)
+          countryArr.forEach(element => {
+            gdpData[element] = total.Countries[element]
+          })
+
+          for (cc in gdpData) {
+              if (gdpData[cc] > 0 && gdpData[cc] <= 100) {
+                  colors[cc] = '#41bea2'
+              } else if (gdpData[cc] > 100 && gdpData[cc] <= 500) {
+                  colors[cc] = '#feec81'
+              } else if (gdpData[cc] > 500 && gdpData[cc] <= 2000) {
+                  colors[cc] = '#ffb880'
+              } else if (gdpData[cc] > 2000) {                    
+                  colors[cc] = '#d77980'
+              }
+          }
+
+          self.VectorMap = jQuery('#vmap').vectorMap({
+              map: 'world_en',
+              backgroundColor: '#fff',
+              enableZoom: true,
+              showTooltip: true,
+              colors: colors,
+              hoverOpacity: 0.7,
+              hoverColor: false,
+              selectedColor: false,
+              onRegionOver: function(element, code, region) {
+              },
+              onRegionOut: function(element, code, region) {
+              },
+              onLabelShow: function(event, label, code){
+                  event.preventDefault()
+              }
+          })
+          
+        }
+      })
+    },
     async searchComparing(data){      
       this.listLoadingBox = true
       
@@ -210,7 +321,7 @@ export default {
 						"Content-Type": "application/x-www-form-urlencoded"
 					  },
 					  "data": {
-						//"IMSI":  this.listHistoryQuery.imsi,
+						
 						}
 					};
 
@@ -271,55 +382,9 @@ export default {
             }
           })
 
-            
-
-      /*await getDemoOwerview(this.$store.state.user.login).then(response => {
-        switch (data){
-          case 'Data Sessions':
-            this.boxData = {
-              day: response.Table3.length ? response.Table3[0].JTOV_SESSION_DAY : 0,
-              month: response.Table3.length ? response.Table3[0].JTOV_SESSION_MONTH : 0,
-              year: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
-              loaded: true,
-              report: data
-            }
-          break
-          case 'Data Usage':
-            this.boxData = {
-              day: response.Table3.length ? response.Table3[0].JTOV_DATA_DAY/1048576 : 0,
-              month: response.Table3.length ? response.Table3[0].JTOV_DATA_MONTH/1048576 : 0,
-              year: response.Table3.length ? response.Table3[0].JTOV_DATA_YEAR/1048576 : 0,
-              loaded: true,
-              report: data
-            }
-          break
-          case 'SMS Usage':
-            this.boxData = {
-              day: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_DAY : 0,
-              month: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_MONTH : 0,
-              year: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_YEAR : 0,
-              loaded: true,
-              report: data
-            }
-          break
-          case 'Online Numbers':
-            this.boxData = {
-              day: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_DAY : 0,
-              month: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_MONTH : 0,
-              year: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_YEAR : 0,
-              loaded: true,
-              report: data
-            }
-          break
-        }    
-      })*/
     },
     async searchTotalByPeriod(period) {
-        const gdpData = []
-        const colors = []
-        let cc 
-
-        
+                
       let self = this
           var settings = {
 					  "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
@@ -335,7 +400,6 @@ export default {
 					};
 
 					$.ajax(settings).done(function (response) { 
-            console.log('rrr', response)
             if(response.MajorCode == '000'){
               let total = response.Data              
               switch (period){
@@ -377,7 +441,7 @@ export default {
                 break
             }
 
-            self.boxData = {
+            /*self.boxData = {
               day: total.SessionDay,
               month: total.SessionMonth,
               year: total.SessionYear,
@@ -387,62 +451,16 @@ export default {
               loaded: true,
               report: 'Data Sessions'
             }
-            self.listLoadingBox = false
+            self.listLoadingBox = false*/
 
           }            
         })
 
-        await getDemoOwerview(this.$store.state.user.login).then(response => {
-          console.log('r',response)
-            /*switch (period){
-                case 'daily':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_DAY/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_DAY : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_DAY : 0,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_DAY : 0,
-                        loaded: true
-                    }
-                break
-                case 'weekly':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_WEEK/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_WEEK : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_WEEK : 0,//(3600*response.Table3[0].JTOV_DATA_WEEK)/(response.Table3[0].JTOV_DURATION_WEEK*1024),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_WEEK : 0,
-                        loaded: true
-                    }
-                break
-                case 'monthly':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_MONTH/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_MONTH : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_MONTH : 0,//(3600*response.Table3[0].JTOV_DATA_MONTH)/(response.Table3[0].JTOV_DURATION_MONTH*1024),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_MONTH : 0,
-                        loaded: true
-                    }
-                break
-                case 'yearly':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_YEAR/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_YEAR : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_YEAR : 0,//(3600*response.Table3[0].JTOV_DATA_YEAR)/(response.Table3[0].JTOV_DURATION_YEAR*1024),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
-                        loaded: true
-                    }
-                break
-            }*/ 
+        /*await getDemoOwerview(this.$store.state.user.login).then(response => {
+         
             this.stateData = response.Table1.length ? response.Table1.map(element => {return {name: element.DEVICE_STATUS_CODE,value: element.JTOV_SIM_NUMBERS}}) : []
             this.cspData = response.Table2.length ? response.Table2.map(element => {return {name: element.DEVICE_OFFER,value: element.JTOV_SIM_NUMBERS}}) : []
          
-            /*this.boxData = {
-              day: response.Table3.length ? response.Table3[0].JTOV_SESSION_DAY : 0,
-              month: response.Table3.length ? response.Table3[0].JTOV_SESSION_MONTH : 0,
-              year: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
-              loaded: true,
-              report: 'Data Sessions'
-            }*/
-
             if (this.mapLoading){
                 this.mapLoading = false
                 response.Table.forEach(element => {
@@ -479,55 +497,73 @@ export default {
                     }
                 })
             }
-        })
+        })*/
     },
     async searchTable() {
-      let days = 0      
+      this.list = []
+      let pref_1 = this.tableData === 'SMS Usage'?'S':'D'
+      let sort = this.tableData === 'SMS Usage'?'SMSMODay':'DataDay'
+      let pref_2 = 'D'    
       this.listLoading = true
       const today = new Date()
       switch (this.tablePeriod){
-        case 'Last day':
-            days = 1
+        case 'Today':
+            pref_2 = 'D'
             break
         case 'Week':
-            days = 7
+            pref_2 = 'W'
+            break
+        case 'Month':
+            pref_2 = 'M'
+            break
+        case 'Year':
+            pref_2 = 'Y'
             break
       }
 
       const current = moment()          
 
-      const query = {
-        page: 1,
-        limit: 10,
-        date1: this.tablePeriod === 'This Month'?current.clone().startOf('month').format('YYYY-MM-DD'):moment(today, 'YYYY-MM-DD').add(-days, 'days').format('YYYY-MM-DD'),
-        date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
-        sms: this.tableData === 'SMS Usage'?'sms':undefined
-      }
+      let self = this
+      var settings = {
+        "url": 'https://test4.m2mdata.co/JT/Sim/Query',
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+        "token": "00000000-0000-0000-0000-000000000000",
+        "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "data": {
+          'UsageReportType': pref_1 + pref_2,
+          'sort': sort,
+          'order': 'desc' 
+        }
+      };
 
-      await getCDRSList(query).then(response => {
-        const totalDataUsage = 0
-        const totalSMSUsage = 0
+      $.ajax(settings).done(function (response) { 
+          let rows = response.rows   
+          
+          const arrTable = []
 
-        const arrTable = []
-
-        response.data.forEach((element, index) => {
-          const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
-          const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
-          const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
-          arrTable.push({
-            num: index + 1,
-            imsi: element.imsi,
-            customer: element.customer,
-            total: tableDataUsageTotal,
-            flow: tableFlowUsageTotal,
-            sms: tableSMSUsageTotal,
-            days: element.days,
-            lastUpdate: element.lastUpdate
+          rows.forEach((element, index) => {
+            //const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
+            //const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
+            //const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
+            arrTable.push({
+              num: index + 1,
+              imsi: element.IMSI,
+              customer: element.OrganizeName,
+              total: (element.DataDay/1048576).toFixed(3),
+              csp: element.ServiceProfileName,
+              sms: element.SMSMODay + element.SMSMTDay,
+              sessions: element.SessionDay,
+              lastUpdate: element.DataUpdateTime!==null?element.DataUpdateTime.slice(0, 10):''
           })
         })
 
-        this.list = arrTable
-        this.listLoading = false
+        self.list = arrTable
+        self.listLoading = false
+
+        
       })
     },
     handleTableData(val){
@@ -539,34 +575,11 @@ export default {
       this.searchTable()
     }
   },
-  async mounted() {
-    await this.searchTotalByPeriod('daily')
-    await this.searchTable()
+  async mounted() {    
+    //await this.searchTotalByPeriod('daily')
+    await this.initDasboard()
+    //await this.searchTable()
 
-    /*getUserList(null).then(response => {
-      console.log('u', response)
-    })	
-    var data = { 
-      'info' : {
-        'address': {
-          },
-          'contacts': [{type: "email", value: "alice_cooper@mail.com"}],
-          'description': "test add 1",
-          'firstName': "Test1",
-          'lastName': "Custormer1"
-        },
-      'settings' : [{locale: "en_US.UTF-8", timezone: "UTC", login: "m2madmin"}],
-      'ancestors': ["5f7f74ada71a973d558205b3"],
-      'tags' : []					
-    }
-    
-    const query = 
-      data
-    
-     
-     addUser(query).then(response => {
-       console.log('au', response)
-     })*/
   }
 }
 </script>
@@ -730,4 +743,9 @@ export default {
   .el-progress .el-progress__text{
       display: none
     }
+
+    
+.cell a{
+  color: #28a5e0;
+}
 </style>

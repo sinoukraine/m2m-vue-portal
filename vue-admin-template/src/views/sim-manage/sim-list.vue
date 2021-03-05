@@ -1,5 +1,5 @@
 <template>
-<el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+<el-container class="with-panel-wrapper sim-list-page" :class="{'panel-opened': isRightPanelVisible}">
   <loading :active.sync="isLoading" 
       :can-cancel="true" 
       :is-full-page="fullPage">
@@ -218,7 +218,7 @@
                 </el-table-column>
                 <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')+'(Mb)'" :class-name="getSortClass('dataUsage')" align="left" min-width="120px">
                   <template slot-scope="{row}">
-                    <span>{{ row.dataUsage }}</span>
+                    <span>{{ row.DataUsage }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')"  :class-name="getSortClass('smsUsage')" align="left" min-width="120px">
@@ -545,8 +545,8 @@ export default {
         {title: 'Longitude', value: ''},
         {title: 'Latitude', value: ''},
         {title: 'Country', value: ''},
-        {title: 'Cell', value: ''},
-        {title: 'Cell Range', value: ''},
+        {title: 'Cell', value: ''},        
+        {title: 'Time Update', value: ''},
         {title: 'Current Session Date', value: ''},
         {title: 'Current Usage', value: ''}
       ],
@@ -695,7 +695,7 @@ export default {
     //this.getCSPOptions()
     this.getServiceProfileOptions()
     this.getStateOptions()
-    this.getOrganizeOptions()
+    /*~~~this.getOrganizeOptions()*/
     /*this.getCountryOptions()
     this.getWebSiteOptions()
     this.getLanguageOptions()
@@ -739,11 +739,16 @@ export default {
 				};
 
 				$.ajax(settingsLBS).done(function (result) {
+          const activityTime = result.Data.DataUpdateTime
+          let utcActivityDate = moment.utc(activityTime).toDate()
+          let utcDate = utcActivityDate.getDate() + ' ' + self.month_names_short[utcActivityDate.getMonth()] + ' ' + utcActivityDate.getFullYear() + ' ' + ('0' + utcActivityDate.getHours()).slice(-2) + ':' + ('0' + utcActivityDate.getMinutes()).slice(-2) + ':' + ('0' + utcActivityDate.getSeconds()).slice(-2)
+                      
+        
           self.locationList[0].value = result.Data.IMSI
           self.locationList[1].value = result.Data.LbsNetwork
           self.locationList[2].value = result.Data.LbsArea
-          self.locationList[6].value = result.Data.LbsRadio
-          self.locationList[7].value = result.Data.LbsRange
+          self.locationList[6].value = result.Data.LbsRadio + ' ' + result.Data.LbsRange
+          self.locationList[7].value = utcDate
           self.locationList[8].value = result.Data.SessionDay
           self.locationList[9].value = (result.Data.DataDay/1048576).toFixed(3)
           const query_1 = {
@@ -1026,11 +1031,24 @@ export default {
       response.rows.forEach(async element_1 => {
         const activityTime = element_1.DataUpdateTime;
         let rag = 'bg-color-grey'
-        let update = ''
         let jsonDataArr = []
         let dataSession = 0
         let totalSumm = 0
+        let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
+            
+        if(activityTime){
+          if(simActivityTime >= halfDayAgo){
+            rag = 'bg-color-green'
+          }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+            rag = 'bg-color-yellow'
+          }else {
+            rag = 'bg-color-red'
+          }
+        }else{
 
+        }
+            
+/*
         const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${element_1.IMSI}`)
         let resActiveSession = await responseActiveSession.json()
                         
@@ -1114,8 +1132,6 @@ export default {
                 return d-c
               })
               
-              //~~const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-              
               update = sortedArr[0].end
               const simActivityTime = moment(update, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
 
@@ -1128,19 +1144,20 @@ export default {
                 rag = 'bg-color-red'
               }									
             }
-          }
+          }*/
         
           arr.push({
-            IMSI: element_1.IMSI,
-            ICCID: element_1.ICCID,
-            MSISDN: element_1.MSISDN,
+            IMSI: element_1.IMSI.toString(),
+            ICCID: element_1.ICCID.toString(),
+            MSISDN: element_1.MSISDN.toString(),
             ServiceProfile: element_1.ServiceProfileCode,
             State: element_1.State,
             rag,
-            update,
+            update: simActivityTime!='Invalid date'?simActivityTime:'',
             OrganizeName: element_1.OrganizeName,          
-            dataSession,     
-            dataUsage: totalSumm?(totalSumm/1048576).toFixed(3):0,     
+            dataSession: element_1.SessionDay.toString(),         
+            smsUsage: (element_1.SMSMODay + element_1.SMSMTDay).toString(),    
+            DataUsage: element_1.DataDay?(element_1.DataDay/1048576).toFixed(3).toString():0,     
             PayPlan: element_1.PayPlanCode,
             IPAddress: element_1.IPAddress,
             CustomField1: element_1.CustomField1,
@@ -1153,7 +1170,7 @@ export default {
           self.isListLoading = false
           self.total = response.total
           self.list = arr
-        })
+        //})
       })    
     },
     /*async getParentRoles(token){
@@ -1170,6 +1187,7 @@ export default {
       //this.listQuery.OrganizeCode = this.$store.getters.userInfo.OrganizeCode
       const arr = []
       let response = await fetchCustomersList()
+      console.log('cust', response)
       response.rows.forEach(element => {
         arr.push({
           Code: element.Code,
@@ -1340,8 +1358,8 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['IMSI', 'ICCID', 'MSISDN', 'Service Profile', 'State', 'Customer', 'Pay Plan']
-        const filterVal = ['IMSI', 'ICCID', 'MSISDN', 'ServiceProfile', 'State', 'Organize', 'PayPlan']
+        const tHeader = ['IMSI', 'ICCID', 'MSISDN', 'Service Profile', 'State', 'Customer', 'Session', 'Usage', 'SMS Usage', 'Update time', 'IPAddress','Pay Plan']
+        const filterVal = ['IMSI', 'ICCID', 'MSISDN', 'ServiceProfile', 'State', 'OrganizeName', 'dataSession', 'DataUsage', 'smsUsage', 'update', 'IPAddress','PayPlan']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,
@@ -1373,7 +1391,7 @@ export default {
 				}
 				
 				let settingsLBS = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Reboot",
+				  "url": "https://test4.m2mdata.co/JT/Sim/Reboot",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -1385,7 +1403,9 @@ export default {
 
 				$.ajax(settingsLBS).done(function (result) {
             self.isLoading = false
-					if(result.MajorCode == '000'){
+					if(result.MajorCode == '000'){            
+            self.mapFormVisible = false
+            //self.showLocation()
             self.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
           }else{
             self.$alert('Sim connection was not refreshed', 'M2M Data Message', {type: 'message'})
@@ -1531,7 +1551,7 @@ export default {
     background-color: #28a5e0;
     border-color: #d9ebf3;
 }
-div.square {
+.sim-list-page div.square {
   border-radius: 3px;
   margin: 0 14px;
   width: 10px;

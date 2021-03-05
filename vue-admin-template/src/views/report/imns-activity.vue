@@ -57,27 +57,27 @@
 
             <el-table-column label="Date"  align="center" min-width="120px">
               <template slot-scope="{row}">
-                <span>{{ row.date.slice(0, 10) }}</span>
+                <span>{{ row.Date }}</span>
               </template>
             </el-table-column>
             <el-table-column label="Sessions" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.totals.data.sessions }}</span>
+                <span>{{ row.Session }}</span>
               </template>
             </el-table-column>
             <el-table-column label="Data Usage(MB)" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ (row.totals.data.originalUnits/1000000).toFixed(3) }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="Flow Usage" width="160px" align="center">
-              <template slot-scope="{row}">
-                <span>{{ row.totals.flow.originalUnits }}</span>
+                <span>{{ row.Usage }}</span>
               </template>
             </el-table-column>
             <el-table-column label="SMS Usage" width="160px" align="center">
               <template slot-scope="{row}">
-                <span>{{ row.totals.sms.originalUnits }}</span>
+                <span>{{ row.SMS }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="Duration" width="160px" align="center">
+              <template slot-scope="{row}">
+                <span>{{ row.Duration }}</span>
               </template>
             </el-table-column>
             <!--<el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width">
@@ -145,11 +145,11 @@
           <el-row :gutter="16" style="border-bottom: 1px solid #e3e3e3">
             <el-col :xs="100" :sm="100" :md="100" :lg="100">
               <el-form-item label="" prop="title">
-                <span class="label-span">Start date</span>
+                <span class="label-span">Since</span>
                 <el-date-picker v-model="listQuery.date1" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-                <span class="label-span">End date</span>
+                <!--<span class="label-span">End date</span>
                 <el-date-picker v-model="listQuery.date2" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-              </el-form-item>
+              --></el-form-item>
             </el-col>
           </el-row>
           <el-row :gutter="16" style="">
@@ -178,6 +178,7 @@
 
 <script>
 import { getSIMList, getCDRSListAsync, getSIMAsync, getCDRSAsync, getCustomerList, fetchPv, createArticle, updateArticle, deleteArticle } from '@/api/sim'
+import { fetchSIMList } from "@/api/user";
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Loading from 'vue-loading-overlay'
@@ -389,29 +390,33 @@ export default {
   methods: {      
     querySearchIMSI(query) {
       if (query !== '') {        
-        if(query.length > 3) {
+        if(query.length > 4) {
           this.searchIMSI(query)
         }      
       } else {
         this.imsiArr = []
       }
     },
-    searchIMSI(query) {
+    async searchIMSI(query) {
       const arr = []      
       this.imsiArr = []
+      
       this.simListQuery = {
-        limit: 5,
-        sample: query
+        Rows: 5,
+        q: query,
       }
-      getSIMList(this.simListQuery).then(response => {
-        response.data.forEach(element => {
+      let response = await fetchSIMList(this.simListQuery) 
+      
+        if(!response.rows.length){
+          return
+        }
+        response.rows.forEach(element => {
           arr.push({
-            code: element._id,
-            title: element.info.imsi
+            code: element.IMSI,
+            title: element.IMSI
           })
         })
-        this.imsiArr = arr
-      })      
+        this.imsiArr = arr    
     },
     changeIMSI(val) {
       this.imsiArr = []
@@ -546,7 +551,6 @@ export default {
         this.simFormVisible = false  
     },
     handleCurrentChange(val) {
-        console.log(`current page: ${val}`);
         this.page = val;
     },
     fillData() {
@@ -578,7 +582,39 @@ export default {
       this.list = []
       this.listLoading = true
     
-        const query = {
+       let self = this
+        var settings = {
+          "url": 'https://test4.m2mdata.co/JT/Report/DailyUsage?IMSI='+this.listQuery.imsi,
+          "method": "POST",
+          "timeout": 0,
+          "headers": {
+          "token": "00000000-0000-0000-0000-000000000000",
+          "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "data": {
+            "Since": this.listQuery.date1,
+            "page": "1",
+            "rows": "100"
+          }
+        };
+
+        $.ajax(settings).done(function (response) { 
+          console.log(response)
+          if(response.Data.length){
+
+            self.total = response.Data.length
+            self.list = response.Data.map(el => ({...el, Date: el.Date.slice(0, 10), Duration: el.Duration.toString(), Usage: (el.Usage/1048576).toFixed(3), SMS: el.SMSMOUsage + el.SMSMTUsage,  Session: el.Session }))
+           
+            //self.list = response.Data
+          }else{
+
+          }
+          setTimeout(() => {
+              self.listLoading = false
+            }, 1.5 * 1000)
+
+        })
+        /*const query = {
           imsi: this.listQuery.imsi,
           //activity: true
         }
@@ -589,20 +625,11 @@ export default {
           return
         }
         this.listQuery.id = response.data._id
-      const response_1 = await getCDRSAsync(this.listQuery)
-      if(!response_1){
-        return
-      }
-      console.log('my',response_1)
-      //.then(response => {
-        this.total = response_1.data.length
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
-
-console.log(response_1.data)
-        this.list = response_1.data
-      //})
+        const response_1 = await getCDRSAsync(this.listQuery)
+        if(!response_1){
+          return
+        }*/
+        
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -733,8 +760,8 @@ console.log(response_1.data)
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['date', 'sessions', 'data', 'sms', 'flow']
-        const filterVal = ['date', '', '', '', '']
+        const tHeader = ['date', 'duration', 'data usage', 'sms usage', 'session']
+        const filterVal = ['Date', 'Duration', 'Usage', 'SMS', 'Session']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,

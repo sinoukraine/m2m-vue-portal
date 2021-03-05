@@ -76,7 +76,6 @@ export default {
   },
   methods: {
     percentFrom(data, pre, cur){
-      console.log('prop', data, pre)
       
             let perc = ((data-pre)*100/data)
       switch (this.$props['box'].report){        

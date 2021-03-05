@@ -2,7 +2,7 @@
   <el-container class="">
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
-        :on-cancel="onCancel"
+        
         :is-full-page="fullPage"></loading>
     
     <el-dialog class="dialog-download" title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
@@ -243,8 +243,9 @@
       <div class="mixin-components-container">
         <el-row style="margin: 30px">
           <div>
-            <panel-group            
-              :lg="'6'"
+            <panel-group   
+              :all="false"         
+              :lg="6"
               :total="panelData"
               @change="searchTotalByPeriod"
             />
@@ -407,6 +408,9 @@ export default {
       ))
 
     return {
+      
+        tablePeriod: 'Today',
+        tableData: 'data',
       simDetailslistLeft: [{
         title: 'Imsi',
         value: '',
@@ -546,7 +550,7 @@ export default {
         {title: 'Latitude', value: ''},
         {title: 'Country', value: ''},
         {title: 'Cell', value: ''},
-        {title: 'Cell Range', value: ''},
+        {title: 'Time Update', value: ''},
         {title: 'Current Session Date', value: ''},
         {title: 'Current Usage', value: ''}
       ],
@@ -559,7 +563,7 @@ export default {
     }
   },
   created() {
-    this.searchTotalByPeriod('daily')
+    //this.searchTotalByPeriod('daily')
     const current = moment()
     this.cdrsQuery = {
       //id: this.$route.params.id,
@@ -582,7 +586,68 @@ export default {
   methods: {
     async searchTotalByPeriod(period) {
         const imsi =  this.$route.params.id
-        await getDemoOwerview(this.$store.state.user.login, imsi).then(response => {
+        
+        let self = this
+          var settings = {
+					  "url": 'https://test4.m2mdata.co/JT/Sim/Query',
+					  "method": "POST",
+					  "timeout": 0,
+					  "headers": {
+						"token": "00000000-0000-0000-0000-000000000000",
+						"Content-Type": "application/x-www-form-urlencoded"
+					  },
+					  "data": {
+						  "imsis[]":  imsi,
+						}
+					};
+
+					$.ajax(settings).done(function (response) { 
+            console.log('total',response)
+            if(response.rows.length){
+              let total = response.rows[0]   
+              console.log('total',total)           
+              switch (period){
+                case 'daily':
+                    self.panelData = {
+                        totalDataUsage: total.DataDay ? total.DataDay:0,///1048576 : 0,
+                        totalSMSUsage: total.SMSMODay + total.SMSMTDay,
+                        totalDuration: total.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionDay,
+                        loaded: true
+                    }
+                break
+                case 'weekly':
+                    self.panelData = {
+                        totalDataUsage: total.DataWeek ? total.DataWeek:0,///1048576 : 0,
+                        totalSMSUsage: total.SMSMOWeek + total.SMSMTWeek,
+                        totalDuration: total.DurationWeek,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionWeek,
+                        loaded: true
+                    }
+                break
+                case 'monthly':
+                    self.panelData = {
+                        totalDataUsage: total.DataMonth ? total.DataMonth:0,///1048576 : 0,
+                        totalSMSUsage: total.SMSMOMonth + total.SMSMTMonth,
+                        totalDuration: total.DurationMonth,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionMonth,
+                        loaded: true
+                    }
+                break
+                case 'yearly':
+                    self.panelData = {
+                        totalDataUsage: total.DataYear ? total.DataYear:0,///1048576 : 0,
+                        totalSMSUsage: total.SMSMOYear + total.SMSMTYear,
+                        totalDuration: total.DurationYear,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+                        totalDataSessions: total.SessionYear,
+                        loaded: true
+                    }
+                break
+            }
+          }            
+        })
+
+        /*await getDemoOwerview(this.$store.state.user.login, imsi).then(response => {
             switch (period){
                 case 'daily':
                     this.panelData = {
@@ -621,85 +686,81 @@ export default {
                     }
                 break
             } 
-        })
+        })*/
     },
-    async getProfile() {
-      let self = this
 
-      const response = await getSIMAsync(this.simQuery).catch(e=>{console.log('ERRR-sim')
-      })
-      if(response != undefined){
-        console.log('OKKK-sim', response)
-        this.smsQuery = {
-        imsi: response.data.info.imsi,
+    /*
+    async searchTable() {
+      this.list = []
+      let pref_1 = this.tableData === 'SMS Usage'?'S':'D'
+      let sort = this.tableData === 'SMS Usage'?'DataDay':'DataDay'
+      let pref_2 = 'D'    
+      this.listLoading = true
+      const today = new Date()
+      switch (this.tablePeriod){
+        case 'Today':
+            pref_2 = 'D'
+            break
+        case 'Week':
+            pref_2 = 'W'
+            break
+        case 'Month':
+            pref_2 = 'M'
+            break
+        case 'Year':
+            pref_2 = 'Y'
+            break
       }
-      this.cdrsQuery.id = response.data._id
-      
-      this.simQuery.id = response.data._id
-      /*this.panelData = {
-        totalDataUsage: 23,
-        totalSMSUsage: 2,
-        totalDuration: 20,
-        totalDataSessions: 300,
-        loaded: true
-      }*/
 
-      let network = '', endTime = ''
-      
-      /*if(response.data.extra.activity.hasOwnProperty('samples')){
-        let sessionArr = response.data.extra.activity.samples.map(el => ({...el, updateDate: response.data.extra.activity.date}))
-        
-        let sortedArr = sessionArr
-        this.sessionList = sortedArr.reverse()
+      const current = moment()          
 
-        let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
-      }*/
-      
-      //this.locationList[8].value = endTime.slice(0,19).replace('T', ' ')
-      //this.locationList[9].value = response.data?.extra?.activity?.totals?.totalDataUsage
-      
-      const response_1 = await getCDRSAsync(this.cdrsQuery).catch(e=>{console.log('ERRR-sess')})
-     if(response_1!=undefined){
-        const arrLabel = [], arrData = []
-        //let sessionArr = []
-        let totalData = 0
-        let totalSMS = 0
-        
-        console.log('OKKK-sess', response_1)
-        response_1.data.forEach(element => {
+      let self = this
+      var settings = {
+        "url": 'https://test.m2mdata.co/JT/Sim/Query',
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+        "token": "00000000-0000-0000-0000-000000000000",
+        "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "data": {
+          'UsageReportType': pref_1 + pref_2,
+          'sort': sort,
+          'order': 'desc' 
+        }
+      };
+
+      let totalSMS = 0;
+      let totalData = 0;
+
+      $.ajax(settings).done(function (response) { 
+          let rows = response.rows   
           
-            //usageLabels.push(element.date.slice(0, 10))          
-            //usageData.push(element.totals?.data.originalUnits/1048576)
+          const arrTable = []
 
+          rows.forEach((element, index) => {
+           arrTable.push({
+              num: index + 1,
+              imsi: element.IMSI,
+              customer: element.OrganizeName,
+              total: (element.DataDay/1048576).toFixed(3),
+              csp: element.ServiceProfileName,
+              sms: element.TotalSMSMO + element.TotalSMSMT,
+              sessions: element.SessionDay,
+              lastUpdate: element.DataUpdateTime
+          })
+       
             arrLabel.push(element.date.slice(0, 10))   
             let chartData = isNaN(parseFloat(element.totals?.data.originalUnits/1048576))?0:element.totals?.data.originalUnits/1048576
             arrData.push((+chartData).toFixed(1))
             totalData += +chartData
             let chartSMS = isNaN(parseFloat(element.totals?.sms?.originalUnits))?0:element.totals?.sms?.originalUnits
             totalSMS += +chartSMS
-              /*~~sesif(element.hasOwnProperty('samples')){
-                if(element.samples !== null){
-                  sessionArr = (element.samples.map(el => ({...el, updateDate: element.date}))).concat(sessionArr)
-            
-                }
-              }*/
               
-
-            // let {network, endTime} = response.data.extra.activity.samples[response.data.extra.activity.samples.length - 1]
-            
-
         })
 
-          const averageData = totalData/response_1.data.length
-
-        /*let sortedArr = sessionArr.sort(function(a,b){
-          let c = new Date(a.startTime)
-          let d = new Date(b.startTime)
-          return d-c
-        })*/
-
-        //this.sessionList = sortedArr
-      
+        const averageData = totalData/response_1.data.length
+     
         
         this.chartOptions = {
             chart: {
@@ -761,19 +822,104 @@ export default {
             type: 'line',
             data: arrData.map(el=>el=totalSMS)
           }]
-      }  
+        
+      })
+    },*/
 
+    async getProfile() {
+      let self = this
 
+     const imsi =  this.$route.params.id
+        var settings = {
+          "url": 'https://test4.m2mdata.co/JT/Report/DailyUsage?IMSI='+imsi,
+          "method": "POST",
+          "timeout": 0,
+          "headers": {
+          "token": "00000000-0000-0000-0000-000000000000",
+          "Content-Type": "application/x-www-form-urlencoded"
+          },
+          "data": {
+            "Since": moment(curday, 'YYYY-MM-DD').add(-10, 'days').format('YYYY-MM-DD'),
+            "page": "1",
+            "rows": "14"
+          }
+        };
 
+        $.ajax(settings).done(function (response) {
+          if(response.Data.length){
 
+            const arrLabel = [], arrData = []
+            let totalData = 0
+            response.Data.forEach(element => {
+              arrLabel.push(element.Date.slice(0, 10))
+              let chartData = element.Usage/1048576
+              arrData.push((+chartData).toFixed(1))
+              totalData += +chartData
+            })
+            const averageData = totalData/response.Data.length
 
+            self.chartOptions = {
+              chart: {
+                height: 350,
+                offsetX: 0,
+                type: 'line',
+              },          
+              stroke: {
+                width: [0, 1, 1]
+              },          
+              markers: {
+                size: [0, 4, 4]
+              },
+              colors: ['rgb(182, 162, 222)', '#ffb880', '#d77980'],
+              dataLabels: {
+                enabled: false
+              },          
+                legend: {
+                  show: false
+                },
+              grid: {
+                show: true,
+                xaxis: {
+                  categories: arrLabel,
+                  lines: {
+                    show: true
+                  }
+                },
+                yaxis: {
+                  lines: {
+                    show: true
+                  },
+                }
+              },
+              yaxis: {            
+                  labels: {
+                    formatter: function(val, index) {
+                      return val.toFixed(2)
+                    }
+                  }
+              },
+              xaxis: {
+                categories: arrLabel
+              }
+            }
 
-      }
-
-
-
-
-      
+            self.series = [{
+              name: 'Data Usage',
+              data: arrData,
+              type: 'column'
+            },
+            {
+              name: 'Average',
+              type: 'line',
+              data: arrData.map(el=>el=averageData)
+            },
+            {
+              name: 'Limit',
+              type: 'line',
+              data: arrData.map(el=>el=5)
+            }]
+          }
+          })
 
       
       
@@ -808,6 +954,17 @@ export default {
       let responseProfile = await fetchSIMList(query) 
       if(responseProfile){        
         let objProfile = responseProfile.rows[0]
+
+        
+        this.panelData = {
+            totalDataUsage: objProfile.DataDay ? objProfile.DataDay:0,///1048576 : 0,
+            totalSMSUsage: objProfile.SMSMODay + objProfile.SMSMTDay,
+            totalDuration: objProfile.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+            totalDataSessions: objProfile.SessionDay,
+            loaded: true
+        }
+
+
         this.temp = {
           imsi: objProfile.IMSI,
           iccid: objProfile.ICCID,
@@ -836,10 +993,27 @@ export default {
         */
 
         self.currentState = this.temp.state
+        let utcDate = ''
+        if(objProfile.DataUpdateTime != null){
+          const activityTime = objProfile.DataUpdateTime
+          let utcActivityDate = moment.utc(activityTime).toDate()
+          utcDate = utcActivityDate.getDate() + ' ' + self.month_names_short[utcActivityDate.getMonth()] + ' ' + utcActivityDate.getFullYear() + ' ' + ('0' + utcActivityDate.getHours()).slice(-2) + ':' + ('0' + utcActivityDate.getMinutes()).slice(-2) + ':' + ('0' + utcActivityDate.getSeconds()).slice(-2)
+                      
+          this.lastUpdateTime = utcDate
+        }
+        if(!utcDate.length){
+
+        }
+        else if(utcDate >= halfDayAgo){
+            rag = 'bg-color-green'
+          }else if(utcDate >= oneDayAgo && utcDate < halfDayAgo){
+            rag = 'bg-color-yellow'
+          }else {
+            rag = 'bg-color-red'
+          }
         
-        const activityTime = objProfile.DataUpdateTime;
         
-        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${objProfile.IMSI}`)
+        /*~~const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${objProfile.IMSI}`)
         let resActiveSession = await responseActiveSession.json()
                         
         if(resActiveSession.Data){
@@ -862,10 +1036,8 @@ export default {
 						let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
 										 
             this.lastUpdateTime = utcDate
-            //this.lastUpdateTime = resActiveSession.Data.lastInterimDateField
 
           if(simActivityTime >= halfDayAgo){
-            console.log('gr2',simActivityTime)
               rag = 'bg-color-green'
             }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
               rag = 'bg-color-yellow'
@@ -873,7 +1045,7 @@ export default {
               rag = 'bg-color-red'
             }
           }
-        }
+        }*/
         
 
           var listQuery_1 = {
@@ -920,10 +1092,8 @@ export default {
 
           self.sessionList = sortedArr
 
-          if(self.lastUpdateTime.length==0){		
-            
+          /*if(self.lastUpdateTime.length==0){           
               
-              //~~const simActivityTime = moment(result_1.Data.split(',')[5], 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
               self.lastUpdateTime = sortedArr[0].end
               
               const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
@@ -935,7 +1105,7 @@ export default {
               }else {
                 rag = 'bg-color-red'
               }									
-            }
+            }*/
           }
 
         /*
@@ -1000,7 +1170,7 @@ export default {
 
         })
       
-
+    }
         
         
         /*~~~if(this.temp.state == 'Suspended'){
@@ -1027,7 +1197,7 @@ export default {
             self.currentStateColor = 'bg-color-yellow'
           }
         }*/
-      }
+      //}
       
         const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
         let resHLR = await responseHLR.json()
@@ -1062,11 +1232,11 @@ export default {
       let self = this
       //const response = await forceReconnectAsync(this.simQuery)     
       let queryLBS = {
-				  imsi: [this.$route.params.id]
+				  imsis: [this.$route.params.id]
 				}
 				
 				let settingsLBS = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Refresh",
+				  "url": "https://test4.m2mdata.co/JT/Sim/Refresh",
 				  "method": "POST",
 				  "timeout": 0,
 				  "headers": {
@@ -1075,10 +1245,11 @@ export default {
 				  },
 				  "data": queryLBS
 				};
-
+    
 				$.ajax(settingsLBS).done(function (result) {
             self.isLoading = false
-					if(result.MajorCode == '000'){
+					if(result.MajorCode == '000'){   
+            //self.showLocation()
             self.$alert('Sim state refreshed', 'M2M Data Message', {type: 'message'})
           }else{
             self.$alert('Sim state was not refreshed', 'M2M Data Message', {type: 'message'})
@@ -1107,7 +1278,10 @@ export default {
 				$.ajax(settingsLBS).done(function (result) {
             self.isLoading = false
 					if(result.MajorCode == '000'){
-            self.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
+            //self.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
+            
+            self.mapFormVisible = false
+            self.showLocation()
           }else{
             self.$alert('Sim connection was not refreshed', 'M2M Data Message', {type: 'message'})
           }
@@ -1227,12 +1401,16 @@ export default {
 				};
 
 				$.ajax(settingsLBS).done(function (result) {
-          console.log('lbs',result)
+          const activityTime = result.Data.DataUpdateTime
+          let utcActivityDate = moment.utc(activityTime).toDate()
+          let utcDate = utcActivityDate.getDate() + ' ' + self.month_names_short[utcActivityDate.getMonth()] + ' ' + utcActivityDate.getFullYear() + ' ' + ('0' + utcActivityDate.getHours()).slice(-2) + ':' + ('0' + utcActivityDate.getMinutes()).slice(-2) + ':' + ('0' + utcActivityDate.getSeconds()).slice(-2)
+                      
+        
           self.locationList[0].value = result.Data.IMSI
           self.locationList[1].value = result.Data.LbsNetwork
           self.locationList[2].value = result.Data.LbsArea
-          self.locationList[6].value = result.Data.LbsRadio
-          self.locationList[7].value = result.Data.LbsRange
+          self.locationList[6].value = result.Data.LbsRadio + ' ' + result.Data.LbsRange
+          self.locationList[7].value = utcDate
           self.locationList[8].value = result.Data.SessionDay
           self.locationList[9].value = (result.Data.DataDay/1048576).toFixed(3)
           const query_1 = {
