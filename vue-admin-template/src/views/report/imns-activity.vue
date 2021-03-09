@@ -145,11 +145,11 @@
           <el-row :gutter="16" style="border-bottom: 1px solid #e3e3e3">
             <el-col :xs="100" :sm="100" :md="100" :lg="100">
               <el-form-item label="" prop="title">
-                <span class="label-span">Since</span>
+                <span class="label-span">Start date</span>
                 <el-date-picker v-model="listQuery.date1" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-                <!--<span class="label-span">End date</span>
+                <span class="label-span">End date</span>
                 <el-date-picker v-model="listQuery.date2" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-              --></el-form-item>
+              </el-form-item>
             </el-col>
           </el-row>
           <el-row :gutter="16" style="">
@@ -592,7 +592,8 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded"
           },
           "data": {
-            "Since": this.listQuery.date1,
+            "From": this.listQuery.date1,
+            "To": this.listQuery.date2,
             "page": "1",
             "rows": "100"
           }

@@ -78,17 +78,17 @@
                 </template>
                 </el-table-column>
 
-                <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width" fixed="right">
+                <el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
                     <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
                     <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
-                    </el-button>
+                    </el-button><!--
                     <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
                     Remote 
-                    </el-button>
+                    </el-button>-->
                 </template>
                 </el-table-column>
             </el-table>

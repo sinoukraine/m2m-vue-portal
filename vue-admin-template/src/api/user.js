@@ -53,14 +53,14 @@ export async function qtRemoteLogin(query) {
     const requestOptions = {
       method: 'GET',
       //redirect: 'follow',      
-     //url: 'http://test.m2mdata.co/service/User/ReAuth?token=00000000-0000-0000-0000-000000000000',
+     //url: 'http://test4.m2mdata.co/service/User/ReAuth?token=00000000-0000-0000-0000-000000000000',
      // data: formData,
       /*headers: { 
         'token': '00000000-0000-0000-0000-000000000000', 
         'Content-Type': 'application/x-www-form-urlencoded'
       },*/
     }
-    fetch('http://test.m2mdata.co/service/User/ReAuth?token=00000000-0000-0000-0000-000000000000')
+    fetch('http://test4.m2mdata.co/service/User/ReAuth?token=00000000-0000-0000-0000-000000000000')
         .then(response => {
           console.log('test',response)
           return response.json()}
@@ -79,7 +79,7 @@ export async function qtRemoteLogin(query) {
   })
   var config = {
      method: 'get',
-     url: 'http://test.m2mdata.co/service/User/ReAuth',
+     url: 'http://test4.m2mdata.co/service/User/ReAuth',
      headers: { 
        'token': query.token, 
        'Content-Type': 'application/x-www-form-urlencoded'
@@ -89,7 +89,7 @@ export async function qtRemoteLogin(query) {
 
   try {    
     
-    const response = await fetch(`http://test.m2mdata.co/service/User/ReAuth`, config)
+    const response = await fetch(`http://test4.m2mdata.co/service/User/ReAuth`, config)
     //const response = await axios(config)
     //const response = await axios.get(API_METHODS.REMOTE_LOGIN + '?token=' + query.token, formData );
     if(response.data.MajorCode === '000'){
@@ -252,7 +252,7 @@ export async function createCustomer(query) {
   var formData = qs.stringify(query)
    var config = {
      method: 'post',
-     url: 'https://test.m2mdata.co/Service/Organize/Add',
+     url: 'https://test4.m2mdata.co/Service/Organize/Add',
      headers: { 
        'token': '00000000-0000-0000-0000-000000000000', 
        'Content-Type': 'application/x-www-form-urlencoded'
@@ -292,7 +292,7 @@ export async function updateCustomer(query) {
   var formData = qs.stringify(query)
    var config = {
      method: 'post',
-     url: 'https://test.m2mdata.co/Service/Organize/Edit',
+     url: 'https://test4.m2mdata.co/Service/Organize/Edit',
      headers: { 
        'token': '00000000-0000-0000-0000-000000000000', 
        'Content-Type': 'application/x-www-form-urlencoded'
@@ -405,7 +405,7 @@ export async function updateSIM(query) {
   var formData = qs.stringify(query)
    var config = {
      method: 'post',
-     url: 'https://test.m2mdata.co/Service/JTSim/Edit',
+     url: 'https://test4.m2mdata.co/Service/JTSim/Edit',
      headers: { 
        'token': '00000000-0000-0000-0000-000000000000', 
        'Content-Type': 'application/x-www-form-urlencoded'
@@ -516,6 +516,26 @@ export async function setTerminateState(query) {
       return response.data
     }else{
       response.data.method = 'setTerminateState';
+      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
+      return false
+    }
+  }catch (e) {
+    console.log(e)
+    store.commit('app/SET_ERROR', e)
+    return false
+  }
+}
+
+
+export async function moveSIMs(query) {
+  let data = getFormDataFromObject(query)
+
+  try {
+    const response = await axios.post(API_METHODS.SIM_MOVE, data )
+    if(response.data.MajorCode){
+      return response.data
+    }else{
+      response.data.method = 'moveSIMs';
       store.commit('app/SET_API_VALIDATION_ERROR', response.data)
       return false
     }

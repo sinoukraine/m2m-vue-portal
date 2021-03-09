@@ -694,7 +694,7 @@ export function createArticle(data) {
   }
 
   return new Promise((resolve, reject) => {
-    fetch('http://test.m2mdata.co/Service/Language/Add', requestOptions)
+    fetch('http://test4.m2mdata.co/Service/Language/Add', requestOptions)
       .then(response => response.json())
       .then(result => {
         resolve(result)
@@ -727,7 +727,7 @@ export function updateArticle(data) {
   }
 
   return new Promise((resolve, reject) => {
-    fetch('http://test.m2mdata.co/Service/Language/Edit', requestOptions)
+    fetch('http://test4.m2mdata.co/Service/Language/Edit', requestOptions)
       .then(response => response.json())
       .then(result => {
         /* const { data } = result
@@ -766,7 +766,7 @@ export function deleteArticle(data) {
   console.log(data)
 
   return new Promise((resolve, reject) => {
-    fetch('http://test.m2mdata.co/Service/Language/Remove', requestOptions)
+    fetch('http://test4.m2mdata.co/Service/Language/Remove', requestOptions)
       .then(response => response.json())
       .then(result => {
         resolve()

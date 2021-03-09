@@ -69,6 +69,44 @@
     </el-row>
   </el-dialog>
   
+
+  
+  <el-dialog title="Move SIMs to" :visible.sync="moveFormVisible" width="30%" class="bg-white" >
+      <el-form ref="dataFormMove" :rules="rulesMove" :model="tempMove" label-position="top" label-width="70px" @submit.native.prevent="onMoveFormSubmit">
+        <input type="submit" class="display-none" >
+
+        <el-row :gutter="16">
+        <el-col :xs="24" :sm="24" class="lg-pr-0">   
+            <el-form-item :label="'Organize'" prop="Organize">
+            <el-select v-model="tempMove.Organize" :placeholder="$t('ORGANIZE')" class="">
+              <el-option v-for="item in organizeOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+            </el-select>
+            </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="24" class="lg-pr-0">            
+            <el-form-item :label="'Number'" prop="Number">
+              <el-input v-model="tempMove.Number"  :placeholder="'Number'"/>
+            </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="24" class="lg-pr-0">            
+            <el-form-item :label="$t('REMARK')" prop="Remark">
+            <el-input v-model="tempMove.Remark"  :placeholder="$t('REMARK')"/>
+            </el-form-item>
+        </el-col>
+      </el-row>      
+      <el-row>
+        <div class="card-flex">
+          <div class="card-inline card-panel-left">
+          </div>
+          <div class="card-inline card-panel-right">
+            <el-button type="info" class="blue-btn mt-25" @click="handleMoveSIMs">Save</el-button>
+          </div>
+        </div>
+      </el-row>
+      </el-form>
+  </el-dialog>
+
+
   <el-dialog title="Set Service Profile" :visible.sync="sspFormVisible" width="30%" class="bg-white" >
       <el-row :gutter="16">
         <el-col :xs="24" :sm="24" class="lg-pr-0">
@@ -115,7 +153,7 @@
                   <div class="buttons-row">
                       <el-button v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATION') }}</el-button>
                       <el-button v-waves class="button-custom" @click="showStateForm"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
-                      <!--<el-button v-waves class="button-custom"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>-->
+                      <el-button v-waves class="button-custom" @click="showMoveForm"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
                       <el-button v-waves class="button-custom" @click="showCSPForm"><item :icon="'csp-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
                       <!--<el-button v-waves class="button-custom"><item :icon="'profile-blue'"/> {{ $t('CUSTOM') }}</el-button>
                       <el-button v-waves class="button-custom"><item :icon="'solution-blue'"/> {{ $t('SOLUTION') }}</el-button>-->
@@ -481,7 +519,7 @@ import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import { SIMStatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
 //import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchSIMPosition, fetchCustomersList, setActivateState, setSuspendState, setResumeState, setTerminateState, setServiceProfileOptions, fetchServiceProfileOptions, fetchSIMList, createSIM, updateSIM, deleteCustomer, fetchServiceProfileList, changeOrgState } from "@/api/user";
+import { fetchSIMPosition, fetchCustomersList, setActivateState, setSuspendState, setResumeState, setTerminateState, setServiceProfileOptions, fetchServiceProfileOptions, fetchSIMList, createSIM, updateSIM, deleteCustomer, fetchServiceProfileList, changeOrgState, moveSIMs } from "@/api/user";
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
 import { getSIMListAsync, getSIM, getSIMAsync, getCustomerList, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
@@ -553,6 +591,7 @@ export default {
       isLoading: false,
       fullPage: true,      
       mapFormVisible: false,
+      moveFormVisible: false,
       stateFormVisible: false,
       sspFormVisible: false,
       checkboxICCID: false,
@@ -574,7 +613,14 @@ export default {
       checkboxDataUsage: true,
       checkboxSMSUsage: true,
       searchedParent: '',
+      selectedNumber: '',
+      selectedRemark: '',
       organizeOptions: [],
+      tempMove: {        
+        Organize: null,
+        Remark: '',
+        Number: ''
+      },
       selectedState: 0,
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
@@ -637,6 +683,11 @@ export default {
       },
       //dialogPvVisible: false,
       //pvData: [],
+       rulesMove: {
+        Remark: [{ required: false, message: 'Remark cannot be longer than 100 characters', max: 100 }],
+        Number: [{ required: false, message: 'Number cannot be longer than 50 characters', max: 50 }],
+        Organize: [{ required: true, message: 'Organize is required', trigger: 'change' }],
+       },
       rules: {
         Name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
         FirstName: [{ required: true, message: 'First Name is required', trigger: 'blur' }],
@@ -695,7 +746,7 @@ export default {
     //this.getCSPOptions()
     this.getServiceProfileOptions()
     this.getStateOptions()
-    /*~~~this.getOrganizeOptions()*/
+    this.getOrganizeOptions()
     /*this.getCountryOptions()
     this.getWebSiteOptions()
     this.getLanguageOptions()
@@ -784,6 +835,12 @@ export default {
       
       this.stateFormVisible = true
       this.isLoading = false 
+    },
+    showMoveForm(){
+      this.isLoading = true    
+      
+      this.moveFormVisible = true
+      this.isLoading = false     
     },
     showCSPForm(){
       this.isLoading = true    
@@ -943,6 +1000,42 @@ export default {
           this.$alert('Something wrong...', 'M2M Data Message', {type: 'message'})
         })
       }            
+    },
+    async handleMoveSIMs(){
+       this.$refs['dataFormMove'].validate(async (valid) => {
+        if (!valid){
+          return false
+        }
+
+      let checkSIM = false
+      const arr = []
+      for (let i = 0; i < this.multipleSIMSelection.length; i++) {        
+        arr.push(this.multipleSIMSelection[i].IMSI)
+        checkSIM = true 
+      }
+      if(!checkSIM){
+        this.$alert('There are no SIM to move', 'M2M Data Message', {type: 'message'}) 
+        this.moveFormVisible = false
+      }else{
+        const query = {
+          IMSIs: arr,
+          toorganizecode: this.tempMove.Organize,
+          Number: this.tempMove.selectedNumber,
+          Remark: this.tempMove.selectedRemark
+        }   
+        const response = await moveSIMs(query).then(r=>{
+          if(r.MajorCode == '000'){            
+            this.$alert('SIMs was moved successfully', 'M2M Data Message', {type: 'message'})
+            this.moveFormVisible = false
+            this.getList()
+          }else{
+            this.$alert('SIMs was not moved', 'M2M Data Message', {type: 'message'})
+          }
+        }).catch(e=>{
+          this.$alert('Something wrong...', 'M2M Data Message', {type: 'message'})
+        })
+      }            
+       })
     },
     handleSelectionChange(val) {
       this.multipleSIMSelection = val
@@ -1654,6 +1747,10 @@ export default {
   .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
     border-color: #ffc496;
     background-color: #ffc496;
+  }
+
+  .mt-10{
+    margin-top: 10px;
   }
 
 </style>

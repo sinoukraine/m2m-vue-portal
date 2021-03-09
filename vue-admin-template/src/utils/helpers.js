@@ -1,4 +1,4 @@
-const DOMAIN = 'https://test.m2mdata.co/'
+//const DOMAIN = 'https://test.m2mdata.co/'
 const DOMAIN1 = 'https://test4.m2mdata.co/'
 const DOMAIN2 = 'https://test4.m2mdata.co/'
 
@@ -32,16 +32,17 @@ export const API_METHODS = {
   SIM_CREATE: DOMAIN2 + 'JT/Sim/Add',
   SIM_EDIT: DOMAIN2 + 'JT/Sim/Edit',
   SIM_DELETE: DOMAIN2 + 'JT/Sim/Remove',
-  SIM_GET_SERVICE_PROFILE_OPTIONS: DOMAIN1 + 'service/JTSim/GetServiceProfileOptions',
+  SIM_GET_SERVICE_PROFILE_OPTIONS: DOMAIN1 + 'JT/ServiceProfile/Query',
   SIM_SET_SERVICE_PROFILE: DOMAIN2 + 'JT/Sim/SetSimServiceProfile',
   SIM_SET_ACTIVATE: DOMAIN2 + 'JT/Sim/Activate',
   SIM_SET_SUSPEND: DOMAIN2 + 'JT/Sim/Suspend',
   SIM_SET_RESUME: DOMAIN2 + 'JT/Sim/Resume',
   SIM_SET_TERMINATE: DOMAIN2 + 'JT/Sim/Terminate',
   SIM_GET_POSITION: DOMAIN2 + 'JT/Sim/QueryLBSInfo',
+  SIM_MOVE: DOMAIN2 + 'JT/Sim/Transfer',
   
 
-  CUSTOMER_GET_LIST: DOMAIN + 'service/Organize/Query',
+  CUSTOMER_GET_LIST: DOMAIN1 + 'Service/Organize/Query',
   CUSTOMER_CREATE: DOMAIN1 + 'service/Organize/Add',
   CUSTOMER_EDIT: DOMAIN1 + 'service/Organize/Edit',
   CUSTOMER_CHANGE_STATE: DOMAIN1 + 'service/Organize/SetState',
