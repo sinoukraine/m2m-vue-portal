@@ -123,7 +123,7 @@
                 <el-row :gutter="16">
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="Account(Login name)" prop="Account">
-                    <el-input v-model="temp.Account" />
+                    <el-input v-model="temp.Account"  placeholder="Account"/>
                     </el-form-item>
                 </el-col>
                 <!--<el-col :xs="24" :sm="12">
@@ -132,11 +132,31 @@
                     </el-form-item>
                 </el-col>-->
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Organization" prop="OrganizeCode">
-                    <el-select v-model="temp.OrganizeCode" class="filter-item w-100" placeholder="Please select" @change="onOrganizeCodeChange($event)">
+                   <el-form-item v-if="dialogStatus === 'update'" label="Organization" prop="OrganizeName">   
+                      <el-input :value="temp.OrganizeName" disabled placeholder="Organization"/>
+                    </el-form-item>
+                      <el-form-item v-else :label="$t('ORGANIZE')" prop="OrganizeCode" class="w-100">
+                        <input type="hidden" :value="temp.OrganizeCode" >
+                        <el-select
+                          ref="organizeSearchSelect"
+                          v-model="searchedOrganizeCreate"
+                          :remote-method="querySearchOrganizeCreate"
+                          filterable
+                          default-first-option
+                          clearable
+                          remote
+                          placeholder="Organization"
+                          class="organize-search-select w-100"
+                          @change="changeOrganizeCreate"
+                        >
+                          <el-option v-for="item in organizeCreateArr" :key="item.Code" :value="item" :label="item.Name" />
+                        </el-select>
+                      </el-form-item>
+                    <!--<el-form-item label="Organization" prop="OrganizeCode">                    
+                    <el-select v-model="temp.Organize" class="filter-item w-100" placeholder="Please select" @change="onOrganizeCodeChange($event)">
                         <el-option v-for="item in organizeOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>
-                    </el-form-item>
+                    </el-form-item>-->
                 </el-col>
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="User Role" prop="RoleCode">
@@ -147,22 +167,22 @@
                 </el-col>
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="First Name" prop="FirstName">
-                    <el-input v-model="temp.FirstName" />
+                    <el-input v-model="temp.FirstName"  placeholder="First Name"/>
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Last Name" prop="SubName">
-                    <el-input v-model="temp.SubName" />
+                    <el-form-item label="Last Name" prop="SubName" >
+                    <el-input v-model="temp.SubName"  placeholder="Sub Namee"/>
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="Email" prop="Email">
-                    <el-input v-model="temp.Email" />
+                    <el-input v-model="temp.Email"  placeholder="Email"/>
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="Mobile" prop="Mobile">
-                    <el-input v-model="temp.Mobile" />
+                    <el-input v-model="temp.Mobile"  placeholder="Mobile" />
                     </el-form-item>
                 </el-col>
 
@@ -267,7 +287,7 @@ import { mapGetters } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList } from "@/utils/dictionaries";
 import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchUsersList, createUser, updateUser, deleteUser, resetPassword } from "@/api/user";
+import { fetchCustomersList, fetchUsersList, createUser, updateUser, deleteUser, resetPassword } from "@/api/user";
 import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
 
@@ -288,7 +308,8 @@ export default {
   data() {
     //console.log(this.$store.getters.userInfo.OrganizeCode)
     return {
-        isRightPanelVisible: true,
+      searchedOrganizeCreate: null,
+      isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       tableKey: 0,
       list: null,
@@ -320,7 +341,8 @@ export default {
       organizeOptions: [],
       temp: {
         //GroupCode: '',
-        OrganizeCode: this.$store.getters.userInfo.OrganizeCode,
+        Organize: null,
+        OrganizeCode: '',//this.$store.getters.userInfo.OrganizeCode,
         //id: undefined,
         //importance: 1,
         //Remark: '',
@@ -353,14 +375,14 @@ export default {
         OrganizeCode: [{ required: true, message: 'Organize is required', trigger: 'change' }],
 
       },
-      downloadLoading: false
-
+      downloadLoading: false,
+      organizeCreateArr: [],
     }
   },
   created() {
     //this.getOSPAdditionalInfo()
     this.getList()
-    this.getOrganisationsList()
+    //this.getOrganisationsList()
     this.getOrganisationRoles()
 
   },
@@ -368,6 +390,38 @@ export default {
     ...mapGetters(['userInfo'])
   },
   methods: {
+    
+    querySearchOrganizeCreate(query) {
+      if (query !== '') {        
+        if(query.length > 1) {
+          this.searchOrganizeCreate(query)
+        }      
+      } else {
+        this.organizeCreateArr = []
+      }
+    },
+    async searchOrganizeCreate(query) {
+      const arr = []      
+      this.organizeCreateArr = []
+      let listQuery = {
+        q: query
+      }
+      let response = await fetchCustomersList(listQuery)
+      response.rows.forEach(element => {
+        arr.push({
+          Code: element.Code,
+          Name: element.Name
+        })
+      })
+       this.organizeCreateArr = arr
+    },
+    changeOrganizeCreate(val) {
+      this.organizeCreateArr = []
+      this.searchedOrganizeCreate = val
+      this.temp.OrganizeCode = val.Code
+    },
+
+
      async remoteAccess(token) {  
       
           //this.loading = true
@@ -433,12 +487,23 @@ export default {
 
       //console.log(response)
     },
-    async getOrganisationsList(){
+    /*async getOrganisationsList(){
+      let query = {
+        Page: 1,
+        Rows: 1000,
+      }
+      let response = await fetchCustomersList()
+      
+      if(!response){
+        return
+      }
+      let list = response.rows
       this.organizeOptions = [{
         Name: this.userInfo.OrganizeName,
         Code: this.userInfo.OrganizeCode
-      }]
-    },
+      }].concat(list)
+      console.log('custlist', list)
+    },*/
     handleFilter() {
       this.listQuery.Page = 1
       this.getList()
@@ -464,7 +529,8 @@ export default {
     resetTemp() {
       this.temp = {
         //GroupCode: '',
-        OrganizeCode: this.userInfo.OrganizeCode,
+        OrganizeCode: '',//this.userInfo.OrganizeCode,
+        Organize: null,//this.organizeOptions.find(el=>el.Code = this.userInfo.OrganizeCode)
         //id: undefined,
         //importance: 1,
         //Remark: '',
@@ -476,6 +542,7 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
+
       this.dialogStatus = 'create'
       this.isDialogFormVisible = true
       this.$nextTick(() => {
@@ -484,6 +551,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      this.temp.Organize = this.organizeOptions.find(el=>el.Code = this.temp.OrganizeCode)
      // this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.isDialogFormVisible = true
@@ -505,14 +573,12 @@ export default {
       this.list.splice(index, 1)
     },
     onEditFormSubmit(){
-      //this.dialogStatus === 'create' ? this.createData() : this.updateData()
-      let tempData = Object.assign({}, this.temp)
-      this.$refs['dataForm'].validate(async (valid) => {
+        let tempData = Object.assign({}, this.temp)
+        this.$refs['dataForm'].validate(async (valid) => {
         if (!valid){
           return false
         }
-        //console.log(tempData)
-        //return;
+        
         this.isFormLoading = true;
         let response = this.dialogStatus === 'create' ? await createUser(tempData) : await updateUser(tempData)
         this.isFormLoading = false;

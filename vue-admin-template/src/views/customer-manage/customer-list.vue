@@ -112,17 +112,17 @@
                     </el-tag>
                 </template>
                 </el-table-column>
-                <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width" fixed="right">
+                <el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
                     <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
                     <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
-                    </el-button>
+                    </el-button><!--
                     <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
                     Remote 
-                    </el-button>
+                    </el-button>-->
                 </template>
                 </el-table-column>
             </el-table>
@@ -147,11 +147,32 @@
                     </el-form-item>
                 </el-col>                
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Parent" prop="ParentCode">
-                    <el-select v-model="temp.ParentCode" :disabled="dialogStatus=='create'?false:true" class="filter-item w-100" placeholder="Please select"><!-- @change="onParentCodeChange($event)"-->
+                    <el-form-item v-if="dialogStatus === 'update'" label="Parent" prop="ParentName">   
+                      <el-input :value="temp.ParentName" disabled placeholder="Parent"/>
+                    </el-form-item>
+                      <el-form-item v-else :label="'Parent'" prop="ParentCode" class="w-100">
+                        <input type="hidden" :value="temp.ParentCode" >
+                        <el-select
+                          ref="parentSearchSelect"
+                          v-model="searchedParentCreate"
+                          :remote-method="querySearchParentCreate"
+                          filterable
+                          default-first-option
+                          clearable
+                          remote
+                          placeholder="Parent"
+                          class="parent-search-select w-100"
+                          @change="changeParentCreate"
+                        >
+                          <el-option v-for="item in parentCreateArr" :key="item.Code" :value="item" :label="item.Name" />
+                        </el-select>
+                      </el-form-item>
+                    <!--<el-form-item label="Parent" prop="ParentCode">
+                    <el-select v-model="temp.ParentCode" :disabled="dialogStatus=='create'?false:true" class="filter-item w-100" placeholder="Please select">
                         <el-option v-for="item in parentOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>
-                    </el-form-item>
+                    </el-form-item>-->
+
                 </el-col>
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="First Name" prop="FirstName">
@@ -213,7 +234,7 @@
                     </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col :xs="24" :sm="12">
+                <!--<el-col :xs="24" :sm="12">
                     <el-form-item label="Web Site" prop="WebSiteCode">
                     <el-select v-model="temp.WebSiteCode" class="filter-item w-100" placeholder="Please select">
                         <el-option v-for="item in webSiteOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
@@ -285,7 +306,7 @@
                     <el-form-item label="Address" prop="Address">
                     <el-input v-model="temp.Address" />
                     </el-form-item>
-                </el-col>
+                </el-col>-->
                 </el-row>
 
             </el-form>
@@ -442,6 +463,8 @@ export default {
   },
   data() {
     return {
+      parentCreateArr: [],
+      searchedParentCreate: null,
       searchedParent: '',
       parentArr: [],
       isRightPanelVisible: true,
@@ -492,6 +515,10 @@ export default {
         VolumeUnit: VolumeUnitList[0],
         TemperatureUnit: TemperatureUnitList[0],
         PressureUnit: PressureUnitList[0],
+        ParentCode: '',
+        WebSiteCode: '_',
+        AddressCode: '_',
+        Address: '_',
       },
       isDialogFormVisible: false,
       isFormLoading: false,
@@ -519,8 +546,8 @@ export default {
         CityCode: [{ required: true, message: 'City is required', trigger: 'blur' }],
         CountryCode: [{ required: true, message: 'Country is required', trigger: 'change' }],
         ParentCode: [{ required: true, message: 'Parent is required', trigger: 'change' }],
-        ServiceProfileCode: [{ required: true, message: 'Parent is required', trigger: 'change' }],
-        WebSiteCode: [{ required: true, message: 'Parent is required', trigger: 'change' }],
+        ServiceProfileCode: [{ required: true, message: 'Service Profile is required', trigger: 'change' }],
+        WebSiteCode: [{ required: true, message: 'Web Site is required', trigger: 'change' }],
       },
       downloadLoading: false
 
@@ -543,6 +570,39 @@ export default {
     ...mapGetters(['userInfo'])
   },
   methods: {
+
+    
+    querySearchParentCreate(query) {
+      if (query !== '') {        
+        if(query.length > 1) {
+          this.searchParentCreate(query)
+        }      
+      } else {
+        this.parentCreateArr = []
+      }
+    },
+    async searchParentCreate(query) {
+      const arr = []      
+      this.parentCreateArr = []
+      let listQuery = {
+        q: query
+      }
+      let response = await fetchCustomersList(listQuery)
+      response.rows.forEach(element => {
+        arr.push({
+          Code: element.Code,
+          Name: element.Name
+        })
+      })
+       this.parentCreateArr = arr
+    },
+    changeParentCreate(val) {
+      this.parentCreateArr = []
+      this.searchedParentCreate = val
+      this.temp.ParentCode = val.Code
+    },
+
+
     querySearchParent(query) {
       if (query !== '') {        
         if(query.length > 1) {
@@ -714,6 +774,10 @@ export default {
         VolumeUnit: VolumeUnitList[0],
         TemperatureUnit: TemperatureUnitList[0],
         PressureUnit: PressureUnitList[0],
+        ParentCode: '',
+        WebSiteCode: '_',
+        AddressCode: '_',
+        Address: '_',
       }
     },
     handleCreate() {
@@ -757,6 +821,7 @@ export default {
           return false
         }
         
+
         this.isFormLoading = true
         let response = this.dialogStatus === 'create' ? await createCustomer(tempData) : await updateCustomer(tempData)
        

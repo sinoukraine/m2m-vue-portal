@@ -71,24 +71,70 @@
   
 
   
-  <el-dialog title="Move SIMs to" :visible.sync="moveFormVisible" width="30%" class="bg-white" >
+  <el-dialog title="Move SIMs to" :visible.sync="moveFormVisible" width="70%" class="bg-white" >
       <el-form ref="dataFormMove" :rules="rulesMove" :model="tempMove" label-position="top" label-width="70px" @submit.native.prevent="onMoveFormSubmit">
         <input type="submit" class="display-none" >
 
         <el-row :gutter="16">
-        <el-col :xs="24" :sm="24" class="lg-pr-0">   
-            <el-form-item :label="'Organize'" prop="Organize">
+          
+          <el-col :xs="24" :sm="12">
+            <el-form-item :label="$t('ORGANIZE')" prop="Organize" class="">
+              <el-select
+                ref="organizeSearchSelect"
+                v-model="tempMove.searchedOrganize"
+                :remote-method="querySearchOrganize"
+                filterable
+                default-first-option
+                clearable
+                remote
+                placeholder="Organize Name"
+                class="organize-search-select"
+                @change="changeOrganize"
+              >
+                <el-option v-for="item in organizeArr" :key="item.Code" :value="item" :label="item.Name" />
+              </el-select>
+            </el-form-item>
+            <!--<el-form-item :label="'Organize'" prop="Organize">
             <el-select v-model="tempMove.Organize" :placeholder="$t('ORGANIZE')" class="">
               <el-option v-for="item in organizeOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
             </el-select>
+            </el-form-item>-->
+        </el-col>
+        <el-col :xs="24" :sm="12">            
+            
+            <el-form-item :label="'Send To'" prop="SendWay">
+            <el-select v-model="tempMove.sendWay" :placeholder="'Send To'" class="">
+              <el-option v-for="item in sendWayOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+            </el-select>
             </el-form-item>
         </el-col>
-        <el-col :xs="24" :sm="24" class="lg-pr-0">            
+          <el-col v-if="tempMove.sendWay==1" :xs="24" :sm="12">            
+              <el-form-item :label="'From IMSI'" prop="FromIMSI">
+                <el-input v-model="tempMove.FromIMSI"  :placeholder="'From IMSI'"/>
+              </el-form-item>
+          </el-col>
+          <el-col v-if="tempMove.sendWay==1" :xs="24" :sm="12">            
+              <el-form-item :label="'To IMSI'" prop="ToIMSI">
+                <el-input v-model="tempMove.ToIMSI"  :placeholder="'To IMSI'"/>
+              </el-form-item>
+          </el-col>
+          <el-col v-if="tempMove.sendWay==2" :xs="24" :sm="12">            
+              <el-form-item :label="'From ICCID'" prop="FromICCID">
+                <el-input v-model="tempMove.FromICCID"  :placeholder="'From ICCID'"/>
+              </el-form-item>
+          </el-col>
+          <el-col v-if="tempMove.sendWay==2" :xs="24" :sm="12">            
+              <el-form-item :label="'To ICCID'" prop="ToICCID">
+                <el-input v-model="tempMove.ToICCID"  :placeholder="'To ICCID'"/>
+              </el-form-item>
+          </el-col>
+        
+        <el-col :xs="24" :sm="12">            
             <el-form-item :label="'Number'" prop="Number">
               <el-input v-model="tempMove.Number"  :placeholder="'Number'"/>
             </el-form-item>
         </el-col>
-        <el-col :xs="24" :sm="24" class="lg-pr-0">            
+        <el-col :xs="24" :sm="12">            
             <el-form-item :label="$t('REMARK')" prop="Remark">
             <el-input v-model="tempMove.Remark"  :placeholder="$t('REMARK')"/>
             </el-form-item>
@@ -616,11 +662,17 @@ export default {
       selectedNumber: '',
       selectedRemark: '',
       organizeOptions: [],
-      tempMove: {        
-        Organize: null,
+      tempMove: { 
+        sendWay: '0',       
+        searchedOrganize: null,
         Remark: '',
         Number: ''
       },
+      sendWayOptions: [
+        {Code:'0',Name:'Selected SIMs'},
+        {Code:'1',Name:'IMSI range'},
+        {Code:'2',Name:'ICCID range'}
+      ],
       selectedState: 0,
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
@@ -686,7 +738,11 @@ export default {
        rulesMove: {
         Remark: [{ required: false, message: 'Remark cannot be longer than 100 characters', max: 100 }],
         Number: [{ required: false, message: 'Number cannot be longer than 50 characters', max: 50 }],
-        Organize: [{ required: true, message: 'Organize is required', trigger: 'change' }],
+        FromIMSI: [{ required: true, message: 'From IMSI should be 15 characters long', min: 15, max: 15 }],
+        ToIMSI: [{ required: true, message: 'To IMSI should be 15 characters long', min: 15, max: 15 }],
+        FromICCID: [{ required: true, message: 'From ICCID should be 19 characters long', min: 19, max: 19 }],
+        ToICCID: [{ required: true, message: 'TO ICCID should be 19 characters long', min: 19, max: 19 }],
+        //Organize: [{ required: true, message: 'Organize is required', trigger: 'change' }],
        },
       rules: {
         Name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
@@ -739,6 +795,7 @@ export default {
       ],
       markerIcon: customicon,
       markerLatLng: [0, 0],//47.413220, -1.219482
+      organizeArr: []
     }
   },
   created() {
@@ -758,6 +815,50 @@ export default {
     ...mapGetters(['userInfo'])
   },
   methods: {    
+     
+    querySearchOrganize(query) {
+      if (query !== '') {        
+        if(query.length > 1) {
+          this.searchOrganize(query)
+        }      
+      } else {
+        this.organizeArr = []
+      }
+    },
+    async searchOrganize(query) {
+      const arr = []      
+      this.organizeArr = []
+      let listQuery = {
+        q: query
+      }
+      /*
+      getSIMList(listQuery).then(response => {
+        response.data.forEach(element => {
+          arr.push({
+            code: element._id,
+            title: element.info.imsi
+          })
+        })
+        this.imsiArr = arr
+      })*/
+      let response = await fetchCustomersList(listQuery)
+      response.rows.forEach(element => {
+        arr.push({
+          Code: element.Code,
+          Name: element.Name
+        })
+      })
+       this.organizeArr = arr
+      /*this.organizeOptions = [{
+        Name: this.userInfo.OrganizeName,
+        Code: this.userInfo.OrganizeCode
+      }].concat(arr)*/
+    },
+    changeOrganize(val) {
+      this.organizeArr = []
+      this.tempMove.searchedOrganize = val
+      //this.listHistoryQuery.imsi = val.title
+    },
     /*handleRAGChecked(val){
       console.log('rag', val)
     },
@@ -1006,36 +1107,54 @@ export default {
         if (!valid){
           return false
         }
+        if(this.tempMove.searchedOrganize?.Code != undefined){
+          let checkSIM = false
+          let query = {}
 
-      let checkSIM = false
-      const arr = []
-      for (let i = 0; i < this.multipleSIMSelection.length; i++) {        
-        arr.push(this.multipleSIMSelection[i].IMSI)
-        checkSIM = true 
-      }
-      if(!checkSIM){
-        this.$alert('There are no SIM to move', 'M2M Data Message', {type: 'message'}) 
-        this.moveFormVisible = false
-      }else{
-        const query = {
-          IMSIs: arr,
-          toorganizecode: this.tempMove.Organize,
-          Number: this.tempMove.selectedNumber,
-          Remark: this.tempMove.selectedRemark
-        }   
-        const response = await moveSIMs(query).then(r=>{
-          if(r.MajorCode == '000'){            
-            this.$alert('SIMs was moved successfully', 'M2M Data Message', {type: 'message'})
-            this.moveFormVisible = false
-            this.getList()
-          }else{
-            this.$alert('SIMs was not moved', 'M2M Data Message', {type: 'message'})
+          if(this.tempMove.sendWay == '0'){        
+            const arr = []
+            for (let i = 0; i < this.multipleSIMSelection.length; i++) {        
+              arr.push(this.multipleSIMSelection[i].IMSI)
+              checkSIM = true 
+            }
+            query = {
+              IMSIs: arr
+            }
+          }else if(this.tempMove.sendWay == '1'){   
+            query = {
+              FromIMSI: this.tempMove.FromIMSI,
+              ToIMSI: this.tempMove.ToIMSI,
+            }
+          }else if(this.tempMove.sendWay == '2'){   
+            query = {
+              FromICCID: this.tempMove.FromICCID,
+              ToICCID: this.tempMove.ToICCID,
+            }
           }
-        }).catch(e=>{
-          this.$alert('Something wrong...', 'M2M Data Message', {type: 'message'})
-        })
-      }            
-       })
+
+          if(!checkSIM && this.tempMove.sendWay == '0'){
+            this.$alert('There are no SIM to move', 'M2M Data Message', {type: 'message'}) 
+          }else{
+            query.toorganizecode = this.tempMove.searchedOrganize.Code
+            query.Number = this.tempMove.Number
+            query.Remark = this.tempMove.Remark
+            
+            const response = await moveSIMs(query).then(r=>{
+              if(r.MajorCode == '000'){            
+                this.$alert('SIMs was moved successfully', 'M2M Data Message', {type: 'message'})
+                this.moveFormVisible = false
+                this.getList()
+              }else{
+                this.$alert('SIMs was not moved', 'M2M Data Message', {type: 'message'})
+              }
+            }).catch(e=>{
+              this.$alert('Something wrong...', 'M2M Data Message', {type: 'message'})
+            })
+          } 
+          }else{
+            this.$alert('Select Organize to move SIMs', 'M2M Data Message', {type: 'message'})
+          }           
+       })       
     },
     handleSelectionChange(val) {
       this.multipleSIMSelection = val
