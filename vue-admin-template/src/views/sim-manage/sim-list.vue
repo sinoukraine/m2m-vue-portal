@@ -1362,7 +1362,7 @@ export default {
             IMSI: element_1.IMSI.toString(),
             ICCID: element_1.ICCID.toString(),
             MSISDN: element_1.MSISDN.toString(),
-            ServiceProfile: element_1.ServiceProfileCode,
+            ServiceProfile: element_1.ServiceProfileName,
             State: element_1.State,
             rag,
             update: simActivityTime!='Invalid date'?simActivityTime:'',

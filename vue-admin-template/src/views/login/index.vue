@@ -133,10 +133,9 @@ export default {
         }else{
           let test = {
             FirstName: 'Vlad',
-              SubName: 'Bill',
-              Language: 'en',
-              Login: 'quiktrakukraine',
-              //Token: '5b41ecfc-f8a5-4421-b4a8-61eb21f04ef5'
+            SubName: 'Bill',
+            Language: 'en',
+            Login: 'quiktrakukraine',
           }
           this.$store.commit('user/SET_QT_USERINFO', test)
           this.$store.commit('user/SET_NAME', test.FirstName + ' ' + test.SubName)
@@ -146,17 +145,17 @@ export default {
       }
 
       
-          /*~~~this.$store.commit('user/SET_TOKEN', response.Token)
+          this.$store.commit('user/SET_TOKEN', response.Token)
           setToken(response.Token)
 
-          this.$router.push({ path: this.redirect || '/' })*/
+          this.$router.push({ path: this.redirect || '/' })
 
 
           /*this.$store.commit('user/SET_TOKEN', response.Token)
           setToken(response.Token)
           this.$router.push({ path: this.redirect || '/' })*/
           
-          let m2mLoginDetails = {
+          /*let m2mLoginDetails = {
             username: 'm2madmin',
             password: '888888'
           }
@@ -166,12 +165,7 @@ export default {
           }).catch((e) => {
             this.loading = false
             console.error(e)
-            /*Message({
-              message: 'Incorrect login data',
-              type: 'error',
-              duration: 5 * 1000
-            })*/
-          })
+          })*/
         } else {
           console.log('error submit!!')
           return false
