@@ -380,7 +380,7 @@ import PanelGroup from '../dashboard/admin/components/PanelGroup'
 import LineChart from '../dashboard/admin/components/LineChart.js'
 import Item from '@/layout/components/Sidebar/Item'
 import { getSIMAsync, getCDRS, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync, getSMSHistoryAsync, getDemoOwerview } from '@/api/sim'
-import { fetchSIMList } from '@/api/user'
+import { fetchSIMListAjax, getSessionsAjax, rebootAjax, refreshAjax, getHistoryAjax } from '@/api/user'
 import VueApexCharts from 'vue-apexcharts'
 
 const curday = new Date()
@@ -588,20 +588,10 @@ export default {
         const imsi =  this.$route.params.id
         
         let self = this
-          var settings = {
-					  "url": 'https://test4.m2mdata.co/JT/Sim/Query',
-					  "method": "POST",
-					  "timeout": 0,
-					  "headers": {
-						"token": "00000000-0000-0000-0000-000000000000",
-						"Content-Type": "application/x-www-form-urlencoded"
-					  },
-					  "data": {
-						  "imsis[]":  imsi,
-						}
-					};
+          
+          fetchSIMListAjax({ "imsis[]":  imsi	}).then(response => {
 
-					$.ajax(settings).done(function (response) { 
+				  //	$.ajax(settings).done(function (response) { 
             console.log('total',response)
             if(response.rows.length){
               let total = response.rows[0]   
@@ -647,184 +637,8 @@ export default {
           }            
         })
 
-        /*await getDemoOwerview(this.$store.state.user.login, imsi).then(response => {
-            switch (period){
-                case 'daily':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_DAY/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_DAY : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_DAY : 0,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_DAY : 0,
-                        loaded: true
-                    }
-                break
-                case 'weekly':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_WEEK/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_WEEK : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_WEEK : 0,//(3600*response.Table3[0].JTOV_DATA_WEEK)/(response.Table3[0].JTOV_DURATION_WEEK*1024),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_WEEK : 0,
-                        loaded: true
-                    }
-                break
-                case 'monthly':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_MONTH/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_MONTH : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_MONTH : 0,//(3600*response.Table3[0].JTOV_DATA_MONTH)/(response.Table3[0].JTOV_DURATION_MONTH*1024),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_MONTH : 0,
-                        loaded: true
-                    }
-                break
-                case 'yearly':
-                    this.panelData = {
-                        totalDataUsage: response.Table3.length ? response.Table3[0].JTOV_DATA_YEAR/1048576 : 0,
-                        totalSMSUsage: response.Table3.length ? response.Table3[0].JTOV_SMS_MO_YEAR : 0,
-                        totalDuration: response.Table3.length ? response.Table3[0].JTOV_DATA_NUMS_YEAR : 0,//(3600*response.Table3[0].JTOV_DATA_YEAR)/(response.Table3[0].JTOV_DURATION_YEAR*1024),
-                        totalDataSessions: response.Table3.length ? response.Table3[0].JTOV_SESSION_YEAR : 0,
-                        loaded: true
-                    }
-                break
-            } 
-        })*/
     },
 
-    /*
-    async searchTable() {
-      this.list = []
-      let pref_1 = this.tableData === 'SMS Usage'?'S':'D'
-      let sort = this.tableData === 'SMS Usage'?'DataDay':'DataDay'
-      let pref_2 = 'D'    
-      this.listLoading = true
-      const today = new Date()
-      switch (this.tablePeriod){
-        case 'Today':
-            pref_2 = 'D'
-            break
-        case 'Week':
-            pref_2 = 'W'
-            break
-        case 'Month':
-            pref_2 = 'M'
-            break
-        case 'Year':
-            pref_2 = 'Y'
-            break
-      }
-
-      const current = moment()          
-
-      let self = this
-      var settings = {
-        "url": 'https://test.m2mdata.co/JT/Sim/Query',
-        "method": "POST",
-        "timeout": 0,
-        "headers": {
-        "token": "00000000-0000-0000-0000-000000000000",
-        "Content-Type": "application/x-www-form-urlencoded"
-        },
-        "data": {
-          'UsageReportType': pref_1 + pref_2,
-          'sort': sort,
-          'order': 'desc' 
-        }
-      };
-
-      let totalSMS = 0;
-      let totalData = 0;
-
-      $.ajax(settings).done(function (response) { 
-          let rows = response.rows   
-          
-          const arrTable = []
-
-          rows.forEach((element, index) => {
-           arrTable.push({
-              num: index + 1,
-              imsi: element.IMSI,
-              customer: element.OrganizeName,
-              total: (element.DataDay/1048576).toFixed(3),
-              csp: element.ServiceProfileName,
-              sms: element.TotalSMSMO + element.TotalSMSMT,
-              sessions: element.SessionDay,
-              lastUpdate: element.DataUpdateTime
-          })
-       
-            arrLabel.push(element.date.slice(0, 10))   
-            let chartData = isNaN(parseFloat(element.totals?.data.originalUnits/1048576))?0:element.totals?.data.originalUnits/1048576
-            arrData.push((+chartData).toFixed(1))
-            totalData += +chartData
-            let chartSMS = isNaN(parseFloat(element.totals?.sms?.originalUnits))?0:element.totals?.sms?.originalUnits
-            totalSMS += +chartSMS
-              
-        })
-
-        const averageData = totalData/response_1.data.length
-     
-        
-        this.chartOptions = {
-            chart: {
-              height: 350,
-              offsetX: 0,
-              type: 'line',
-            },          
-            stroke: {
-              width: [0, 1, 1]
-            },          
-            markers: {
-              size: [0, 4, 4]
-            },
-            colors: ['rgb(182, 162, 222)', '#ffb880', '#d77980'],
-            dataLabels: {
-              enabled: false
-            },          
-              legend: {
-                show: false
-              },
-            grid: {
-              show: true,
-              xaxis: {
-                categories: arrLabel,
-                lines: {
-                  show: true
-                }
-              },
-              yaxis: {
-                lines: {
-                  show: true
-                },
-              }
-            },
-            yaxis: {            
-                labels: {
-                  formatter: function(val, index) {
-                    return val.toFixed(2)
-                  }
-                }
-            },
-            xaxis: {
-              categories: arrLabel
-            }
-          }
-
-          this.series = [{
-            name: 'Data Usage',
-            data: arrData,
-            type: 'column'
-          },
-          {
-            name: 'Average',
-            type: 'line',
-            data: arrData.map(el=>el=averageData)
-          },
-          {
-            name: 'Limit',
-            type: 'line',
-            data: arrData.map(el=>el=totalSMS)
-          }]
-        
-      })
-    },*/
 
     async getProfile() {
       let self = this
@@ -844,6 +658,7 @@ export default {
             "rows": "14"
           }
         };
+
 
         $.ajax(settings).done(function (response) {
           if(response.Data.length){
@@ -921,283 +736,119 @@ export default {
           }
           })
 
-      
-      
-
-      /*this.lineCollection = {
-        labels: usageLabels,
-        datasets: [
-          {
-            label: 'Data Usage',
-            backgroundColor: 'rgb(53, 165, 228)',
-            data: usageData
-          }
-        ]}*/
-
-
-
-
         let query = {
 				  IMSIs: [this.$route.params.id]
 				}
-		 /*		
-				var settings = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Query",
-				  "method": "POST",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				  "data": query
-        };*/
-      let responseProfile = await fetchSIMList(query) 
-      if(responseProfile){        
-        let objProfile = responseProfile.rows[0]
-
+		 
+      fetchSIMListAjax(query).then(responseProfile =>{
         
-        this.panelData = {
-            totalDataUsage: objProfile.DataDay ? objProfile.DataDay:0,///1048576 : 0,
-            totalSMSUsage: objProfile.SMSMODay + objProfile.SMSMTDay,
-            totalDuration: objProfile.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
-            totalDataSessions: objProfile.SessionDay,
-            loaded: true
-        }
+        if(responseProfile){        
+          let objProfile = responseProfile.rows[0]
 
-
-        this.temp = {
-          imsi: objProfile.IMSI,
-          iccid: objProfile.ICCID,
-          msisdn: objProfile.MSISDN,
-          ip: objProfile.IPAddress,
-          datacountry: objProfile.DataCountryCode,
-          organize: objProfile.OrganizeName,
-          ssp: objProfile.ServiceProfileName,
-          state: objProfile.State,
-          threshold: objProfile.ThresholdName,
-          smscountry: objProfile.SMSCountryCode,
-        }      
-        
-        let rag = 'bg-color-grey'
-        let update = ''
-        let jsonDataArr = []
-
-         let currentTime = moment();
-      let halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
-      let oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
-      let threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
-          /*
-        const oneDayAgo = moment(curday, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
-        const threeDayAgo = moment(curday, 'YYYY-MM-DD').add(-3, 'days').format('YYYY-MM-DD')
-        const weekAgo = moment(curday, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD')
-        */
-
-        self.currentState = this.temp.state
-        let utcDate = ''
-        if(objProfile.DataUpdateTime != null){
-          const activityTime = objProfile.DataUpdateTime
-          let utcActivityDate = moment.utc(activityTime).toDate()
-          utcDate = utcActivityDate.getDate() + ' ' + self.month_names_short[utcActivityDate.getMonth()] + ' ' + utcActivityDate.getFullYear() + ' ' + ('0' + utcActivityDate.getHours()).slice(-2) + ':' + ('0' + utcActivityDate.getMinutes()).slice(-2) + ':' + ('0' + utcActivityDate.getSeconds()).slice(-2)
-                      
-          this.lastUpdateTime = utcDate
-        }
-        if(!utcDate.length){
-
-        }
-        else if(utcDate >= halfDayAgo){
-            rag = 'bg-color-green'
-          }else if(utcDate >= oneDayAgo && utcDate < halfDayAgo){
-            rag = 'bg-color-yellow'
-          }else {
-            rag = 'bg-color-red'
+          
+          this.panelData = {
+              totalDataUsage: objProfile.DataDay ? objProfile.DataDay:0,///1048576 : 0,
+              totalSMSUsage: objProfile.SMSMODay + objProfile.SMSMTDay,
+              totalDuration: objProfile.DurationDay,//(3600*response.Table3[0].JTOV_DATA_DAY)/(response.Table3[0].JTOV_DURATION_DAY*1048576),
+              totalDataSessions: objProfile.SessionDay,
+              loaded: true
           }
-        
-        
-        /*~~const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${objProfile.IMSI}`)
-        let resActiveSession = await responseActiveSession.json()
+
+
+          this.temp = {
+            imsi: objProfile.IMSI,
+            iccid: objProfile.ICCID,
+            msisdn: objProfile.MSISDN,
+            ip: objProfile.IPAddress,
+            datacountry: objProfile.DataCountryCode,
+            organize: objProfile.OrganizeName,
+            ssp: objProfile.ServiceProfileName,
+            state: objProfile.State,
+            threshold: objProfile.ThresholdName,
+            smscountry: objProfile.SMSCountryCode,
+          }      
+          
+          let rag = 'bg-color-grey'
+          let update = ''
+          let jsonDataArr = []
+
+          let currentTime = moment();
+        let halfDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-12, 'hours').format('YYYY-MM-DD HH'); 
+        let oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
+        let threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
+       
+          self.currentState = this.temp.state
+          let utcDate = ''
+          if(objProfile.DataUpdateTime != null){
+            const activityTime = objProfile.DataUpdateTime
+            let utcActivityDate = moment.utc(activityTime).toDate()
+            utcDate = utcActivityDate.getDate() + ' ' + self.month_names_short[utcActivityDate.getMonth()] + ' ' + utcActivityDate.getFullYear() + ' ' + ('0' + utcActivityDate.getHours()).slice(-2) + ':' + ('0' + utcActivityDate.getMinutes()).slice(-2) + ':' + ('0' + utcActivityDate.getSeconds()).slice(-2)
                         
-        if(resActiveSession.Data){
-          if(resActiveSession.Data.startDateField == null){
-            
-          //rag = 'bg-color-grey'
-          }else if(resActiveSession.Data.lastInterimDateField == null){
-            rag = 'bg-color-green'
-
-            let startDate = moment.utc(resActiveSession.Data.startDateField).toDate()
-            let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
-              
             this.lastUpdateTime = utcDate
-            //this.lastUpdateTime = resActiveSession.Data.startDateField
-          
-          }else{
-            const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-          
-            let startDate = moment.utc(resActiveSession.Data.lastInterimDateField).toDate()
-						let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
-										 
-            this.lastUpdateTime = utcDate
+          }
+          if(!utcDate.length){
 
-          if(simActivityTime >= halfDayAgo){
+          }
+          else if(utcDate >= halfDayAgo){
               rag = 'bg-color-green'
-            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+            }else if(utcDate >= oneDayAgo && utcDate < halfDayAgo){
               rag = 'bg-color-yellow'
             }else {
               rag = 'bg-color-red'
             }
-          }
-        }*/
-        
+          
+          
 
-          var listQuery_1 = {
-            imsi: objProfile.IMSI
-        }
-        
-        var settings_1 = {
-            "url": "https://test4.m2mdata.co/JT/Sim/GETSESSIONS",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-            "token": "00000000-0000-0000-0000-000000000000",
-            "Content-Type": "application/x-www-form-urlencoded"
-            },
-            "data": listQuery_1
-        };
-                            				
-          	
-          $.ajax(settings_1).done(  function (result_1) {           
-            if(result_1.Data != null && result_1.Data.length){
-              let dataArr = result_1.Data.split('\r\n')
-              dataArr.pop()									
-              dataArr.forEach((element, index) => {
-                let dataJson = element.split(',')
-                let startDate = moment.utc(dataJson[4]).toDate()
-                let endDate = moment.utc(dataJson[5]).toDate()											
+            var listQuery_1 = {
+              imsi: objProfile.IMSI
+            }
+            
+                       
+              getSessionsAjax(listQuery_1).then(result_1 => {
                 
-                let jsonDataObj = {
-                  startUTC: startDate,
-                  start: startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2),
-                  end: endDate.getDate() + ' ' + self.month_names_short[endDate.getMonth()] + ' ' + endDate.getFullYear() + ' ' + ('0' + endDate.getHours()).slice(-2) + ':' + ('0' + endDate.getMinutes()).slice(-2) + ':' + ('0' + endDate.getSeconds()).slice(-2),
-                  total: dataJson[3],
-                  operator: dataJson[1]+dataJson[2]
-                }
-                jsonDataArr.push(jsonDataObj)
-              })						
+              //$.ajax(settings_1).done(  function (result_1) {           
+                if(result_1.Data != null && result_1.Data.length){
+                  let dataArr = result_1.Data.split('\r\n')
+                  dataArr.pop()									
+                  dataArr.forEach((element, index) => {
+                    let dataJson = element.split(',')
+                    let startDate = moment.utc(dataJson[4]).toDate()
+                    let endDate = moment.utc(dataJson[5]).toDate()											
+                    
+                    let jsonDataObj = {
+                      startUTC: startDate,
+                      start: startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2),
+                      end: endDate.getDate() + ' ' + self.month_names_short[endDate.getMonth()] + ' ' + endDate.getFullYear() + ' ' + ('0' + endDate.getHours()).slice(-2) + ':' + ('0' + endDate.getMinutes()).slice(-2) + ':' + ('0' + endDate.getSeconds()).slice(-2),
+                      total: dataJson[3],
+                      operator: dataJson[1]+dataJson[2]
+                    }
+                    jsonDataArr.push(jsonDataObj)
+                  })						
 
 
-            let sortedArr = jsonDataArr.sort(function(a,b){
-                var c = new Date(a.start)
-                var d = new Date(b.start)
-                return d-c
-              })
+                let sortedArr = jsonDataArr.sort(function(a,b){
+                    var c = new Date(a.start)
+                    var d = new Date(b.start)
+                    return d-c
+                  })
 
-          self.sessionList = sortedArr
+              self.sessionList = sortedArr
+              }
 
-          /*if(self.lastUpdateTime.length==0){           
-              
-              self.lastUpdateTime = sortedArr[0].end
-              
-              const simActivityTime = moment(self.lastUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
 
-              if(simActivityTime >= halfDayAgo){
-                rag = 'bg-color-green'
-              }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-                rag = 'bg-color-yellow'
-              }else {
-                rag = 'bg-color-red'
-              }									
-            }*/
-          }
-
-        /*
-        const responseHlr = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${objProfile.IMSI}`)
-        let resHlr = await responseHlr.json()
-                        
-        if(resHlr.Data){
-          if(resHlr.Data?.hlrInfoFieldsField == undefined){		
-          
-            rag = 'bg-color-grey'
-          }else{
+            self.currentStateColor = rag
             
-            let chooseHlrDate = ''
-            if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField != '00000000000000'){
-              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Packet Switched Up Time').valueField
-              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
-            }else if(resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField != '00000000000000'){
-            
-              let hlrDate1 = resHlr.Data.hlrInfoFieldsField.find(el=>el.nameField == 'Circuit Switch Up Time').valueField
-              chooseHlrDate = hlrDate1.slice(0,4) + '-' + hlrDate1.slice(4,6) + '-' + hlrDate1.slice(6,8) + ' ' + hlrDate1.slice(8,10) + ':' + hlrDate1.slice(10,12)
-              
+            if(rag == 'bg-color-grey' && self.temp.state == 'Productive'){
+              self.lastUpdateTime = ''
+              self.currentState = self.temp.state + ', but no current data session'
             }
-            
-            if(chooseHlrDate.length){
-              const simActivityTime = moment(chooseHlrDate, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-              this.lastUpdateTime = chooseHlrDate
-          
-              if(simActivityTime >= halfDayAgo){
-                rag = 'bg-color-green'
-              }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-                rag = 'bg-color-yellow'
-              }else {
-                rag = 'bg-color-red'
-              }											
-            }
-          }
-        }else{
-          if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
-            rag = 'bg-color-grey'
-          }else if(objProfile.DataUpdateTime == null){
-            rag = 'bg-color-grey'
-          }else{
-            const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-            this.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
-          
-            if(simActivityTime >= halfDayAgo){
-              rag = 'bg-color-green'
-            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-              rag = 'bg-color-yellow'
-            }else {
-              rag = 'bg-color-red'
-            }
-          }
-        }*/
 
-        self.currentStateColor = rag
-        
-        if(rag == 'bg-color-grey' && self.temp.state == 'Productive'){
-          self.lastUpdateTime = ''
-          self.currentState = self.temp.state + ', but no current data session'
+            })
+          
         }
-
-        })
-      
-    }
+      })
         
         
-        /*~~~if(this.temp.state == 'Suspended'){
-          self.currentStateColor = 'bg-color-yellow'
-        }else if(objProfile.SMSMOUpdateTime == null && objProfile.DataUpdateTime == null){
-          self.currentStateColor = 'bg-color-grey'
-          if(this.temp.state == 'Productive' || this.temp.state == 'TestProductive'){
-            self.currentStateColor = 'bg-color-blue'
-            self.currentState = this.temp.state + ', but no current data session'
-          }
-        }else if(objProfile.DataUpdateTime == null){
-          self.currentStateColor = 'bg-color-grey'
-          if(this.temp.state == 'Productive' || this.temp.state == 'TestProductive'){
-            self.currentStateColor = 'bg-color-blue'
-            self.currentState = this.temp.state + ', but no current data session'
-          }
-        }else{
-          const simActivityTime = moment(objProfile.DataUpdateTime, 'YYYY-MM-DD').format('YYYY-MM-DD')
-          this.lastUpdateTime = objProfile.DataUpdateTime.replace("T", " ").replace("Z", "")
-          
-          if(simActivityTime >= oneDayAgo){
-            self.currentStateColor = 'bg-color-green'
-          }else {
-            self.currentStateColor = 'bg-color-yellow'
-          }
-        }*/
-      //}
       
         const responseHLR = await fetch(`https://m2mdata.co/jt/GetGetHlrInfo?imsi=${query.IMSIs}`)
         let resHLR = await responseHLR.json()
@@ -1235,18 +886,9 @@ export default {
 				  imsis: [this.$route.params.id]
 				}
 				
-				let settingsLBS = {
-				  "url": "https://test4.m2mdata.co/JT/Sim/Refresh",
-				  "method": "POST",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				  "data": queryLBS
-				};
+        refreshAjax(queryLBS).then(result => {
     
-				$.ajax(settingsLBS).done(function (result) {
+				//$.ajax(settingsLBS).done(function (result) {
             self.isLoading = false
 					if(result.MajorCode == '000'){   
             //self.showLocation()
@@ -1264,18 +906,9 @@ export default {
 				  IMSIs: [this.$route.params.id]
 				}
 				
-				let settingsLBS = {
-				  "url": "https://test.m2mdata.co/JT/Sim/Reboot",
-				  "method": "POST",
-				  "timeout": 0,
-				  "headers": {
-					"token": "00000000-0000-0000-0000-000000000000",
-					"Content-Type": "application/x-www-form-urlencoded"
-				  },
-				  "data": queryLBS
-				};
-
-				$.ajax(settingsLBS).done(function (result) {
+        rebootAjax(queryLBS).then(result => {
+    
+				//$.ajax(settingsLBS).done(function (result) {
             self.isLoading = false
 					if(result.MajorCode == '000'){
             //self.$alert('Sim connection refreshed', 'M2M Data Message', {type: 'message'})
@@ -1295,22 +928,14 @@ export default {
         imsi: this.$route.params.id
       }*/
 
-      var settings = {
-					  "url": "https://test4.m2mdata.co/JT/SMS/History",
-					  "method": "POST",
-					  "timeout": 0,
-					  "headers": {
-						"token": "00000000-0000-0000-0000-000000000000",
-						"Content-Type": "application/x-www-form-urlencoded"
-					  },
-					  "data": {
+              
+          getHistoryAjax({
 						"IMSI": this.$route.params.id,
 						"PAGE": "1",
 						"pagesize": "100",
-					  }
-					};
+					  }).then(response => {
 
-					$.ajax(settings).done(function (response) {           
+					//$.ajax(settings).done(function (response) {           
             let sortedArr = response.Data.sort(function(a,b){
               let c = new Date(a.CreateTime)
               let d = new Date(b.CreateTime)
@@ -1325,14 +950,14 @@ export default {
               self.smsFormVisible = true
               self.isLoading = false
             },5000)
-          }).fail(function (e){
+          })/*.fail(function (e){
             self.smsFormVisible = false
             self.isLoading = false
             
             self.smsFormVisible = true
             self.smsUsageList = []
             return
-          })
+          })*/
         /*const response = await getSMSHistoryAsync(query).catch(e=>{
         this.smsFormVisible = false
         this.isLoading = false
@@ -1409,8 +1034,8 @@ export default {
           self.locationList[0].value = result.Data.IMSI
           self.locationList[1].value = result.Data.LbsNetwork
           self.locationList[2].value = result.Data.LbsArea
-          self.locationList[6].value = result.Data.LbsRadio + ' ' + result.Data.LbsRange
-          self.locationList[7].value = utcDate
+          self.locationList[6].value = result.Data.LbsRadio?result.Data.LbsRadio + ' ' + result.Data.LbsRange:''
+          self.locationList[7].value = activityTime?utcDate:''
           self.locationList[8].value = result.Data.SessionDay
           self.locationList[9].value = (result.Data.DataDay/1048576).toFixed(3)
           const query_1 = {

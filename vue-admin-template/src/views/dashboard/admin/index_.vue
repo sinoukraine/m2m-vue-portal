@@ -165,6 +165,7 @@ import LineChart from './components/LineChart.js'
 import BoxCard from './components/BoxCard'
 import moment from 'moment'
 import { addUser, getUserList, getDemoOwerview, getDemoTopUsage, getCDRSList } from '@/api/sim'
+import { getDashboardAjax, fetchSIMListAjax } from "@/api/user";
 
 export default {
   name: 'Dashboard',
@@ -177,7 +178,7 @@ export default {
   data() {
     return {
         tablePeriod: 'Today',
-        tableData: 'data',
+        tableData: 'Data Usage',
         boxData: {
           day: 0,
           month: 0,
@@ -204,19 +205,8 @@ export default {
       this.listLoadingBox = true
       let self = this
 
-      var settings = {
-        "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
-        "method": "POST",
-        "timeout": 0,
-        "headers": {
-        "token": "00000000-0000-0000-0000-000000000000",
-        "Content-Type": "application/x-www-form-urlencoded"
-        },
-        "data": {        
-        }
-      };
-
-      $.ajax(settings).done(function (response) { 
+      
+      getDashboardAjax().then(response => {
         if(response.MajorCode == '000'){
           let total = response.Data   
           self.boxData = {
@@ -312,20 +302,8 @@ export default {
       this.listLoadingBox = true
       
        let self = this
-          var settings = {
-					  "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
-					  "method": "POST",
-					  "timeout": 0,
-					  "headers": {
-						"token": "00000000-0000-0000-0000-000000000000",
-						"Content-Type": "application/x-www-form-urlencoded"
-					  },
-					  "data": {
-						
-						}
-					};
-
-					$.ajax(settings).done(function (response) { 
+          
+          getDashboardAjax().then(response => {
             if(response.MajorCode == '000'){
               let total = response.Data   
               switch (data){
@@ -386,20 +364,8 @@ export default {
     async searchTotalByPeriod(period) {
                 
       let self = this
-          var settings = {
-					  "url": 'https://test4.m2mdata.co/JT/Report/Bashboard',
-					  "method": "POST",
-					  "timeout": 0,
-					  "headers": {
-						"token": "00000000-0000-0000-0000-000000000000",
-						"Content-Type": "application/x-www-form-urlencoded"
-					  },
-					  "data": {
-						//"IMSI":  this.listHistoryQuery.imsi,
-						}
-					};
-
-					$.ajax(settings).done(function (response) { 
+          getDashboardAjax().then(response => {            
+					//$.ajax(settings).done(function (response) { 
             if(response.MajorCode == '000'){
               let total = response.Data              
               switch (period){
@@ -440,69 +406,13 @@ export default {
                     }
                 break
             }
-
-            /*self.boxData = {
-              day: total.SessionDay,
-              month: total.SessionMonth,
-              year: total.SessionYear,
-              preDay: total.PreSessionDay,
-              preMonth: total.PreSessionMonth,
-              preYear: total.PreSessionYear,
-              loaded: true,
-              report: 'Data Sessions'
-            }
-            self.listLoadingBox = false*/
-
           }            
         })
-
-        /*await getDemoOwerview(this.$store.state.user.login).then(response => {
-         
-            this.stateData = response.Table1.length ? response.Table1.map(element => {return {name: element.DEVICE_STATUS_CODE,value: element.JTOV_SIM_NUMBERS}}) : []
-            this.cspData = response.Table2.length ? response.Table2.map(element => {return {name: element.DEVICE_OFFER,value: element.JTOV_SIM_NUMBERS}}) : []
-         
-            if (this.mapLoading){
-                this.mapLoading = false
-                response.Table.forEach(element => {
-                    gdpData[element.JTOV_DATA_COUNTRY_CODE] = element.JTOV_SIM_NUMBERS
-                })
-
-                for (cc in gdpData) {
-                    if (gdpData[cc] > 0 && gdpData[cc] <= 100) {
-                        colors[cc] = '#41bea2'
-                    } else if (gdpData[cc] > 100 && gdpData[cc] <= 500) {
-                        colors[cc] = '#feec81'
-                    } else if (gdpData[cc] > 500 && gdpData[cc] <= 2000) {
-                        colors[cc] = '#ffb880'
-                    } else if (gdpData[cc] > 2000) {                    
-                        colors[cc] = '#d77980'
-                    }
-                }
-
-                this.VectorMap = jQuery('#vmap').vectorMap({
-                    map: 'world_en',
-                    backgroundColor: '#fff',
-                    enableZoom: true,
-                    showTooltip: true,
-                    colors: colors,
-                    hoverOpacity: 0.7,
-                    hoverColor: false,
-                    selectedColor: false,
-                    onRegionOver: function(element, code, region) {
-                    },
-                    onRegionOut: function(element, code, region) {
-                    },
-                    onLabelShow: function(event, label, code){
-                        event.preventDefault()
-                    }
-                })
-            }
-        })*/
     },
     async searchTable() {
       this.list = []
       let pref_1 = this.tableData === 'SMS Usage'?'S':'D'
-      let sort = this.tableData === 'SMS Usage'?'SMSMODay':'DataDay'
+      let sort = 'DataDay'//this.tableData === 'SMS Usage'?'SMSMODay':'DataDay'
       let pref_2 = 'D'    
       this.listLoading = true
       const today = new Date()
@@ -516,30 +426,43 @@ export default {
         case 'Month':
             pref_2 = 'M'
             break
-        case 'Year':
+        /*case 'Year':
             pref_2 = 'Y'
+            break*/
+      }
+      switch (pref_1 + pref_2){
+        case 'DD':
+            sort = 'DataDay'
+            break
+        case 'DW':
+            sort = 'DataWeek'
+            break
+        case 'DM':
+            sort = 'DataMonth'
+            break
+        case 'SD':
+            sort = 'SMSMODay'
+            break
+        case 'SW':
+            sort = 'SMSMOWeek'
+            break
+        case 'SM':
+            sort = 'SMSMOMonth'
             break
       }
 
       const current = moment()          
 
       let self = this
-      var settings = {
-        "url": 'https://test4.m2mdata.co/JT/Sim/Query',
-        "method": "POST",
-        "timeout": 0,
-        "headers": {
-        "token": "00000000-0000-0000-0000-000000000000",
-        "Content-Type": "application/x-www-form-urlencoded"
-        },
-        "data": {
-          'UsageReportType': pref_1 + pref_2,
-          'sort': sort,
-          'order': 'desc' 
-        }
-      };
-
-      $.ajax(settings).done(function (response) { 
+      
+      const query = {
+        'UsageReportType': pref_1 + pref_2,
+        'sort': sort,
+        'order': 'desc' 
+      }
+      
+      fetchSIMListAjax(query).then(response => {
+      //$.ajax(settings).done(function (response) { 
           let rows = response.rows   
           
           const arrTable = []

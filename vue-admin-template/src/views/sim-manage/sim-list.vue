@@ -355,13 +355,6 @@
                     <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
-                    <!--<el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
-                    Custom 
-                    </el-button>
-                    <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-                    {{ $t('TEXT_COMMON_DELETE') }}
-                    </el-button>
-                    -->
                 </template>
                 </el-table-column>
             </el-table>
@@ -409,12 +402,6 @@
 
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <!--<el-button v-show="dialogStatus !== 'create'" v-if="temp.State==2" class="green-btn" :loading="isChangeStateLoading" @click="onChangeState(1)">
-                    {{'Enable'}}
-                </el-button>
-                <el-button v-show="dialogStatus !== 'create'" v-else type="danger" :loading="isChangeStateLoading" @click="onChangeState(2)">
-                    {{'Disable'}}
-                </el-button>-->
                 <el-button :loading="isFormLoading" type="primary" class="blue-btn" @click="onEditFormSubmit()">
                 {{ $t('TEXT_COMMON_SAVE') }}
                 </el-button>
@@ -452,7 +439,7 @@
                 <el-row :gutter="16">
                 <el-col :xs="100" class="px-0">
                     <el-form-item label="Query" prop="fromimsi" class="">
-                    <el-input v-model="listQuery.q" placeholder="IMSI, ICCID, MSISDN..." class="filter-item" />
+                    <el-input v-model="listQuery.q" placeholder="Enter 5 symbols minimum" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
@@ -564,9 +551,7 @@ import { mapGetters } from 'vuex'
 import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import { SIMStatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
-//import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchSIMPosition, fetchCustomersList, setActivateState, setSuspendState, setResumeState, setTerminateState, setServiceProfileOptions, fetchServiceProfileOptions, fetchSIMList, createSIM, updateSIM, deleteCustomer, fetchServiceProfileList, changeOrgState, moveSIMs } from "@/api/user";
-//import { fetchRoleList } from "@/api/role-managment";
+import { fetchSIMListAjax, fetchCustomersListAjax, setActivateStateAjax, setSuspendStateAjax, setResumeStateAjax, setTerminateStateAjax, setServiceProfileOptionsAjax, fetchServiceProfileOptionsAjax, createSIMAjax, updateSIMAjax, moveSIMsAjax } from "@/api/user";
 import Item from '@/layout/components/Sidebar/Item'
 import { getSIMListAsync, getSIM, getSIMAsync, getCustomerList, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
 import moment from 'moment'
@@ -829,30 +814,19 @@ export default {
       const arr = []      
       this.organizeArr = []
       let listQuery = {
-        q: query
+        q: query,
+        IncludeSelf: true
       }
-      /*
-      getSIMList(listQuery).then(response => {
-        response.data.forEach(element => {
+      fetchCustomersListAjax(listQuery).then(response => {     
+        console.log('r',response.rows) 
+        response.rows.forEach(element => {
           arr.push({
-            code: element._id,
-            title: element.info.imsi
+            Code: element.Code,
+            Name: element.Name
           })
         })
-        this.imsiArr = arr
-      })*/
-      let response = await fetchCustomersList(listQuery)
-      response.rows.forEach(element => {
-        arr.push({
-          Code: element.Code,
-          Name: element.Name
-        })
+        this.organizeArr = arr
       })
-       this.organizeArr = arr
-      /*this.organizeOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }].concat(arr)*/
     },
     changeOrganize(val) {
       this.organizeArr = []
@@ -899,8 +873,8 @@ export default {
           self.locationList[0].value = result.Data.IMSI
           self.locationList[1].value = result.Data.LbsNetwork
           self.locationList[2].value = result.Data.LbsArea
-          self.locationList[6].value = result.Data.LbsRadio + ' ' + result.Data.LbsRange
-          self.locationList[7].value = utcDate
+          self.locationList[6].value = result.Data.LbsRadio?result.Data.LbsRadio + ' ' + result.Data.LbsRange:''
+          self.locationList[7].value = activityTime?utcDate:''
           self.locationList[8].value = result.Data.SessionDay
           self.locationList[9].value = (result.Data.DataDay/1048576).toFixed(3)
           const query_1 = {
@@ -970,16 +944,18 @@ export default {
           ServiceProfileCode: this.selectedServiceProfile
         }   
 
-        const response = await setActivateState(query).then(r=>{
+        setActivateStateAjax(query).then(r=>{
           if(r.MajorCode == '000'){            
-          this.$alert('Activated', 'M2M Data Message', {type: 'message'})
-          this.getList()
+            this.$alert('Activated', 'M2M Data Message', {type: 'message'})
+            this.getList()
           }else{
             this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
           }
         }).catch(e=>{
           this.$alert('SIM/s can not be activated', 'M2M Data Message', {type: 'message'})
         })
+
+
       }
     },
     async saveState(){
@@ -1033,7 +1009,7 @@ export default {
         }   
         switch(this.selectedState){
           case '0':
-            const response1 = await setSuspendState(query).then(r=>{
+            setSuspendStateAjax(query).then(r=>{
               if(r.MajorCode == '000'){            
           this.$alert('Set suspend successfuly', 'M2M Data Message', {type: 'message'})
               this.stateFormVisible = false
@@ -1046,7 +1022,7 @@ export default {
             })
             break;
           case '1':
-            const response2 = await setResumeState(query).then(r=>{
+            setResumeStateAjax(query).then(r=>{
               if(r.MajorCode == '000'){            
           this.$alert('Set resume successfuly', 'M2M Data Message', {type: 'message'})
               this.stateFormVisible = false
@@ -1059,7 +1035,7 @@ export default {
             })
             break;
           case '2':
-            const response3 = await setTerminateState(query).then(r=>{
+            setTerminateStateAjax(query).then(r=>{
               if(r.MajorCode == '000'){            
           this.$alert('SIM/s terminated', 'M2M Data Message', {type: 'message'})
               this.stateFormVisible = false
@@ -1089,7 +1065,7 @@ export default {
           IMSIs: arr,
           ServiceProfileCode: this.selectedServiceProfile
         }   
-        const response = await setServiceProfileOptions(query).then(r=>{
+        setServiceProfileOptionsAjax(query).then(r=>{
           if(r.MajorCode == '000'){            
             this.$alert('Service Profile was set successfully', 'M2M Data Message', {type: 'message'})
             this.sspFormVisible = false
@@ -1139,7 +1115,7 @@ export default {
             query.Number = this.tempMove.Number
             query.Remark = this.tempMove.Remark
             
-            const response = await moveSIMs(query).then(r=>{
+            moveSIMsAjax(query).then(r=>{
               if(r.MajorCode == '000'){            
                 this.$alert('SIMs was moved successfully', 'M2M Data Message', {type: 'message'})
                 this.moveFormVisible = false
@@ -1168,24 +1144,6 @@ export default {
         this.parentArr = []
       }
     },
-    /*async searchParent(query) {
-      const arr = []      
-      this.parentArr = []
-      this.parentListQuery = {
-        Name: query
-      }
-      
-      let response = await fetchSIMList(this.parentListQuery)
-      //getSIMList(this.simListQuery).then(response => {
-        response.rows.forEach(element => {
-          arr.push({
-            code: element.Code,
-            title: element.Name
-          })
-        })
-        this.parentArr = arr
-      //})      
-    },*/
     changeParent(val) {
       this.parentArr = []
       this.searchedParent = val.title
@@ -1236,128 +1194,25 @@ export default {
           
       this.isListLoading = true         
       
-      let response = await fetchSIMList(this.listQuery) 
-       if(!response){
-        return
-      }
-      response.rows.forEach(async element_1 => {
-        const activityTime = element_1.DataUpdateTime;
-        let rag = 'bg-color-grey'
-        let jsonDataArr = []
-        let dataSession = 0
-        let totalSumm = 0
-        let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
-            
-        if(activityTime){
-          if(simActivityTime >= halfDayAgo){
-            rag = 'bg-color-green'
-          }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-            rag = 'bg-color-yellow'
-          }else {
-            rag = 'bg-color-red'
-          }
-        }else{
-
-        }
-            
-/*
-        const responseActiveSession = await fetch(`https://m2mdata.co/jt/GetActiveSession?imsi=${element_1.IMSI}`)
-        let resActiveSession = await responseActiveSession.json()
-                        
-        if(resActiveSession.Data){
-          if(resActiveSession.Data.startDateField == null){
-            
-          
-          }else if(resActiveSession.Data.lastInterimDateField == null){
-            rag = 'bg-color-green'
-            let startDate = moment.utc(resActiveSession.Data.startDateField).toDate()
-            let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
+      fetchSIMListAjax(this.listQuery).then(response => { 
+        response.rows.forEach(async element_1 => {
+          const activityTime = element_1.DataUpdateTime
+          let rag = 'bg-color-grey'
+          let jsonDataArr = []
+          let dataSession = 0
+          let totalSumm = 0
+          let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
               
-            update = utcDate
-          }else{
-            const simActivityTime = moment(resActiveSession.Data.lastInterimDateField, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-            let startDate = moment.utc(resActiveSession.Data.lastInterimDateField).toDate()
-						let utcDate = startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2)
-										 
-            update = utcDate
-                    
-          if(simActivityTime >= halfDayAgo){
+          if(activityTime){
+            if(simActivityTime >= halfDayAgo){
               rag = 'bg-color-green'
             }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
               rag = 'bg-color-yellow'
             }else {
-              console.log('red1', simActivityTime, oneDayAgo, halfDayAgo)
               rag = 'bg-color-red'
             }
           }
-        } 
-        
-        var listQuery_1 = {
-            imsi: element_1.IMSI
-        }
-        
-        var settings_1 = {
-            "url": "https://test4.m2mdata.co/JT/Sim/GETSESSIONS",
-            "method": "POST",
-            "timeout": 0,
-            "headers": {
-            "token": "00000000-0000-0000-0000-000000000000",
-            "Content-Type": "application/x-www-form-urlencoded"
-            },
-            "data": listQuery_1
-        };
-                            				
-          	
-          $.ajax(settings_1).done(  function (result_1) {           
-            if(result_1.Data != null && result_1.Data.length){
-              let dataArr = result_1.Data.split('\r\n')
-              dataArr.pop()									
-              dataArr.forEach((element, index) => {
-                let dataJson = element.split(',')
-                let startDate = moment.utc(dataJson[4]).toDate()
-                let endDate = moment.utc(dataJson[5]).toDate()											
-                
-                let jsonDataObj = {
-                  startUTC: startDate,
-                  start: startDate.getDate() + ' ' + self.month_names_short[startDate.getMonth()] + ' ' + startDate.getFullYear() + ' ' + ('0' + startDate.getHours()).slice(-2) + ':' + ('0' + startDate.getMinutes()).slice(-2) + ':' + ('0' + startDate.getSeconds()).slice(-2),
-                  end: endDate.getDate() + ' ' + self.month_names_short[endDate.getMonth()] + ' ' + endDate.getFullYear() + ' ' + ('0' + endDate.getHours()).slice(-2) + ':' + ('0' + endDate.getMinutes()).slice(-2) + ':' + ('0' + endDate.getSeconds()).slice(-2),
-                  total: dataJson[3],
-                  operator: dataJson[1]+dataJson[2]
-                }
-                jsonDataArr.push(jsonDataObj)
-              })								
-                         
-              dataSession = jsonDataArr.filter(el=>{
-                let isTrue = moment(el.startUTC, 'YYYY-MM-DD').format('YYYY-MM-DD')>=moment(halfDayAgo, 'YYYY-MM-DD').format('YYYY-MM-DD')
-                if(isTrue){
-                  totalSumm += +el.total
-                }
-                return isTrue
-              }).length
-              //console.log(dataSessionArr)//.length
 
-              
-          if(update.length==0){		
-            let sortedArr = jsonDataArr.sort(function(a,b){
-                var c = new Date(a.start)
-                var d = new Date(b.start)
-                return d-c
-              })
-              
-              update = sortedArr[0].end
-              const simActivityTime = moment(update, 'YYYY-MM-DD HH').format('YYYY-MM-DD HH')
-
-              if(simActivityTime >= halfDayAgo){
-                rag = 'bg-color-green'
-              }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-                rag = 'bg-color-yellow'
-              }else {
-              console.log('red2', simActivityTime, oneDayAgo, halfDayAgo)
-                rag = 'bg-color-red'
-              }									
-            }
-          }*/
-        
           arr.push({
             IMSI: element_1.IMSI.toString(),
             ICCID: element_1.ICCID.toString(),
@@ -1377,33 +1232,23 @@ export default {
             CustomField3: element_1.CustomField3,
             CustomField4: element_1.CustomField4,
             CustomField5: element_1.CustomField5,
-          })
+          })        
+        })
         
-          self.isListLoading = false
-          self.total = response.total
-          self.list = arr
-        //})
+        self.isListLoading = false
+        self.total = response.total
+        self.list = arr
       })    
     },
-    /*async getParentRoles(token){
-      if(!token) token = this.$store.getters.userInfo.Token
-      let response = await fetchRoleList({token})
-      if(!response){
-        return
-      }
-      this.roleTypeOptions = sortArrayByObjProps(response, [{prop:'Name', direction: 1}])
-
-      //console.log(response)
-    },*/
     async getOrganizeOptions(){      
-      //this.listQuery.OrganizeCode = this.$store.getters.userInfo.OrganizeCode
       const arr = []
-      let response = await fetchCustomersList()
-      console.log('cust', response)
-      response.rows.forEach(element => {
-        arr.push({
-          Code: element.Code,
-          Name: element.Name
+      
+      fetchCustomersListAjax().then(response => {  
+        response.rows.forEach(element => {
+          arr.push({
+            Code: element.Code,
+            Name: element.Name
+          })
         })
       })
        
@@ -1414,7 +1259,6 @@ export default {
     },    
     getStateOptions(){
       this.stateOptions = [
-        /*{'Code': '0', 'Name': 'Activate'},*/
         {'Code': '0', 'Name': 'Suspend'},
         {'Code': '1', 'Name': 'Resume'},
         {'Code': '2', 'Name': 'Terminate'}
@@ -1422,12 +1266,10 @@ export default {
       this.selectedState = this.stateOptions[0].Code
     },
     async getServiceProfileOptions(){      
-      const response = await fetchServiceProfileOptions()
-      if(!response){
-        return
-      }
-      this.serviceProfileOptions = response.Data
-      this.selectedServiceProfile = this.serviceProfileOptions[0].Code
+      fetchServiceProfileOptionsAjax().then(response => {        
+        this.serviceProfileOptions = response.Data
+        this.selectedServiceProfile = this.serviceProfileOptions[0].Code
+      })
     },    
     async getLanguageOptions(){      
       this.languageOptions = LanguageList
@@ -1441,35 +1283,14 @@ export default {
     handleFilter() {
       this.listQuery.Page = 1
             
-      //this.listQuery.IMSIs = this.listQuery.IMSIs.split('\n')
-      /*let tofilter = this.listQuery.IMSIs.split('\n')
-      let filtered = tofilter.filter(function (el) {
-        return el != null
-      })
-      this.listQuery.IMSIs = filtered*/
-
-     // this.listQuery.ICCIDs = this.listQuery.ICCIDs.split('\n')
-     // this.listQuery.MSISDNs = this.listQuery.MSISDNs.split('\n')
       this.getList()
     },
     sortChange(data) {
       const { prop, order } = data
       this.listQuery.Order = order === 'ascending' ? 'ASC' : (order === 'descending') ? 'DESC' : ''
-      //this.listQuery.Order = order === 'ascending' ? 'ASC' : 'DESC'
       this.listQuery.Sort = prop
       this.getList()
-      /*if (prop === 'id') {
-        this.sortByID(order)
-      }*/
     },
-    /*sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },*/
     resetTemp() {
       this.temp = {        
         Language: LanguageList.find(e=>e.Code==='EN'),
@@ -1491,30 +1312,12 @@ export default {
       })
     },
     handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
+      this.temp = Object.assign({}, row) 
       this.dialogStatus = 'update'
       this.isDialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
-    },
-    async handleDelete(row, index) {
-      let response = await deleteCustomer({ Code: row.Code })
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'Deleted Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-
-      this.parentOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }].concat(this.list)
     },
     onEditFormSubmit(){
       //let tempData = Object.assign({}, this.temp)
@@ -1528,45 +1331,35 @@ export default {
         
         const {IMSI, CustomField1, CustomField2, CustomField3, CustomField4, CustomField5} = this.temp
         const tempData = {IMSI, CustomField1, CustomField2, CustomField3, CustomField4, CustomField5}
-        let response = this.dialogStatus === 'create' ? await createSIM(tempData) : await updateSIM(tempData)
-       
+             
+        /*if(this.dialogStatus === 'create'){ 
+          createSIMAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Created Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          }) 
+        }else{*/
+          updateSIMAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Updated Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          }) 
+        //}
+        
         this.isFormLoading = false
-        if(!response){
-          return
-        }
-
-        this.resetTemp()
-        this.getList()
-        this.isDialogFormVisible = false
-        this.$notify({
-          title: 'Success',
-          message: this.dialogStatus === 'create' ? 'Created Successfully' : 'Updated Successfully',
-          type: 'success',
-          duration: 2000
-        })
+        this.isDialogFormVisible = false        
       })
     },
-    async onChangeState(state){
-      this.isChangeStateLoading = true;
-      let response = await changeOrgState({ Code: this.temp.Code, State: state })
-      this.isChangeStateLoading = false;
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'State Changed Successfully',
-        type: 'success',
-        duration: 2000
-      })
-    },
-    /*onParentCodeChange(value){
-      this.getParentRoles(value)
-      //console.log(event)
-    },
-    onServiceProfileChange(value){ 
-    },
-    */
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {

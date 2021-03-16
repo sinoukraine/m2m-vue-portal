@@ -143,7 +143,7 @@
                 <el-row :gutter="16">
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="Name" prop="Name">
-                    <el-input v-model="temp.Name" />
+                    <el-input v-model="temp.Name" placeholder="Name"/>
                     </el-form-item>
                 </el-col>                
                 <el-col :xs="24" :sm="12">
@@ -175,33 +175,33 @@
 
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="First Name" prop="FirstName">
-                    <el-input v-model="temp.FirstName" />
+                    <el-form-item label="First Name" prop="FirstName"  >
+                    <el-input v-model="temp.FirstName" placeholder="First Name" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
                     <el-form-item label="Sub Name" prop="SubName">
-                    <el-input v-model="temp.SubName" />
+                    <el-input v-model="temp.SubName"  placeholder="Sub Name" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Email" prop="Email">
-                    <el-input v-model="temp.Email" />
+                    <el-form-item label="Email" prop="Email"  >
+                    <el-input v-model="temp.Email" placeholder="Email" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Mobile" prop="Mobile">
-                    <el-input v-model="temp.Mobile" />
+                    <el-form-item label="Mobile" prop="Mobile"  >
+                    <el-input v-model="temp.Mobile" placeholder="Mobile" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Number" prop="Number">
-                    <el-input v-model="temp.Number" />
+                    <el-form-item label="Number" prop="Number" >
+                    <el-input v-model="temp.Number" placeholder="Number" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Account" prop="Account">
-                    <el-input v-model="temp.Account" />
+                    <el-form-item label="Account" prop="Account" >
+                    <el-input v-model="temp.Account" placeholder="Account" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
@@ -212,16 +212,16 @@
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="State / Province" prop="ProvinceCode">
-                    <el-input v-model="temp.ProvinceCode" />
+                    <el-form-item label="State / Province" prop="ProvinceCode" >
+                    <el-input v-model="temp.ProvinceCode"  placeholder="State / Province" />
                     <!--<el-select v-model="temp.ProvinceCode" class="filter-item w-100" placeholder="Please select">
                         <el-option v-for="item in provinceOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>-->
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="City" prop="CityCode">
-                    <el-input v-model="temp.CityCode" />
+                    <el-form-item label="City" prop="CityCode" >
+                    <el-input v-model="temp.CityCode" placeholder="City Code" />
                     <!--<el-select v-model="temp.CityCode" class="filter-item w-100" placeholder="Please select">
                         <el-option v-for="item in cityOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>-->
@@ -443,7 +443,7 @@ import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
 //import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchCustomersList, createCustomer, updateCustomer, deleteCustomer, fetchServiceProfileList, changeOrgState } from "@/api/user";
+import { fetchCustomersListAjax, createCustomerAjax, updateCustomerAjax, deleteCustomerAjax, fetchServiceProfileListAjax, changeOrgStateAjax } from "@/api/user";
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
 
@@ -587,14 +587,16 @@ export default {
       let listQuery = {
         q: query
       }
-      let response = await fetchCustomersList(listQuery)
-      response.rows.forEach(element => {
-        arr.push({
-          Code: element.Code,
-          Name: element.Name
+      fetchCustomersListAjax(listQuery).then(response => {
+        response.rows.forEach(element => {
+          arr.push({
+            Code: element.Code,
+            Name: element.Name
+          })
         })
+        this.parentCreateArr = arr
       })
-       this.parentCreateArr = arr
+      
     },
     changeParentCreate(val) {
       this.parentCreateArr = []
@@ -619,8 +621,7 @@ export default {
         Name: query
       }
       
-      let response = await fetchCustomersList(this.parentListQuery)
-      //getSIMList(this.simListQuery).then(response => {
+      fetchCustomersListAjax(this.parentListQuery).then(response => {
         response.rows.forEach(element => {
           arr.push({
             code: element.Code,
@@ -628,7 +629,7 @@ export default {
           })
         })
         this.parentArr = arr
-      //})      
+      }) 
     },
     changeParent(val) {
       this.parentArr = []
@@ -672,18 +673,17 @@ export default {
     },
     async getList() {
       this.isListLoading = true
-      let response = await fetchCustomersList(this.listQuery)
-      this.isListLoading = false
+      fetchCustomersListAjax(this.listQuery).then(response =>{
+        this.isListLoading = false
       
-      if(!response){
-        return
-      }
-      this.total = response.total
-      this.list = response.rows
-      this.parentOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }].concat(this.list)
+        this.total = response.total
+        this.list = response.rows
+        this.parentOptions = [{
+          Name: this.userInfo.OrganizeName,
+          Code: this.userInfo.OrganizeCode
+        }].concat(this.list)
+      })
+      
     },
     /*async getParentRoles(token){
       if(!token) token = this.$store.getters.userInfo.Token
@@ -723,15 +723,10 @@ export default {
       }]
     },
     async getServiceProfileOptions(){
-      const response = await fetchServiceProfileList()
-      if(!response){
-        return
-      }
-      this.serviceProfileOptions = response/*
-      this.serviceProfileOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }]*/
+      fetchServiceProfileListAjax().then(response => {
+        this.serviceProfileOptions = response
+      })
+     
     },    
     async getLanguageOptions(){      
       this.languageOptions = LanguageList
@@ -765,6 +760,7 @@ export default {
       this.handleFilter()
     },*/
     resetTemp() {
+      this.searchedParentCreate = null
       this.temp = {        
         Language: LanguageList.find(e=>e.Code==='EN'),
         TimeZoneCode: TimeZoneList[0],
@@ -797,22 +793,21 @@ export default {
       })
     },
     async handleDelete(row, index) {
-      let response = await deleteCustomer({ Code: row.Code })
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'Deleted Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
+      deleteCustomerAjax({ Code: row.Code }).then(response => {
+        this.$notify({
+          title: 'Success',
+          message: 'Deleted Successfully',
+          type: 'success',
+          duration: 2000
+        })
+        this.list.splice(index, 1)
 
-      this.parentOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }].concat(this.list)
+        this.parentOptions = [{
+          Name: this.userInfo.OrganizeName,
+          Code: this.userInfo.OrganizeCode
+        }].concat(this.list)
+      })
+      
     },
     onEditFormSubmit(){
       let tempData = Object.assign({}, this.temp)
@@ -823,37 +818,49 @@ export default {
         
 
         this.isFormLoading = true
-        let response = this.dialogStatus === 'create' ? await createCustomer(tempData) : await updateCustomer(tempData)
+        //let response = this.dialogStatus === 'create' ? await createCustomer(tempData) : await updateCustomer(tempData)
        
-        this.isFormLoading = false
-        if(!response){
-          return
+        
+        if(this.dialogStatus === 'create'){ 
+          createCustomerAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Created Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          }) 
+        }else{
+          updateCustomerAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Updated Successfully',
+              type: 'success',
+              duration: 2000
+            })          
+          })
         }
-
-        this.resetTemp()
-        this.getList()
-        this.isDialogFormVisible = false
-        this.$notify({
-          title: 'Success',
-          message: this.dialogStatus === 'create' ? 'Created Successfully' : 'Updated Successfully',
-          type: 'success',
-          duration: 2000
-        })
+        
+        this.isFormLoading = false
+        this.isDialogFormVisible = false  
       })
     },
     async onChangeState(state){
       this.isChangeStateLoading = true;
-      let response = await changeOrgState({ Code: this.temp.Code, State: state })
-      this.isChangeStateLoading = false;
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'State Changed Successfully',
-        type: 'success',
-        duration: 2000
+      changeOrgStateAjax({ Code: this.temp.Code, State: state }).then(response => {
+        this.isChangeStateLoading = false;
+        this.$notify({
+          title: 'Success',
+          message: 'State Changed Successfully',
+          type: 'success',
+          duration: 2000
+        })
       })
+      
     },
     /*onParentCodeChange(value){
       this.getParentRoles(value)

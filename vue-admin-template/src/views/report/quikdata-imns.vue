@@ -296,6 +296,8 @@
 
 <script>
 import { getCDRSListAsync, getSIMAsync, getCDRSAsync, getCustomerList, fetchPv, createArticle, updateArticle, deleteArticle } from '@/api/sim'
+import { fetchSIMListAjax } from '@/api/user'
+
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Loading from 'vue-loading-overlay'
@@ -727,22 +729,14 @@ export default {
       const current = moment()          
 
       let self = this
-      var settings = {
-        "url": 'https://test4.m2mdata.co/JT/Sim/Query',
-        "method": "POST",
-        "timeout": 0,
-        "headers": {
-        "token": "00000000-0000-0000-0000-000000000000",
-        "Content-Type": "application/x-www-form-urlencoded"
-        },
-        "data": {
+
+      fetchSIMListAjax({
           'UsageReportType': pref_1 + pref_2,
           'sort': sort,
           'order': 'desc' 
-        }
-      };
+        }).then(response => {
 
-      $.ajax(settings).done(function (response) { 
+      //$.ajax(settings).done(function (response) { 
           let rows = response.rows   
           
           const arrTable = []

@@ -2,6 +2,7 @@ import request from '@/utils/request'
 import axios from 'axios'
 
 import { API_METHODS, getFormDataFromObject } from "@/utils/helpers"
+import { getToken } from '@/utils/auth' // get token from cookie
 import store from "@/store";
 
 export function logout() {
@@ -11,6 +12,24 @@ export function logout() {
     method: 'post'
   })
 }
+
+
+function getRequestOptions({url, method, data}) {
+  const token = getToken()
+  const ajaxRequestOptions = {
+    "url": url,
+    "method": method,
+    "timeout": 0,
+    "headers": {
+      "token": token,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    "data": data
+  }
+
+  return ajaxRequestOptions
+}
+
 
 export async function qtLogin(query) {
   //let data = getFormDataFromObject(query)
@@ -71,253 +90,268 @@ export async function qtRemoteLogin(query) {
           reject(error)
         ) 
   })
-  /*var qs = require('qs')
-
-  var formData = qs.stringify({
-    'SystemType': '1',
-    'AppID': 'm2mdata.co'
-  })
-  var config = {
-     method: 'get',
-     url: 'http://test4.m2mdata.co/service/User/ReAuth',
-     headers: { 
-       'token': query.token, 
-       'Content-Type': 'application/x-www-form-urlencoded'
-     },
-     data : formData
-  }
-
-  try {    
-    
-    const response = await fetch(`http://test4.m2mdata.co/service/User/ReAuth`, config)
-    //const response = await axios(config)
-    //const response = await axios.get(API_METHODS.REMOTE_LOGIN + '?token=' + query.token, formData );
-    if(response.data.MajorCode === '000'){
-      return response.data.Data
-    }else{
-      response.data.method = 'login';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }*/
 }
 
 
-export async function fetchUsersList(query) {
-  let data = getFormDataFromObject(query)
 
-  try {
-    const response = await axios.post(API_METHODS.USER_GET_LIST, data );
-    if(!response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'fetchUsersList';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
+export function getHistoryAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/JT/SMS/History",
+    "method": "POST",
+    "data": query
   }
-}
-
-export async function createUser(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.USER_CREATE, data );
-    if(response.data.MajorCode === '000'){
-      return response.data
-    }else{
-      response.data.method = 'createUser';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-
-export async function updateUser(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    //const response = await axios.post(API_METHODS.OSP_EDIT+`token=${query.token}`, data );
-    const response = await axios.post(API_METHODS.USER_EDIT, data );
-    if(response.data.MajorCode === '000'){
-      return response.data
-    }else{
-      response.data.method = 'updateUser';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-
-export async function deleteUser(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.USER_DELETE, data );
-    if(response.data.MajorCode === '000'){
-      return response.data
-    }else{
-      response.data.method = 'deleteUser';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-export async function resetPassword(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.USER_RESET_PASSWORD, data );
-    if(response.data.MajorCode === '000'){
-      return response.data
-    }else{
-      response.data.method = 'resetPassword';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-
-export async function fetchCustomersList(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.CUSTOMER_GET_LIST, data );
-    if(!response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'fetchCustomersList';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-export async function fetchServiceProfileList(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.OSP_GET_LIST, data );//OSP_GET_LIST
-    if(!response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'fetchServiceProfileList';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-
-export async function createCustomer(query) {
-  var qs = require('qs')
-     
-  var formData = qs.stringify(query)
-   var config = {
-     method: 'post',
-     url: 'https://test4.m2mdata.co/Service/Organize/Add',
-     headers: { 
-       'token': '00000000-0000-0000-0000-000000000000', 
-       'Content-Type': 'application/x-www-form-urlencoded'
-     },
-     data : formData
-   }
-
-  try {
-    /*axios(config)
-    .then(await function (response) {
-      console.log(JSON.stringify(response.data))
-      return JSON.stringify(response.data)
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      console.log('eee', e)
+      store.commit('app/SET_ERROR', e)
     })
-    .catch(await function (error) {
-      console.log(error)
-      return false
-    })*/
-    const response = await axios(config)
-    if(response.data.MajorCode === '000'){
-      console.log(JSON.stringify(response.data))
-      return JSON.stringify(response.data)
-    }else{
-      response.data.method = 'createCustomer';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
+  })
 }
 
-export async function updateCustomer(query) {
-  var qs = require('qs')
-     
-  var formData = qs.stringify(query)
-   var config = {
-     method: 'post',
-     url: 'https://test4.m2mdata.co/Service/Organize/Edit',
-     headers: { 
-       'token': '00000000-0000-0000-0000-000000000000', 
-       'Content-Type': 'application/x-www-form-urlencoded'
-     },
-     data : formData
-   }
-
-  try {
-    const response = await axios(config)
-    if(response.data.MajorCode === '000'){
-      console.log(JSON.stringify(response.data))
-      return JSON.stringify(response.data)
-    }else{
-      response.data.method = 'updateCustomer';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
+export function rebootAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/JT/Sim/Reboot",
+    "method": "POST",
+    "data": query
   }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      console.log('eee', e)
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function refreshAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/JT/Sim/Refresh",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      console.log('eee', e)
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function getSessionsAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/JT/Sim/GETSESSIONS",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      console.log('eee', e)
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function getDashboardAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/JT/Report/Bashboard",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      console.log('eee', e)
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function fetchSIMListAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/JT/Sim/Query",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      console.log('eee', e)
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function fetchUsersListAjax(query) {
+  var options = {
+    "url": API_METHODS.USER_GET_LIST,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function createUserAjax(query) {
+  var options = {
+    "url": API_METHODS.USER_CREATE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
 }
 
 
+export function updateUserAjax(query) {
+  var options = {
+    "url": API_METHODS.USER_EDIT,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+export function deleteUserAjax(query) {
+  var options = {
+    "url": API_METHODS.USER_DELETE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+export function resetPasswordAjax(query) {
+  var options = {
+    "url": API_METHODS.USER_RESET_PASSWORD,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+
+export function fetchCustomersListAjax(query) {
+  var options = {
+    "url": API_METHODS.CUSTOMER_GET_LIST,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function fetchServiceProfileListAjax(query) {
+  var options = {
+    "url": API_METHODS.OSP_GET_LIST,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function createCustomerAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/Service/Organize/Add",
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+export function updateCustomerAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/Service/Organize/Edit",
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+export function changeOrgStateAjax(query) {
+  var options = {
+    "url": API_METHODS.CUSTOMER_CHANGE_STATE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
 
 export async function changeOrgState(query) {
   let data = getFormDataFromObject(query)
@@ -339,25 +373,20 @@ export async function changeOrgState(query) {
 }
 
 
-export async function deleteCustomer(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.CUSTOMER_DELETE, data );
-    if(response.data.MajorCode === '000'){
-      return response.data
-    }else{
-      response.data.method = 'deleteCustomer';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
+export function deleteCustomerAjax(query) {
+  var options = {
+    "url": API_METHODS.CUSTOMER_DELETE,
+    "method": "POST",
+    "data": query
   }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
 }
-
 
 
 export async function fetchTemplatesList(query) {
@@ -379,55 +408,20 @@ export async function fetchTemplatesList(query) {
   }
 }
 
-export async function fetchSIMList(query) {
-  let data = getFormDataFromObject(query)
 
-  try {
-    const response = await axios.post(API_METHODS.SIM_GET_LIST, data );
-    if(!response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'fetchSIMList';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
+export function updateSIMAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_EDIT,
+    "method": "POST",
+    "data": query
   }
-}
-
-
-export async function updateSIM(query) {
-  var qs = require('qs')
-     
-  var formData = qs.stringify(query)
-   var config = {
-     method: 'post',
-     url: 'https://test4.m2mdata.co/Service/JTSim/Edit',
-     headers: { 
-       'token': '00000000-0000-0000-0000-000000000000', 
-       'Content-Type': 'application/x-www-form-urlencoded'
-     },
-     data : formData
-   }
-
-  try {
-    const response = await axios(config)
-    if(response.data.MajorCode === '000'){
-      console.log(JSON.stringify(response.data))
-      return JSON.stringify(response.data)
-    }else{
-      response.data.method = 'updateSIM';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
 }
 
 export async function fetchSIMPosition(query) {
@@ -450,163 +444,109 @@ export async function fetchSIMPosition(query) {
 }
 
 
-export async function setActivateState(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.SIM_SET_ACTIVATE, data )
-    if(response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'setActivateState';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
+export function setActivateStateAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_SET_ACTIVATE,
+    "method": "POST",
+    "data": query
   }
-}
-
-export async function setSuspendState(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.SIM_SET_SUSPEND, data )
-    if(response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'setSuspendState';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-export async function setResumeState(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.SIM_SET_RESUME, data )
-    if(response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'setResumeState';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-export async function setTerminateState(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.SIM_SET_TERMINATE, data )
-    if(response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'setTerminateState';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-
-export async function moveSIMs(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.SIM_MOVE, data )
-    if(response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'moveSIMs';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-export async function setServiceProfileOptions(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.SIM_SET_SERVICE_PROFILE, data )
-    if(response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'setServiceProfileOptions';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-export async function fetchServiceProfileOptions(query) {
-  let data = getFormDataFromObject(query)
-
-  try {
-    const response = await axios.post(API_METHODS.SIM_GET_SERVICE_PROFILE_OPTIONS, data )
-    if(response.data.MajorCode){
-      return response.data
-    }else{
-      response.data.method = 'fetchServiceProfileOptions';
-      store.commit('app/SET_API_VALIDATION_ERROR', response.data)
-      return false
-    }
-  }catch (e) {
-    console.log(e)
-    store.commit('app/SET_ERROR', e)
-    return false
-  }
-}
-
-
-
-/*import request from '@/utils/request'
-
-export function login(data) {
-  return request({
-    url: '/vue-admin-template/user/login',
-    method: 'post',
-    data
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
   })
 }
 
-export function getInfo(token) {
-  return request({
-    url: '/vue-admin-template/user/info',
-    method: 'get',
-    params: { token }
+export function setSuspendStateAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_SET_SUSPEND,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
   })
 }
 
-export function logout() {
-  return request({
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
+export function setResumeStateAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_SET_RESUME,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
   })
-}*/
+}
+
+export function setTerminateStateAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_SET_TERMINATE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function moveSIMsAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_MOVE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function setServiceProfileOptionsAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_SET_SERVICE_PROFILE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function fetchServiceProfileOptionsAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_GET_SERVICE_PROFILE_OPTIONS,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+

@@ -27,7 +27,7 @@
                         <img :src="'avatar-sim.png?imageView2/1/w/80/h/80'" class="user-avatar">
                     </div>
                     <div v-if="!message.new" class="message-status">{{message.status}}</div>
-                    <div v-else class="message-status-new">Sent</div>
+                    <div v-else class="message-status-new">Pending...</div>
                     <div class="message-time">{{message.timestamp}}</div>
                     <div v-show="message.type === 'sent'">
                         <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
@@ -208,7 +208,7 @@ import Confirm from './message-box/confirm'
 import { create } from 'vue-modal-dialogs'
 import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync, sendCommandAsync } from '@/api/sim'
 
-import { fetchSIMList } from "@/api/user";
+import { fetchSIMListAjax, getHistoryAjax } from "@/api/user";
 const confirm = create(Confirm, 'title', 'content')
 
 export default {
@@ -328,51 +328,34 @@ export default {
           Rows: 5,
           IMSIs: [this.simListQuery.sample],
         }
-        let response = await fetchSIMList(this.simListQuery).catch(e => {
+        fetchSIMListAjax(this.simListQuery).then(response => {
+           if(response.rows.length){
+
+              console.log('all',response.rows)
+              response.rows.forEach(element => {
+                arr.push({
+                  id: element.IMSI,
+                  name: element.IMSI,
+                  state: false,
+                })
+              })     
+              this.isLoading = false     
+              this.deviceList = arr
+              
+              this.deviceList[0].state = true
+              this.getHistory()
+            }else{
+              this.isLoading = false 
+              this.$alert('Can not find this SIM number', 'M2M Data Message', {type: 'message'})
+
+            }
+        }).catch(e => {
           this.isLoading = false 
           this.$alert('Can not find this SIM number', 'M2M Data Message', {type: 'message'})
       
         }) 
         
-        if(response.rows.length){
-
-          console.log('all',response.rows)
-          response.rows.forEach(element => {
-            arr.push({
-              id: element.IMSI,
-              name: element.IMSI,
-              state: false,
-            })
-          })     
-          this.isLoading = false     
-          this.deviceList = arr
-          
-          this.deviceList[0].state = true
-          this.getHistory()
-        }else{
-          this.isLoading = false 
-          this.$alert('Can not find this SIM number', 'M2M Data Message', {type: 'message'})
-
-        }
-       /*getSIMList(this.simListQuery).then(response => {
-          response.data.forEach(element => {
-            arr.push({
-              id: element._id,
-              name: element.info.imsi,
-              state: false,
-            })
-          })        
-          this.isLoading = false     
-          this.deviceList = arr
-          
-          this.deviceList[0].state = true
-          this.getHistory()
-        }).catch(e => {
-          this.isLoading = false 
-          this.$alert('The IMSI field length have to be greater than or equal to 4 characters long.', 'M2M Data Message', {type: 'message'})
-      
-        })*/
-      } else{
+       } else{
          this.isLoading = false    
       }     
     },
@@ -503,22 +486,12 @@ export default {
           } 
           
           let self = this
-          var settings = {
-					  "url": "https://test4.m2mdata.co/JT/SMS/History",
-					  "method": "POST",
-					  "timeout": 0,
-					  "headers": {
-						"token": "00000000-0000-0000-0000-000000000000",
-						"Content-Type": "application/x-www-form-urlencoded"
-					  },
-					  "data": {
+          getHistoryAjax({
 						"IMSI":  query.imsi,
 						"PAGE": "1",
 						"pagesize": "100",
-					  }
-					};
-
-					$.ajax(settings).done(function (response) {           
+					  }).then(response => {
+					//$.ajax(settings).done(function (response) {           
             /*let sortedArr = response.Data.sort(function(a,b){
               let c = new Date(a.CreateTime)
               let d = new Date(b.CreateTime)
@@ -536,8 +509,6 @@ export default {
               })
               self.setHistory(sortedArr.reverse())       
             }
-          }).fail(function (e){
-            return
           })
           /*~~~const response = await getSMSHistoryAsync(query).catch(e=>[])
           if (response.data) {
@@ -990,16 +961,7 @@ export default {
 </style>
 
 <style >
-.p-20{
-    padding: 20px;
-}
-.pb-20{
-  padding-bottom: 20px;
-}
-.py-20{
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
+
 .panel-right p{
     padding-right: 25px;
 }

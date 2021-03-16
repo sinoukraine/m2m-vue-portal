@@ -2,13 +2,45 @@ import request from '@/utils/request'
 import { API_METHODS } from "@/utils/helpers"
 import store from "@/store"
 import axios from 'axios'
+import { getToken } from '@/utils/auth' // get token from cookie
 
 const API_DOMIAN = 'https://test4.m2mdata.co/Service/'
 const ROLE_QUERY = API_DOMIAN + 'Role/Query'
 const ROLE_EDIT = API_DOMIAN + 'Role/Edit'
 const ROLE_ADD = API_DOMIAN + 'Role/Add'
 
-function getRequestOptions(body) {
+function getRequestOptions({url, method, data}) {
+  const token = getToken()
+  const ajaxRequestOptions = {
+    "url": url,
+    "method": method,
+    "timeout": 0,
+    "headers": {
+      "token": token,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    "data": data
+  }
+
+  return ajaxRequestOptions
+}
+
+export function fetchRoleListAjax(query) {
+  var options = {
+    "url": ROLE_QUERY,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+/*function getRequestOptions(body) {
   var headers = new Headers()
   body.append('token', '00000000-0000-0000-0000-000000000000')
 
@@ -25,9 +57,6 @@ function getRequestOptions(body) {
 export async function fetchRoleList(query) {
   const params = new FormData()
 
-  /* params.append('page', query.page)
-  params.append('Rows', query.limit)
-  params.append('token', '00000000-0000-0000-0000-000000000000')*/
 
   if(query){
     const arr = Object.keys(query)
@@ -52,17 +81,7 @@ export async function fetchRoleList(query) {
     return false
   }
 
-  /* return new Promise((resolve, reject) => {
-    fetch(ROLE_QUERY, params)
-      .then(response => response.json())
-      .then(result => {
-        resolve(result)
-      })
-      .catch(error => {
-        reject(error)
-      })
-  })*/
-}
+}*/
 
 export function createRole(query) {
   const params = new URLSearchParams()

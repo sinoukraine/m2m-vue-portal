@@ -287,8 +287,9 @@ import { mapGetters } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList } from "@/utils/dictionaries";
 import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchCustomersList, fetchUsersList, createUser, updateUser, deleteUser, resetPassword } from "@/api/user";
-import { fetchRoleList } from "@/api/role-managment";
+import { fetchCustomersListAjax, fetchUsersListAjax, createUserAjax, updateUserAjax, deleteUserAjax, resetPasswordAjax } from "@/api/user";
+import { fetchRoleListAjax } from "@/api/role-managment";
+import { getToken } from '@/utils/auth' // get token from cookie
 import Item from '@/layout/components/Sidebar/Item'
 
 
@@ -401,19 +402,24 @@ export default {
       }
     },
     async searchOrganizeCreate(query) {
+      const self = this
       const arr = []      
       this.organizeCreateArr = []
       let listQuery = {
-        q: query
+        q: query,
+        IncludeSelf: true
       }
-      let response = await fetchCustomersList(listQuery)
-      response.rows.forEach(element => {
-        arr.push({
-          Code: element.Code,
-          Name: element.Name
+      fetchCustomersListAjax(listQuery).then(response => {
+        response.rows.forEach(element => {
+          arr.push({
+            Code: element.Code,
+            Name: element.Name
+          })
+        })
+        self.$nextTick(() => {
+          self.organizeCreateArr = arr
         })
       })
-       this.organizeCreateArr = arr
     },
     changeOrganizeCreate(val) {
       this.organizeCreateArr = []
@@ -454,38 +460,20 @@ export default {
     },
     async getList() {
       this.isListLoading = true
-      //console.log('start')
-      /*fetchList(this.listQuery).then(response => {
 
-      })*/
-
-      //response.data.items
-     /* let query = {
-        Page: this.listQuery.page,
-        Rows: this.listQuery.limit,
-      }*/
-      let response = await fetchUsersList(this.listQuery)
-      this.isListLoading = false
-      console.log(response)
-      if(!response){
-        return
-      }
-      //console.log(response)
-      this.total = response.total
-      this.list = response.rows
-
-
-
+      fetchUsersListAjax(this.listQuery).then(response => {
+        this.isListLoading = false
+        this.total = response.total
+        this.list = response.rows
+      })
     },
-    async getOrganisationRoles(token){
-      if(!token) token = this.$store.getters.userInfo.Token
-      let response = await fetchRoleList({token})
-      if(!response){
-        return
-      }
-      this.roleTypeOptions = sortArrayByObjProps(response, [{prop:'Name', direction: 1}])
-
-      //console.log(response)
+    async getOrganisationRoles(){
+      //if(!token) {
+        const token = getToken()
+      //}token = this.$store.getters.userInfo.Token
+      fetchRoleListAjax({token}).then(response => {        
+        this.roleTypeOptions = sortArrayByObjProps(response, [{prop:'Name', direction: 1}])
+      })
     },
     /*async getOrganisationsList(){
       let query = {
@@ -527,6 +515,7 @@ export default {
       this.handleFilter()
     },*/
     resetTemp() {
+      this.searchedOrganizeCreate = null
       this.temp = {
         //GroupCode: '',
         OrganizeCode: '',//this.userInfo.OrganizeCode,
@@ -542,7 +531,7 @@ export default {
     },
     handleCreate() {
       this.resetTemp()
-
+      
       this.dialogStatus = 'create'
       this.isDialogFormVisible = true
       this.$nextTick(() => {
@@ -560,17 +549,16 @@ export default {
       })
     },
     async handleDelete(row, index) {
-      let response = await deleteUser({ Code: row.Code })
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'Deleted Successfully',
-        type: 'success',
-        duration: 2000
+      deleteUserAjax({ Code: row.Code }).then(response => {        
+        this.$notify({
+          title: 'Success',
+          message: 'Deleted Successfully',
+          type: 'success',
+          duration: 2000
+        })
+        this.list.splice(index, 1)
       })
-      this.list.splice(index, 1)
+      
     },
     onEditFormSubmit(){
         let tempData = Object.assign({}, this.temp)
@@ -580,40 +568,52 @@ export default {
         }
         
         this.isFormLoading = true;
-        let response = this.dialogStatus === 'create' ? await createUser(tempData) : await updateUser(tempData)
-        this.isFormLoading = false;
-        if(!response){
-          return
-        }
+        //let response = this.dialogStatus === 'create' ? await createUser(tempData) : await updateUser(tempData)
 
-        this.resetTemp()
-        this.getList()
-        this.isDialogFormVisible = false
+        if(this.dialogStatus === 'create'){ 
+          createUserAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Created Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          }) 
+        }else{
+          updateUserAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Updated Successfully',
+              type: 'success',
+              duration: 2000
+            })          
+          })
+        }
+        
+        this.isFormLoading = false
+        this.isDialogFormVisible = false  
+      })
+    },
+    /*onOrganizeCodeChange(value){
+      this.getOrganisationRoles(value)
+      //console.log(event)
+    },*/
+    async onResetPassword(){
+      this.isResetLoading = true;
+      resetPasswordAjax({ Code: this.temp.Code }).then(response => {
+        this.isResetLoading = false
         this.$notify({
           title: 'Success',
-          message: this.dialogStatus === 'create' ? 'Created Successfully' : 'Updated Successfully',
+          message: 'Password Resetted Successfully',
           type: 'success',
           duration: 2000
         })
       })
-    },
-    onOrganizeCodeChange(value){
-      this.getOrganisationRoles(value)
-      //console.log(event)
-    },
-    async onResetPassword(){
-      this.isResetLoading = true;
-      let response = await resetPassword({ Code: this.temp.Code })
-      this.isResetLoading = false;
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'Password Resetted Successfully',
-        type: 'success',
-        duration: 2000
-      })
+      
     },
    /* handleDownload() {
       this.downloadLoading = true

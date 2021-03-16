@@ -21,18 +21,3 @@
 #app .el-radio-button__inner {
   background: transparent !important;
 }
-
-.w-100{
-  width: 100%;
-}
-
-.m-30{
-  margin: 30px;
-}
-
-/*#app .main-container{
-  height: 100%;
-}*/
-/*.app-main{
-  height: calc(100vh - 50px);
-}*/
