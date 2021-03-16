@@ -625,10 +625,9 @@ export default {
     transform: rotate(90deg);
   }
   .sms-page.chat-container{
-    position: relative;
     height: calc(100vh - 75px) !important;
     width: 100%;
-    position: fixed;
+    position: inherit !important;
   }
   .sms-page .chat-sidebar{
     background-color: #ffffff;
