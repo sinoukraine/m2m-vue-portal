@@ -157,9 +157,9 @@ import { mapGetters } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList } from "@/utils/dictionaries";
 import { sortArrayByObjProps } from "@/utils/helpers";
-import { createUser, updateUser, deleteUser, resetPassword } from "@/api/user";
-import { getCommandsListAsync, getCommandParamsAsync } from "@/api/sim";
-import { fetchRoleList } from "@/api/role-managment";
+//import { createUser, updateUser, deleteUser, resetPassword } from "@/api/user";
+import { getCommandsListAsync } from "@/api/sim";
+//import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
 
 

@@ -271,7 +271,7 @@
                 
               </el-form-item>-->
               <el-form-item label="" prop="title">
-                <span class="label-span">Sort</span>
+                <span class="label-span">Sorting type</span>
                 <el-select v-model="selectedOrder" placeholder="SIM"  class="filter-item w-100" style="width: 100%;">
                   <el-option v-for="item in orderOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>

@@ -135,7 +135,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 import Item from '@/layout/components/Sidebar/Item'
 import waves from '@/directive/waves'
 import { getSIMList, getSMSHistoryAsync } from '@/api/sim'
-import { fetchSIMList } from "@/api/user";
+import { fetchSIMListAjax, getHistoryAjax } from "@/api/user";
 import moment from 'moment'
 
 const today = new Date()
@@ -246,12 +246,8 @@ export default {
         Rows: 5,
         q: query,
       }
-      let response = await fetchSIMList(this.simListQuery) 
+      fetchSIMListAjax(this.simListQuery).then(response => {
       
-        console.log(response)
-        if(!response.rows.length){
-          return
-        }
         response.rows.forEach(element => {
           arr.push({
             code: element.IMSI,
@@ -259,16 +255,8 @@ export default {
           })
         })
         this.imsiArr = arr
-      
-      /*getSIMList(this.simListQuery).then(response => {
-        response.data.forEach(element => {
-          arr.push({
-            code: element._id,
-            title: element.info.imsi
-          })
-        })
-        this.imsiArr = arr
-      })*/      
+      })
+          
     },
     querySearchIMSI(query) {
       if (query !== '') {        
@@ -287,22 +275,13 @@ export default {
           
           
           let self = this
-          var settings = {
-					  "url": "https://test4.m2mdata.co/JT/SMS/History",
-					  "method": "POST",
-					  "timeout": 0,
-					  "headers": {
-						"token": "00000000-0000-0000-0000-000000000000",
-						"Content-Type": "application/x-www-form-urlencoded"
-					  },
-					  "data": {
+
+          getHistoryAjax({
 						"IMSI":  this.listHistoryQuery.imsi,
 						"PAGE": this.page,
 						"pagesize": "100",
-					  }
-					};
-
-					$.ajax(settings).done(function (response) {     
+					  }).then(response => {
+					//$.ajax(settings).done(function (response) {     
             //concatArr = response.Data
             //console.log(response)
              

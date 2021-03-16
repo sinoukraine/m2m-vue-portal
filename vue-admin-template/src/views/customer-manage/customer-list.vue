@@ -585,7 +585,8 @@ export default {
       const arr = []      
       this.parentCreateArr = []
       let listQuery = {
-        q: query
+        q: query,
+        IncludeSelf: true
       }
       fetchCustomersListAjax(listQuery).then(response => {
         response.rows.forEach(element => {

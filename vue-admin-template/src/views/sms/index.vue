@@ -36,7 +36,7 @@
                 <div class="message-bubble">
                   <div class="message-text">
                     <b>                      
-                      {{message.from === 'me'?'m2madmin':message.from}}
+                      {{message.from === 'me'?'me':message.from}}
                     </b>
                     <br>                    
                     <i v-show="message.to">to: {{message.to}}
@@ -620,21 +620,23 @@ export default {
 </script>
 
 <style lang="scss">
+
   .rotate-90{
     transform: rotate(90deg);
   }
-  .chat-container{
+  .sms-page.chat-container{
     position: relative;
-    height: calc(100vh - 75px);
+    height: calc(100vh - 75px) !important;
     width: 100%;
+    position: fixed;
   }
-   .chat-sidebar{
+  .sms-page .chat-sidebar{
     background-color: #ffffff;
     color: #333;
     -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
     box-shadow: 0 1px 4px rgba(0,21,41,0.08);
   }
-   .sidebar-header{
+  .sms-page .sidebar-header{
     height: 50px;
     line-height: 50px;
     overflow: hidden;
@@ -646,7 +648,8 @@ export default {
     padding-left: 16px;
     padding-right: 16px;
   }
-   .list{
+  .sms-page{
+     .list{
     list-style: none;
     position: relative;
     margin: 0;
@@ -756,6 +759,9 @@ export default {
       }
     }
   }
+  }
+
+  .sms-page{
    .messages{
     display: -webkit-box;
     display: -webkit-flex;
@@ -956,13 +962,11 @@ export default {
       }
     }
   }
+}
 
 
-</style>
-
-<style >
-
-.panel-right p{
+.sms-page{
+  .panel-right p{
     padding-right: 25px;
 }
 .panel-right{
@@ -1050,6 +1054,7 @@ export default {
   .el-footer{
     padding: 20px 10px 20px 20px;
     height: 80px !important;
+    position: relative !important;
   }
   .scrollbar-loading .collapse-list{
     padding: 25px 0;
@@ -1123,4 +1128,15 @@ export default {
 .el-aside {
     overflow: hidden !important;
 }
+}
+
+.app-main{
+  overflow: inherit;
+}
+
+</style>
+
+<style >
+
+
 </style>

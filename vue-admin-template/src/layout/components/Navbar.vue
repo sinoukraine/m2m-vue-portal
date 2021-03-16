@@ -23,9 +23,9 @@
           <a target="_blank" href="https://statistic.quiktrak.com.au/top-imsi-usage/">
             <el-dropdown-item>Reports</el-dropdown-item>
           </a>
-          <el-dropdown-item divided @click.native="accessAdmin()">
+          <!--<el-dropdown-item divided @click.native="accessAdmin()">
             Back to Admin
-          </el-dropdown-item>
+          </el-dropdown-item>-->
           <el-dropdown-item @click.native="logout">
             <span style="display:block;">Log Out</span>
           </el-dropdown-item>

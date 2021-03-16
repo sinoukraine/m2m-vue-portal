@@ -252,13 +252,9 @@ export async function getSMSHistoryAsync(query) {
 }
 
 export async function getCommandsListAsync(query) {
-  
-  /*const options = {
-    url: COMMAND_LIST,
-    method: 'get'
-  }*/
+  const token = getToken()
+
   try {
-    const token = "11111111-1111-1111-1111-111111111111"
     const response = await fetch(`https://api.m2mglobaltech.com/QuikData/V1/Command/GetLIst?MajorToken=${token}`)
     
     return await response.json()

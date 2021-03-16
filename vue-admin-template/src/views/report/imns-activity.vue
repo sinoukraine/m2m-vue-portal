@@ -178,7 +178,7 @@
 
 <script>
 import { getSIMList, getCDRSListAsync, getSIMAsync, getCDRSAsync, getCustomerList, fetchPv, createArticle, updateArticle, deleteArticle } from '@/api/sim'
-import { fetchSIMList } from "@/api/user";
+import { fetchSIMListAjax } from "@/api/user";
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Loading from 'vue-loading-overlay'
@@ -405,18 +405,16 @@ export default {
         Rows: 5,
         q: query,
       }
-      let response = await fetchSIMList(this.simListQuery) 
+      fetchSIMListAjax(this.simListQuery).then(response => { 
       
-        if(!response.rows.length){
-          return
-        }
         response.rows.forEach(element => {
           arr.push({
             code: element.IMSI,
             title: element.IMSI
           })
         })
-        this.imsiArr = arr    
+        this.imsiArr = arr  
+      })  
     },
     changeIMSI(val) {
       this.imsiArr = []
