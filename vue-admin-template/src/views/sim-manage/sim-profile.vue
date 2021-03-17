@@ -785,17 +785,17 @@ export default {
             utcDate = utcActivityDate.getDate() + ' ' + self.month_names_short[utcActivityDate.getMonth()] + ' ' + utcActivityDate.getFullYear() + ' ' + ('0' + utcActivityDate.getHours()).slice(-2) + ':' + ('0' + utcActivityDate.getMinutes()).slice(-2) + ':' + ('0' + utcActivityDate.getSeconds()).slice(-2)
                         
             this.lastUpdateTime = utcDate
-          }
-          if(!utcDate.length){
-
-          }
-          else if(utcDate >= halfDayAgo){
+          
+            let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
+            if(simActivityTime >= halfDayAgo){
               rag = 'bg-color-green'
-            }else if(utcDate >= oneDayAgo && utcDate < halfDayAgo){
+            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
               rag = 'bg-color-yellow'
             }else {
+             console.log(simActivityTime, halfDayAgo)
               rag = 'bg-color-red'
             }
+          }
           
           
 
