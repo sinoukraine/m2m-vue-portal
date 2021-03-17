@@ -9,6 +9,8 @@ const ROLE_QUERY = API_DOMIAN + 'Role/Query'
 const ROLE_EDIT = API_DOMIAN + 'Role/Edit'
 const ROLE_ADD = API_DOMIAN + 'Role/Add'
 
+
+
 function getRequestOptions({url, method, data}) {
   const token = getToken()
   const ajaxRequestOptions = {
@@ -81,7 +83,7 @@ export async function fetchRoleList(query) {
     return false
   }
 
-}*/
+}
 
 export function createRole(query) {
   const params = new URLSearchParams()
@@ -131,11 +133,6 @@ export function fetchTreeList(data) {
         reject(error)
       })
   })
-  /* return request({
-    url: '/vue-element-admin/article/list',
-    method: 'get',
-    params: query
-  })*/
 }
 
 export function manageRole(data) {
@@ -168,7 +165,7 @@ export function manageRole(data) {
         reject(error)
       })
   })
-}
+}*/
 
 export function fetchPv(pv) {
   return request({
@@ -177,7 +174,7 @@ export function fetchPv(pv) {
     params: { pv }
   })
 }
-
+/*
 export function createArticle(data) {
   var myHeaders = new Headers()
   var urlencoded = new URLSearchParams()
@@ -204,11 +201,6 @@ export function createArticle(data) {
         reject(error)
       })
   })
-  /* return request({
-    url: '/vue-element-admin/article/create',
-    method: 'post',
-    data
-  })*/
 }
 
 export function updateArticle(data) {
@@ -230,10 +222,7 @@ export function updateArticle(data) {
     fetch('http://test.m2mdata.co/Service/Language/Edit', requestOptions)
       .then(response => response.json())
       .then(result => {
-        /* const { data } = result
-
-        console.log('res', data)*/
-
+       
         resolve()
       })
       .catch(error => {
@@ -241,11 +230,6 @@ export function updateArticle(data) {
         reject(error)
       })
   })
-  /* return request({
-    url: '/vue-element-admin/article/update',
-    method: 'post',
-    data
-  })*/
 }
 
 export function deleteArticle(data) {
@@ -273,5 +257,75 @@ export function deleteArticle(data) {
         console.log('er', error)
         reject(error)
       })
+  })
+}*/
+
+
+
+export function getRolesPermissionsAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/service/role/QueryPermissions",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+export function createRoleAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/service/role/Add",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+
+export function manageRoleAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/service/role/Edit",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+export function deleteRoleAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/service/role/Remove",
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
   })
 }

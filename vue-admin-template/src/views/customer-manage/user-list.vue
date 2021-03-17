@@ -139,7 +139,7 @@
                         <input type="hidden" :value="temp.OrganizeCode" >
                         <el-select
                           ref="organizeSearchSelect"
-                          v-model="searchedOrganizeCreate"
+                          v-model="searchedOrganizeName"
                           :remote-method="querySearchOrganizeCreate"
                           filterable
                           default-first-option
@@ -309,6 +309,7 @@ export default {
   data() {
     //console.log(this.$store.getters.userInfo.OrganizeCode)
     return {
+      searchedOrganizeName: '',
       searchedOrganizeCreate: null,
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
@@ -424,6 +425,7 @@ export default {
     changeOrganizeCreate(val) {
       this.organizeCreateArr = []
       this.searchedOrganizeCreate = val
+      this.searchedOrganizeName = val.Name
       this.temp.OrganizeCode = val.Code
     },
 
@@ -566,6 +568,7 @@ export default {
         if (!valid){
           return false
         }
+        this.searchedOrganizeName = ''
         
         this.isFormLoading = true;
         //let response = this.dialogStatus === 'create' ? await createUser(tempData) : await updateUser(tempData)
@@ -724,14 +727,6 @@ export default {
   border-color: #35475c;
   background-color: #35475c;
 }
-.blue-btn{
-  border-color: #28a5e0;
-  background-color: #28a5e0;
-}
-.blue-btn:hover,.blue-btn:active,.blue-btn:focus{
-  border-color: #32aee8;
-  background-color: #32aee8;
-}
 
   .violet-btn{
     border-color: rgb(182, 162, 222);
@@ -775,19 +770,8 @@ export default {
 .el-table {
     font-size: 12px;
 }
-.el-pagination.is-background .el-pager li:not(.disabled).active {
-    background-color: #28a5e0;
-}
-.el-pagination.is-background .el-pager li:not(.disabled):hover {
-    color: #28a5e0;
-}
-.cell a{
-  color: #28a5e0;
-}
-.el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
-    background-color: #28a5e0;
-    border-color: #28a5e0;
-}
+
+
 div.square {
   border-radius: 3px;
   margin: 0 14px;

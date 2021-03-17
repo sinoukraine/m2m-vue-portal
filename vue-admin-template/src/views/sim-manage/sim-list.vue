@@ -81,7 +81,7 @@
             <el-form-item :label="$t('ORGANIZE')" prop="Organize" class="">
               <el-select
                 ref="organizeSearchSelect"
-                v-model="tempMove.searchedOrganize"
+                v-model="searchedOrganizeName"
                 :remote-method="querySearchOrganize"
                 filterable
                 default-first-option
@@ -444,8 +444,22 @@
                 </el-col>
                 <el-col :xs="100" class="px-0">
                    <el-form-item label="Organize" prop="OrganizeCode">
-                    <el-select v-model="listQuery.OrganizeCode">
+                    <!--<el-select v-model="listQuery.OrganizeCode">
                         <el-option v-for="item in organizeOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+                    </el-select>-->
+                    <el-select
+                      ref="organizeSearchSelect2"
+                      v-model="searchedFilterOrganizeName"
+                      :remote-method="querySearchOrganize"
+                      filterable
+                      default-first-option
+                      clearable
+                      remote
+                      placeholder="Organize Name"
+                      class="organize-search-select"
+                      @change="changeFilterOrganize"
+                    >
+                      <el-option v-for="item in organizeArr" :key="item.Code" :value="item" :label="item.Name" />
                     </el-select>
                     </el-form-item>
                 </el-col>
@@ -558,6 +572,7 @@ import moment from 'moment'
 
 export default {
   name: 'Customers',
+  
   components: { Pagination, 
   Item,
   Loading, 
@@ -604,6 +619,8 @@ export default {
       ))
 
     return {
+      searchedOrganizeName: '',
+      searchedFilterOrganizeName: '',
       queryLBS: {
         imsi: ''
       },
@@ -817,8 +834,7 @@ export default {
         q: query,
         IncludeSelf: true
       }
-      fetchCustomersListAjax(listQuery).then(response => {     
-        console.log('r',response.rows) 
+      fetchCustomersListAjax(listQuery).then(response => {   
         response.rows.forEach(element => {
           arr.push({
             Code: element.Code,
@@ -830,16 +846,14 @@ export default {
     },
     changeOrganize(val) {
       this.organizeArr = []
+      this.searchedOrganizeName = val.Name
       this.tempMove.searchedOrganize = val
-      //this.listHistoryQuery.imsi = val.title
     },
-    /*handleRAGChecked(val){
-      console.log('rag', val)
+    changeFilterOrganize(val) {
+      this.organizeArr = []
+      this.searchedFilterOrganizeName = val.Name
+      this.listQuery.OrganizeCode = val.Code     
     },
-    handleStateChecked(val){
-      console.log('state', val)
-      this.listQuery[val]=!this.listQuery[val]
-    },*/
     
     doSomethingOnReady() {
         this.map = this.$refs.map.mapObject
@@ -1080,10 +1094,12 @@ export default {
     },
     async handleMoveSIMs(){
        this.$refs['dataFormMove'].validate(async (valid) => {
+        
         if (!valid){
           return false
         }
         if(this.tempMove.searchedOrganize?.Code != undefined){
+          this.searchedOrganizeName = ''
           let checkSIM = false
           let query = {}
 
@@ -1154,7 +1170,7 @@ export default {
             token,
           }
         await qtRemoteLogin(loginForm).then(response => {
-          //console.log('ok',response)
+
         })
           //this.loading = true
           /*const loginForm = {
@@ -1193,7 +1209,7 @@ export default {
       let threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
           
       this.isListLoading = true         
-      
+      console.log('fil', this.listQuery)
       fetchSIMListAjax(this.listQuery).then(response => { 
         response.rows.forEach(async element_1 => {
           const activityTime = element_1.DataUpdateTime

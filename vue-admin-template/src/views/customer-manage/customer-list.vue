@@ -154,7 +154,7 @@
                         <input type="hidden" :value="temp.ParentCode" >
                         <el-select
                           ref="parentSearchSelect"
-                          v-model="searchedParentCreate"
+                          v-model="searchedParentName"
                           :remote-method="querySearchParentCreate"
                           filterable
                           default-first-option
@@ -463,6 +463,7 @@ export default {
   },
   data() {
     return {
+      searchedParentName: '',
       parentCreateArr: [],
       searchedParentCreate: null,
       searchedParent: '',
@@ -603,6 +604,7 @@ export default {
       this.parentCreateArr = []
       this.searchedParentCreate = val
       this.temp.ParentCode = val.Code
+      this.searchedParentName = val.Name
     },
 
 
@@ -817,7 +819,7 @@ export default {
           return false
         }
         
-
+        this.searchedParentName = ''
         this.isFormLoading = true
         //let response = this.dialogStatus === 'create' ? await createCustomer(tempData) : await updateCustomer(tempData)
        

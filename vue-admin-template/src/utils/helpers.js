@@ -50,6 +50,10 @@ export const API_METHODS = {
 
   TEMPLATE_GET_LIST: DOMAIN1 + 'service/CommandTemplate/Attributes',
   
+  PERMISSIONS_GET_LIST: DOMAIN2 + 'service/Permission/Query',
+  PERMISSIONS_CREATE: DOMAIN2 + 'service/Permission/Add',
+  PERMISSIONS_EDIT: DOMAIN2 + 'service/Permission/Edit',
+  PERMISSIONS_DELETE: DOMAIN2 + 'service/Permission/Remove',
 }
 
 

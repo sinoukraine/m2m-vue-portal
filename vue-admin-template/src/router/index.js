@@ -113,6 +113,18 @@ export const constantRoutes = [
         component: () => import('@/views/customer-manage/customer-list'),
         meta: { title: 'Customer List', icon: 'history' },
       },
+      {
+        path: 'role permission',
+        name: 'Role permission',
+        component: () => import('@/views/customer-manage/role'),
+        meta: { title: 'Role permission', icon: 'nested' }
+      },
+      {
+        path: 'role managment',
+        name: 'Role managment',
+        component: () => import('@/views/customer-manage/role-managment'),
+        meta: { title: 'Role managment', icon: 'lock' }
+      },
     ]
   },
   /*{
