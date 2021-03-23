@@ -33,6 +33,12 @@ export const FieldsEnum = {
   rolecode: 'Role',
   firstname: 'First Name',
   organizecode: 'Organisation',
+  key: 'Key',
+  code: 'Code',
+  type: 'Type',
+  order: 'Order',
+  value: 'Value',
+  languagecode: 'Language Code',
 }
 
 export const DistanceUnitList = [

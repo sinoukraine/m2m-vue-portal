@@ -77,7 +77,7 @@
             <div>{{ node.label.type }}</div>
             <div>{{ node.label.key }}</div>
             <div>{{ node.label.value }}</div>
-            <div>{{ node.label.sort }}</div>
+            <div>{{ node.label.order }}</div>
             <div v-if="node.label.parent!='None'" class="actions-div">
               <el-tooltip effect="dark" :content="$t('TEXT_COMMON_EDIT')" placement="top-end">
                 <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(data)">
@@ -143,25 +143,26 @@
         <el-row :gutter="16" >
           <el-col :xs="24" :sm="12">
             <el-form-item label="Parent" prop="parentcode">
-              <el-select v-model="temp.parentcode" class="filter-item" placeholder="Please select">
+              <el-select v-model="temp.parentcode" :disabled="dialogStatus==='create'?false:true" class="filter-item" placeholder="Please select">
                 <el-option v-for="item in parentCodeOptions" :key="item.code" :label="item.name" :value="item.code" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="12">
             <el-form-item label="Type" prop="category">
-              <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
+              <!--<el-select v-model="temp.type" class="filter-item" placeholder="Please select">
                 <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
-              </el-select>
+              </el-select>-->
+              <el-input v-model="temp.type" />
             </el-form-item>
           </el-col>
-          <el-col :xs="24" :sm="12">
+          <!--<el-col :xs="24" :sm="12">
             <el-form-item label="Lang" prop="languagecode">
               <el-select v-model="temp.languagecode" class="filter-item" placeholder="Please select">
                 <el-option v-for="item in languageCodeOptions" :key="item.code" :label="item.name" :value="item.code" />
               </el-select>
             </el-form-item>
-          </el-col>
+          </el-col>-->
           <el-col :xs="24" :sm="12">
           <el-form-item label="Key" prop="key">
             <el-input v-model="temp.key" />
@@ -174,7 +175,10 @@
           </el-col>
           <el-col :xs="24" :sm="12">
             <el-form-item label="Status" prop="status">
-              <el-input v-model="temp.status" />
+              <!--<el-input v-model="temp.status" />-->
+              <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
+                <el-option v-for="item in statusOptions" :key="item.code" :label="item.name" :value="item.code" />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="12">
@@ -207,6 +211,11 @@ const typeOptions = [
   { code: 'Test', name: 'Test' }
 ]
 
+const statusOptions = [
+  { code: "0", name: "Disable" },
+  { code: "1", name: "Enable" }
+]
+
 const parentCodeOptions = [
   //{ code: '00000000-0000-0000-0000-000000000000', name: 'ROOT' }
 ]
@@ -227,6 +236,7 @@ export default {
       typeOptions,
       parentCodeOptions,
       languageCodeOptions,
+      statusOptions,
       // sortOptions: [{ label: 'ID Ascending', code: '+code' }, { label: 'ID Descending', code: '-code' }],
       // statusOptions: ['A', 'V'],
       temp: {
@@ -235,9 +245,9 @@ export default {
         order: undefined,
         value: undefined,
         parentcode: '00000000-0000-0000-0000-000000000000',
-        languagecode: '',
+        languagecode: 'ROOT',
         type: '',
-        status: 0
+        status: ''
       },
       form: {
         name: '',
@@ -264,7 +274,7 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        Type: [{ required: true, message: 'type is required', trigger: 'change' }]
+        //Type: [{ required: true, message: 'type is required', trigger: 'change' }]
         // timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
         // title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
@@ -306,7 +316,8 @@ export default {
           type: 'Type',
           key: 'Key',
           value: 'Value',
-          sort: 'Status',
+          //sort: 'Status',
+          order: 'Order',
           parent: 'None',
           language: 'Language',
           status: 'Status'
@@ -331,7 +342,8 @@ export default {
               type: element1.Type,
               key: element1.Key,
               value: element1.Value,
-              sort: element1.Status,
+              //sort: element1.Status,
+              order: element1.Order,
               parent: element1.ParentCode,
               language: element1.LanguageCode,
               status: element1.Status
@@ -347,7 +359,8 @@ export default {
             type: element.Type,
             key: element.Key,
             value: element.Value,
-            sort: element.Status,
+            //sort: element.Status,
+            order: element.Order,
             parent: element.ParentCode,
             language: element.LanguageCode,
             status: element.Status
@@ -363,7 +376,8 @@ export default {
           type: response[0].Type,
           key: response[0].Key,
           value: response[0].Value ? response[0].Value : 'NULL',
-          sort: response[0].Status,
+          //sort: response[0].Status,
+          order: response[0].Order,
           parent: response[0].ParentCode,
           language: response[0].LanguageCode,
           status: response[0].Status
@@ -458,9 +472,9 @@ export default {
         order: undefined,
         value: undefined,
         parentcode: '00000000-0000-0000-0000-000000000000',
-        languagecode: '',
+        languagecode: 'ROOT',
         type: '',
-        status: 0
+        status: ''
       }
     },
     handleCreate() {
@@ -510,15 +524,15 @@ export default {
     },
     handleUpdate(row) {      
       const token = getToken()
-
       this.temp.code = row.code
       this.temp.key = row.label.key
-      this.temp.order = row.label.sort
+      this.temp.order = row.label.order
       this.temp.value = row.label.value
       this.temp.parentcode = row.label.parent
       this.temp.languagecode = row.label.language
       this.temp.type = row.label.type
-      this.temp.status = row.label.status
+      this.temp.status = this.statusOptions.find(el=>el.code==row.label.status).name
+       
       // this.temp = Object.assign({}, row) // copy obj
       // this.temp.timestamp = new Date(this.temp.timestamp)
       this.temp.token = token//'00000000-0000-0000-0000-000000000000'
@@ -528,10 +542,19 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    updateData() {
+    async updateData() {
       this.$refs['dataForm'].validate(async (valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
+          const obj = this.statusOptions.find(el=>el.name==this.temp.status)
+          if(obj === undefined){
+            tempData.status = this.temp.status
+          }else{
+            tempData.status = obj.code
+          }
+          
+          
+            console.log(tempData)
           let response = await updatePermission(tempData)
           if (!response) {
             return
@@ -602,7 +625,8 @@ export default {
       this.form.type = data.label.type
       this.form.key = data.label.key
       this.form.value = data.label.value
-      this.form.sort = data.label.sort
+      //this.form.sort = data.label.sort
+      this.form.order = data.label.order
       this.$modal.show('edit-permission-modal')
     },
     showPermissions(data) {
@@ -651,6 +675,9 @@ export default {
     padding: 24px 0px;
 }
 
+.role-page .el-select{
+  width: 100%;
+}
 .align-center{
   text-align: center;
 }

@@ -43,10 +43,10 @@ export default {
           title = 'Validation Error'
           if(err.Data && err.Data.length){
             message = ''
-            for (const errField of err.Data){
+            for (const errField of err.Data){console.log(errField)
               if(errField.Messages && errField.Messages.length){
                 if(message) message += '</br>'
-                message += `<b>${ FieldsEnum[errField.Key] }</b> - `
+                message += `${ FieldsEnum[errField.Key] } - `
                 errField.Messages.forEach((item) => { message += MinorCodeEnum[item] + ', ' });
                 message = message.slice(0, -2);
               }

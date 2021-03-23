@@ -136,19 +136,19 @@
                 <div style="display:flex">
                     <div style="display:flex">
                         <div class="square" :style="'background-color:#41bea2;'"></div>
-                        <div class="font-12 color-grey" style="padding: 0 15px">0 - 1000</div>
+                        <div class="font-12 color-grey" style="padding: 0 15px">0 - 100</div>
                     </div>           
                     <div style="display:flex">
                         <div class="square" :style="'background-color:#feec81;'"></div>
-                        <div class="font-12 color-grey" style="padding: 0 15px">1001 - 5000</div>
+                        <div class="font-12 color-grey" style="padding: 0 15px">101 - 500</div>
                     </div>          
                     <div style="display:flex">
                         <div class="square" :style="'background-color:#ffb880;'"></div>
-                        <div class="font-12 color-grey" style="padding: 0 15px">5001 - 20000</div>
+                        <div class="font-12 color-grey" style="padding: 0 15px">501 - 2000</div>
                     </div>         
                     <div style="display:flex">
                         <div class="square" :style="'background-color:#d77980;'"></div>
-                        <div class="font-12 color-grey" style="padding: 0 15px">20000 +</div>
+                        <div class="font-12 color-grey" style="padding: 0 15px">2000 +</div>
                     </div>                   
                 </div>   
             </div>
