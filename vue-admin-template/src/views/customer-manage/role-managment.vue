@@ -344,9 +344,102 @@ export default {
           const firstLevelTree = []
           const firstLevelArray = response[0].Children
           firstLevelArray.forEach((element, index) => {
+            
             const secondLevelTree = []
             const secondLevelArray = element.Children
             secondLevelArray.forEach((element1, index1) => {
+
+              const thirdLevelTree = []
+              const thirdLevelArray = element1.Children
+              thirdLevelArray.forEach((element2, index2) => {
+
+                const forthLevelTree = []
+                const forthLevelArray = element2.Children
+                forthLevelArray.forEach((element3, index3) => {
+
+                  const fivesLevelTree = []
+                  const fivesLevelArray = element3.Children
+                  fivesLevelArray.forEach((element4, index4) => {
+
+                    
+                    let permissionStatus = '0'
+                    let permissionCode = -1
+                    if (response1.length){
+                      permissionCode = response1.findIndex(item => item.PermissionCode === element4.Code)
+                    }
+                    if (permissionCode !== -1) permissionStatus = response1[permissionCode].Status.toString()
+
+                    fivesLevelTree.push({
+                      code: element4.Code,
+                      label: {
+                        name: element4.Key,
+                        type: element4.Type,
+                        key: element4.Key,
+                        value: element4.Value,
+                        sort: element4.Status,
+                        parent: element4.ParentCode,
+                        language: element4.LanguageCode,
+                        status: element4.Status,
+                        permissionStatus: permissionStatus,
+                        roleCode: data
+                      },
+                      //children: forthLevelTree
+                    })
+                  })
+                  /** */
+                  
+                  let permissionStatus = '0'
+                  let permissionCode = -1
+                  if (response1.length){
+                    permissionCode = response1.findIndex(item => item.PermissionCode === element3.Code)
+                  }
+                  if (permissionCode !== -1) permissionStatus = response1[permissionCode].Status.toString()
+
+                  forthLevelTree.push({
+                    code: element3.Code,
+                    label: {
+                      name: element3.Key,
+                      type: element3.Type,
+                      key: element3.Key,
+                      value: element3.Value,
+                      sort: element3.Status,
+                      parent: element3.ParentCode,
+                      language: element3.LanguageCode,
+                      status: element3.Status,
+                      permissionStatus: permissionStatus,
+                      roleCode: data
+                    },
+                    children: fivesLevelTree
+                  })
+                })
+                /** */
+                
+                let permissionStatus = '0'
+                let permissionCode = -1
+                if (response1.length){
+                  permissionCode = response1.findIndex(item => item.PermissionCode === element2.Code)
+                }
+                if (permissionCode !== -1) permissionStatus = response1[permissionCode].Status.toString()
+
+                thirdLevelTree.push({
+                  code: element2.Code,
+                  label: {
+                    name: element2.Key,
+                    type: element2.Type,
+                    key: element2.Key,
+                    value: element2.Value,
+                    sort: element2.Status,
+                    parent: element2.ParentCode,
+                    language: element2.LanguageCode,
+                    status: element2.Status,
+                    permissionStatus: permissionStatus,
+                    roleCode: data
+                  },
+                  children: forthLevelTree
+                })
+              })
+              /** */
+              
               let permissionStatus = '0'
               let permissionCode = -1
               if (response1.length){
@@ -367,10 +460,11 @@ export default {
                   status: element1.Status,
                   permissionStatus: permissionStatus,
                   roleCode: data
-                }
+                },
+                children: thirdLevelTree
               })
             })
-
+            //** */
             let permissionStatus = '0'
             let permissionCode = -1
             if (response1.length){
@@ -669,6 +763,15 @@ export default {
   .role-managment-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child {
       width: 25px;
   }
+  .role-managment-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child {
+      width: 25px;
+  }
+  .role-managment-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child {
+      width: 25px;
+  }
+  .role-managment-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child {
+      width: 25px;
+  }
 }
 
 
@@ -753,6 +856,11 @@ export default {
   font-weight: 400;
   color: #606266;
 }
+
+
+
+
+
 
 .el-tree-node__children div[tabindex="-1"]  .actions-div span{
   color: #ffffff;

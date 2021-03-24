@@ -142,10 +142,29 @@
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="top" label-width="70px">
         <el-row :gutter="16" >
           <el-col :xs="24" :sm="12">
-            <el-form-item label="Parent" prop="parentcode">
-              <el-select v-model="temp.parentcode" :disabled="dialogStatus==='create'?false:true" class="filter-item" placeholder="Please select">
+            <!--<el-form-item label="Parent" prop="parentcode">-->
+              <el-form-item v-if="dialogStatus === 'update'" label="Parent" prop="ParentName">   
+                <el-input :value="temp.parentname" disabled placeholder="Parent"/>
+              </el-form-item>
+              <el-form-item v-else :label="'Parent'" prop="ParentCode" class="w-100">
+                <input type="hidden" :value="temp.parentcode" >
+                <el-select
+                  ref="parentSearchSelect"
+                  v-model="searchedParentName"
+                  :remote-method="querySearchParentCreate"
+                  filterable
+                  default-first-option
+                  clearable
+                  remote
+                  placeholder="Parent"
+                  class="parent-search-select w-100"
+                  @change="changeParentCreate"
+                >
+                  <el-option v-for="item in parentCreateArr" :key="item.code" :value="item" :label="item.name" />
+                </el-select>
+              <!--<el-select v-model="temp.parentcode" :disabled="dialogStatus==='create'?false:true" class="filter-item" placeholder="Please select">
                 <el-option v-for="item in parentCodeOptions" :key="item.code" :label="item.name" :value="item.code" />
-              </el-select>
+              </el-select>-->
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="12">
@@ -153,7 +172,7 @@
               <!--<el-select v-model="temp.type" class="filter-item" placeholder="Please select">
                 <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
               </el-select>-->
-              <el-input v-model="temp.type" />
+              <el-input v-model="temp.type"  placeholder="Type"/>
             </el-form-item>
           </el-col>
           <!--<el-col :xs="24" :sm="12">
@@ -165,12 +184,12 @@
           </el-col>-->
           <el-col :xs="24" :sm="12">
           <el-form-item label="Key" prop="key">
-            <el-input v-model="temp.key" />
+            <el-input v-model="temp.key"  placeholder="Key" />
           </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="12">
             <el-form-item label="Value" prop="value">
-              <el-input v-model="temp.value" />
+              <el-input v-model="temp.value"  placeholder="Value" />
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="12">
@@ -183,7 +202,7 @@
           </el-col>
           <el-col :xs="24" :sm="12">
             <el-form-item label="Order" prop="order">
-              <el-input v-model="temp.order" />
+              <el-input v-model="temp.order"  placeholder="Oredr"/>
             </el-form-item>       
           </el-col>
         </el-row>
@@ -229,7 +248,12 @@ export default {
   components: { Item },
   data() {
     const data = []
-    return {
+    return {      
+      searchedParentName: '',
+      parentCreateArr: [],
+      searchedParentCreate: null,
+      searchedParent: '',
+      parentArr: [],
       list: null,
       isListLoading: true,
       manageForm: 'Permissions',
@@ -297,6 +321,44 @@ export default {
     this.getList()
   },
   methods: {
+    
+    
+    querySearchParentCreate(query) {
+      if (query !== '') {        
+        if(query.length > 1) {
+          this.searchParentCreate(query)
+        }      
+      } else {
+        this.parentCreateArr = []
+      }
+    },
+    async searchParentCreate(query) {
+      const arr = []      
+      this.parentCreateArr = []
+      /*let listQuery = {
+        q: query,
+        IncludeSelf: true
+      }
+      fetchCustomersListAjax(listQuery).then(response => {
+        response.rows.forEach(element => {
+          arr.push({
+            Code: element.Code,
+            Name: element.Name
+          })
+        })
+        this.parentCreateArr = arr
+      })*/
+      
+      this.parentCreateArr = this.parentCodeOptions.filter(el=>el.name.includes(query))
+      
+    },
+    changeParentCreate(val) {
+      this.parentCreateArr = []
+      this.searchedParentCreate = val
+      this.temp.parentcode = val.code
+      this.searchedParentName = val.name
+    },
+
     async getList() {
       this.isListLoading = true
       let response = await fetchPermissionList()
@@ -333,8 +395,81 @@ export default {
         const secondLevelTree = []
         const secondLevelArray = element.Children
         secondLevelArray.forEach((element1, index1) => {
-          //this.parentCodeOptions.push({ code: element1.code, name: element1.key })
+          this.parentCodeOptions.push({ code: element1.Code, name: element1.Key })
 
+          const thirdLevelTree = []
+          const thirdLevelArray = element1.Children
+          thirdLevelArray.forEach((element2, index2) => {
+            this.parentCodeOptions.push({ code: element2.Code, name: element2.Key })
+
+
+            const forthLevelTree = []
+            const forthLevelArray = element2.Children
+            forthLevelArray.forEach((element3, index3) => {
+              this.parentCodeOptions.push({ code: element3.Code, name: element3.Key })
+
+
+              const fivesLevelTree = []
+              const fivesLevelArray = element3.Children
+              fivesLevelArray.forEach((element4, index4) => {
+                //this.parentCodeOptions.push({ code: element1.code, name: element1.key })
+
+
+
+
+                fivesLevelTree.push({
+                  code: element4.Code,
+                  label: {
+                    name: element4.Key,
+                    type: element4.Type,
+                    key: element4.Key,
+                    value: element4.Value,
+                    //sort: element1.Status,
+                    order: element4.Order,
+                    parent: element4.ParentCode,
+                    language: element4.LanguageCode,
+                    status: element4.Status
+                  },
+                  //children: thirdLevelTree
+
+                })
+              })
+
+              forthLevelTree.push({
+                code: element3.Code,
+                label: {
+                  name: element3.Key,
+                  type: element3.Type,
+                  key: element3.Key,
+                  value: element3.Value,
+                  //sort: element1.Status,
+                  order: element3.Order,
+                  parent: element3.ParentCode,
+                  language: element3.LanguageCode,
+                  status: element3.Status
+                },
+                children: fivesLevelTree
+
+              })
+            })
+
+            thirdLevelTree.push({
+              code: element2.Code,
+              label: {
+                name: element2.Key,
+                type: element2.Type,
+                key: element2.Key,
+                value: element2.Value,
+                //sort: element1.Status,
+                order: element2.Order,
+                parent: element2.ParentCode,
+                language: element2.LanguageCode,
+                status: element2.Status
+              },
+              children: forthLevelTree
+
+            })
+          })
           secondLevelTree.push({
             code: element1.Code,
             label: {
@@ -347,7 +482,9 @@ export default {
               parent: element1.ParentCode,
               language: element1.LanguageCode,
               status: element1.Status
-            }
+            },
+            children: thirdLevelTree
+
           })
         })
 
@@ -385,85 +522,6 @@ export default {
         children: firstLevelTree
       })
 
-      /*fetchPermissionList(this.listQuery).then(response => {
-        this.total = response.total
-        setTimeout(() => {
-          this.isListLoading = false
-        }, 1.5 * 1000)
-
-        this.data.length = 0
-        this.data.push({
-          code: '0',
-          label: {
-            name: 'Name',
-            type: 'Type',
-            key: 'Key',
-            value: 'Value',
-            sort: 'Status',
-            parent: 'None',
-            language: 'Language',
-            status: 'Status'
-          }
-        })
-
-        this.parentCodeOptions.length = 0
-        this.parentCodeOptions.push({code: '00000000-0000-0000-0000-000000000000', name: 'ROOT'})
-
-        const firstLevelTree = []
-        const firstLevelArray = response[0].Children
-        firstLevelArray.forEach((element, index) => {
-          const secondLevelTree = []
-          const secondLevelArray = element.Children
-          secondLevelArray.forEach((element1, index1) => {
-            //this.parentCodeOptions.push({ code: element1.code, name: element1.key })
-
-            secondLevelTree.push({
-              code: element1.Code,
-              label: {
-                name: element1.Key,
-                type: element1.Type,
-                key: element1.Key,
-                value: element1.Value,
-                sort: element1.Status,
-                parent: element1.ParentCode,
-                language: element1.LanguageCode,
-                status: element1.Status
-              }
-            })
-          })
-
-          this.parentCodeOptions.push({code: element.Code, name: element.Key})
-          firstLevelTree.push({
-            code: element.code,
-            label: {
-              name: element.Key,
-              type: element.Type,
-              key: element.Key,
-              value: element.Value,
-              sort: element.Status,
-              parent: element.ParentCode,
-              language: element.LanguageCode,
-              status: element.Status
-            },
-            children: secondLevelTree
-          })
-        })
-
-        this.data.push({
-          code: response[0].Code,
-          label: {
-            name: response[0].Key,
-            type: response[0].Type,
-            key: response[0].Key,
-            value: response[0].Value ? response[0].Value : 'NULL',
-            sort: response[0].Status,
-            parent: response[0].ParentCode,
-            language: response[0].LanguageCode,
-            status: response[0].Status
-          },
-          children: firstLevelTree
-        })
-      })*/
     },
     resetTemp() {
       this.temp = {
@@ -528,6 +586,7 @@ export default {
       this.temp.key = row.label.key
       this.temp.order = row.label.order
       this.temp.value = row.label.value
+      this.temp.parentname = this.parentCodeOptions.find(el=>el.code==row.label.parent).name
       this.temp.parentcode = row.label.parent
       this.temp.languagecode = row.label.language
       this.temp.type = row.label.type
@@ -545,6 +604,7 @@ export default {
     async updateData() {
       this.$refs['dataForm'].validate(async (valid) => {
         if (valid) {
+          this.searchedParentName = ''
           const tempData = Object.assign({}, this.temp)
           const obj = this.statusOptions.find(el=>el.name==this.temp.status)
           if(obj === undefined){
@@ -814,6 +874,23 @@ export default {
 
   .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
     width: 164px;
+  }
+
+  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
+    width: 146px;
+  }
+
+  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
+    width: 128px;
+  }
+
+  .role-page .custom-tree-node span, .custom-tree-node div{
+    overflow:hidden;
+    text-overflow: ellipsis;    
+  }
+
+  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
+    width: 110px;
   }
 }
 
