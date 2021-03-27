@@ -125,12 +125,18 @@ export default {
           localStorage.Account = this.loginForm.Account;
           localStorage.Password = this.loginForm.Password;
 
-        if(this.loginForm.Account == 'M2madmin' || this.loginForm.Account == 'm2madmin' || this.loginForm.Account == 'Root' || this.loginForm.Account == 'root'){
+         
           this.$store.commit('user/SET_QT_USERINFO', response)
           this.$store.commit('user/SET_NAME', response.FirstName + ' ' + response.SubName)
-          this.$store.commit('user/SET_AVATAR', 'avatar.png')
           this.$store.commit('user/SET_LANGUAGE', response.Language)
-        }else{
+          this.$store.commit('user/SET_LOGIN', response.Account)
+        
+          if(this.loginForm.Account == 'M2madmin' || this.loginForm.Account == 'm2madmin' || this.loginForm.Account == 'Root' || this.loginForm.Account == 'root'){
+            this.$store.commit('user/SET_AVATAR', 'avatar.png')
+          }else{
+            this.$store.commit('user/SET_AVATAR', 'avatar-user.png')
+          }
+        /*}else{
           let test = {
             FirstName: 'Vlad',
             SubName: 'Bill',
@@ -142,7 +148,7 @@ export default {
           this.$store.commit('user/SET_LOGIN', test.Login)
           this.$store.commit('user/SET_AVATAR', 'avatar-user.png')
           this.$store.commit('user/SET_LANGUAGE', test.Language)
-      }
+      }*/
 
       
           this.$store.commit('user/SET_TOKEN', response.Token)

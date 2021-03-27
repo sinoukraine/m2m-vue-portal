@@ -1,5 +1,5 @@
 <template>
-  <el-container class="chat-container sms-page">
+  <el-container v-if="Permission['SMS']>0" class="chat-container sms-page">
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
@@ -55,10 +55,10 @@
 
       <el-footer class="messagebar-container">
         <div class="display-flex justify-content-between">
-          <el-input placeholder="Command" v-model="newMessage" class="input-with-select">
+          <el-input :disabled="Permission['SMS_SEND_CUSTOM']<2||Permission['SMS']<2" placeholder="Command" v-model="newMessage" class="input-with-select">
           </el-input>
           <div class="buttons-row white-space-nowrap">
-            <el-button v-waves slot="append" class="button-custom blue-btn" type="primary" @click="sendMessage"><item :icon="'send-white'" /> Send</el-button>
+            <el-button :disabled="Permission['SMS']<2" v-waves slot="append" class="button-custom blue-btn" type="primary" @click="sendMessage"><item :icon="'send-white'" /> Send</el-button>
           </div>
         </div>
       </el-footer>
@@ -107,7 +107,7 @@
           </el-scrollbar>
       </div>
       <div v-else>
-        <div class="right-column-header panel-right padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="showCommandsPanel">
+        <div  v-if="Permission['SMS_SEND_SYSTEM']>1" class="right-column-header panel-right padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="showCommandsPanel">
           <item :icon="'commands-grey'" />
           <p class="">Select command</p>
           <i class="el-icon-arrow-right" />
@@ -191,6 +191,11 @@
       </div>
     </el-aside>
   </el-container>
+  <div v-else class="no-data-info">    
+    <div class="py-20">
+      Permission denied
+    </div>
+  </div>   
 </template>
 
 <script>
@@ -209,12 +214,14 @@ import { create } from 'vue-modal-dialogs'
 import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync, sendCommandAsync } from '@/api/sim'
 
 import { fetchSIMListAjax, getHistoryAjax } from "@/api/user";
+import { Permission } from '@/utils/role-permissions'
 const confirm = create(Confirm, 'title', 'content')
 
 export default {
   name: 'App',
   data() {
-    return {      
+    return {     
+      Permission, 
       isLoading: false,
       fullPage: true,      
       listLoading: true,

@@ -1,5 +1,5 @@
 <template>
-  <el-container class="with-panel-wrapper quikdata-imns-container panel-opened quikdata-imns-page">
+  <el-container  v-if="Permission['REPORTS']>0" class="with-panel-wrapper quikdata-imns-container panel-opened quikdata-imns-page">
      <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
@@ -291,6 +291,11 @@
 
     </el-aside>
   </el-container>
+<div v-else class="no-data-info">    
+  <div class="py-20">
+    Permission denied
+  </div>
+</div>  
 
 </template>
 
@@ -308,6 +313,7 @@ import LineChart from './components/LineChart.js'
 import Item from '@/layout/components/Sidebar/Item'
 import VueApexCharts from 'vue-apexcharts'
 import moment from 'moment'
+import { Permission } from '@/utils/role-permissions'
 
 const categoryTypeOptions = [
   { code: 'Event', name: 'Data Usage' }
@@ -405,7 +411,7 @@ export default {
   },
   data() {
     return {      
-      
+      Permission,
         tablePeriod: 'Today',
         tableData: 'data',
       filterSubmitId: Date.now(),

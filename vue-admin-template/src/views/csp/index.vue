@@ -1,11 +1,11 @@
 <template>
-  <div class="app-container">
+  <div v-if="Permission['CSP_MANAGE']>0" class="app-container">
     <div class="filter-container">
       <div class="display-flex justify-content-between">
           <div class="buttons-row">
           </div>
           <div class="buttons-row white-space-nowrap">
-          <el-button class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
+          <el-button v-if="Permission['CSP_ADD']>1" class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
           <item :icon="'create-white'"/> 
           </el-button>
           </div>
@@ -82,10 +82,10 @@
         </el-table-column>
         <el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width" fixed="right">
           <template slot-scope="{row,$index}">
-            <el-button type="primary" size="mini" class="blue-btn" @click="handleUpdate(row)">
+            <el-button  v-if="Permission['CSP_EDIT']>1" type="primary" size="mini" class="blue-btn" @click="handleUpdate(row)">
               {{ $t('TEXT_COMMON_EDIT') }}
             </el-button>
-            <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <!--v-if="row.Status!='deleted'"-->  <el-button  v-if="Permission['CSP_REMOVE']>1" size="mini" type="danger" @click="handleDelete(row,$index)">
               {{ $t('TEXT_COMMON_DELETE') }}
             </el-button>
           </template>
@@ -157,6 +157,11 @@
     </el-dialog>
 
   </div>
+<div v-else class="no-data-info">    
+  <div class="py-20">
+    Permission denied
+  </div>
+</div> 
 </template>
 
 <script>
@@ -167,6 +172,7 @@ import waves from '@/directive/waves' // waves directive
 import { StatusList } from '@/utils/dictionaries'
 import { sortArrayByObjProps, toLowerCaseObjectKeys } from '@/utils/helpers'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import { Permission } from '@/utils/role-permissions'
 
 import Item from '@/layout/components/Sidebar/Item'
 export default {
@@ -184,6 +190,7 @@ export default {
   },
   data() {
     return {
+      Permission,
       tableKey: 0,
       list: null,
       total: 0,

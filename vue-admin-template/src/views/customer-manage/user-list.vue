@@ -1,5 +1,5 @@
 <template>
-<el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+<el-container v-if="Permission['CUSTOMER_MANAGE']>0&&Permission['USER_LIST']>0" class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
     <el-container class="page-fixed-height padding-vertical-x2">
         <el-main  class="no-padding">
             <div class="filter-container ">
@@ -7,7 +7,7 @@
                     <div class="buttons-row">
                     </div>
                     <div class="buttons-row white-space-nowrap">
-                    <el-button class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
+                    <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['USER_LIST']>1&&Permission['USER_ADD']>1" class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
                     <item :icon="'create-white'"/> 
                     </el-button>
                     </div>
@@ -80,10 +80,10 @@
 
                 <el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
-                    <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
+                    <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['USER_LIST']>1&&Permission['USER_EDIT']>1" type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
-                    <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+                <!--v-if="row.Status!='deleted'"-->    <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['USER_LIST']>1" size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
                     </el-button><!--
                     <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
@@ -205,11 +205,11 @@
             <div slot="footer" class="dialog-footer">                
                 
                 <el-tooltip v-if="dialogStatus !== 'create'" effect="dark" content="Default password(123456) will be set for user" placement="top-end">
-                <el-button type="warning" class="orange-btn" :loading="isResetLoading" @click="onResetPassword">
+                <el-button v-if="Permission['USER_RESET_PASSWORD']>1" type="warning" class="orange-btn" :loading="isResetLoading" @click="onResetPassword">
                     Reset Password
                 </el-button>
                 </el-tooltip>
-                <el-button :loading="isFormLoading" type="primary" class="blue-btn" @click="onEditFormSubmit()">
+                <el-button  :loading="isFormLoading" type="primary" class="blue-btn" @click="onEditFormSubmit()">
                 {{ $t('TEXT_COMMON_SAVE') }}
                 </el-button>
             </div>
@@ -221,7 +221,7 @@
         <i class="el-icon-arrow-left" />
       </div>
       <div class="panel-toolbar panel-toolbar-bottom padding-x2">
-        <el-row :gutter="16">
+        <el-row v-if="Permission['USER_SRCH']>0" :gutter="16">
           <el-col :xs="100">
 
 
@@ -276,7 +276,12 @@
         </el-form>
       </div>
     </el-aside>
-</el-container>  
+</el-container> 
+<div v-else class="no-data-info">    
+  <div class="py-20">
+    Permission denied
+  </div>
+</div>  
 </template>
 
 <script>
@@ -291,6 +296,7 @@ import { fetchCustomersListAjax, fetchUsersListAjax, createUserAjax, updateUserA
 import { fetchRoleListAjax } from "@/api/role-managment";
 import { getToken } from '@/utils/auth' // get token from cookie
 import Item from '@/layout/components/Sidebar/Item'
+import { Permission } from '@/utils/role-permissions'
 
 
 export default {
@@ -309,6 +315,7 @@ export default {
   data() {
     //console.log(this.$store.getters.userInfo.OrganizeCode)
     return {
+      Permission,
       searchedOrganizeName: '',
       searchedOrganizeCreate: null,
       isRightPanelVisible: true,

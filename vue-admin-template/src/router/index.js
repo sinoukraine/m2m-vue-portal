@@ -30,6 +30,12 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
+
+/*function RoleNav(){
+  let code = store.getters.userInfo.RoleCode
+    console.log(store.getters.userInfo.Account, code)
+    if(code != '00000000-0000-0000-0000-000000000000'){
+}*/
 export const constantRoutes = [
   {
     path: '/login',

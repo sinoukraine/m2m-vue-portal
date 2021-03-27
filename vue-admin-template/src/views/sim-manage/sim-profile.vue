@@ -1,5 +1,5 @@
 <template>
-  <el-container class="">
+  <el-container v-if="Permission['SIM_PROFILE']>0" class="sim-profile-page">
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
         
@@ -318,7 +318,7 @@
             <div class="el-card__footer w-100" >
               <el-button type="primary" class="dark-btn" style="margin-left:10px" @click="refreshState">
                 <item :icon="'update-white'"/> Refresh</el-button>               
-              <el-button class="blue-btn" type="primary">Save</el-button>
+              <el-button v-if="Permission['SIM_EDIT']>1" class="blue-btn" type="primary">Save</el-button>
                 
             </div>
           </el-card>
@@ -328,11 +328,11 @@
                 <div class=" font-16 bold color-grey">Data Details</div>
               </div>
               <div class="card-panel-left pt-20">
-                <el-button type="primary" class="green-btn" @click="showSessions"><item :icon="'csp'"/> Session Data</el-button> 
-                <el-button type="primary" class="violet-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS History</el-button>
+                <el-button v-if="Permission['SIM_SHOW_SESSIONS']>0" type="primary" class="green-btn" @click="showSessions"><item :icon="'csp'"/> Session Data</el-button> 
+                <el-button v-if="Permission['SIM_SHOW_SMS_HISTORY']>0" type="primary" class="violet-btn" @click="showSMSUsage"><item :icon="'sms-white'"/> SMS History</el-button>
                 <el-button type="primary" class="blue-btn" @click="showLocation"><item :icon="'map-white'"/> View Map</el-button>
-                <el-button type="primary" class="orange-btn" @click="sendSMS"><item :icon="'sms-white'"/> Send SMS</el-button>
-                <el-button type="primary" class="red-btn" @click="showHLR"><item :icon="'csp'"/> HLR</el-button>
+                <el-button v-if="Permission['SMS']>0" type="primary" class="orange-btn" @click="sendSMS"><item :icon="'sms-white'"/> Send SMS</el-button>
+                <el-button v-if="Permission['SIM_SHOW_HLR']>0" type="primary" class="red-btn" @click="showHLR"><item :icon="'csp'"/> HLR</el-button>
               </div>
             </div>
           </el-card>
@@ -365,6 +365,11 @@
       </div>
     </el-main>
   </el-container>
+  <div v-else class="no-data-info">    
+    <div class="py-20">
+      Permission denied
+    </div>
+  </div> 
 </template>
 
 <script>
@@ -382,6 +387,7 @@ import Item from '@/layout/components/Sidebar/Item'
 import { getSIMAsync, getCDRS, getCDRSAsync, getSIMCoordinates, getSIMCountry, forceReconnectAsync, getSMSHistoryAsync, getDemoOwerview } from '@/api/sim'
 import { fetchSIMListAjax, getSessionsAjax, rebootAjax, refreshAjax, getHistoryAjax } from '@/api/user'
 import VueApexCharts from 'vue-apexcharts'
+import { Permission } from '@/utils/role-permissions'
 
 const curday = new Date()
 
@@ -408,7 +414,7 @@ export default {
       ))
 
     return {
-      
+        Permission,
         tablePeriod: 'Today',
         tableData: 'data',
       simDetailslistLeft: [{

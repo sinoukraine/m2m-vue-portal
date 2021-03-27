@@ -1,5 +1,5 @@
 <template>
-    <el-container class="page-fixed-height padding-vertical-x2">
+    <el-container v-if="Permission['COMMANDS']>0" class="page-fixed-height padding-vertical-x2">
         <el-main  class="no-padding">
             <div class="filter-container ">
                 <div class="display-flex justify-content-between">
@@ -145,6 +145,11 @@
             </el-dialog>
         </el-main>
     </el-container>
+<div v-else class="no-data-info">    
+  <div class="py-20">
+    Permission denied
+  </div>
+</div>  
 </template>
 
 <script>
@@ -161,6 +166,7 @@ import { sortArrayByObjProps } from "@/utils/helpers";
 import { getCommandsListAsync } from "@/api/sim";
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
+import { Permission } from '@/utils/role-permissions'
 
 
 export default {
@@ -179,7 +185,7 @@ export default {
   data() {
     //console.log(this.$store.getters.userInfo.OrganizeCode)
     return {
-         
+         Permission,
       listLoading: true,
         isRightPanelVisible: true,
       filterSubmitId: Date.now(),

@@ -1,5 +1,5 @@
 <template>
-<el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+<el-container v-if="Permission['CUSTOMER_MANAGE']>0&&Permission['CUSTOMER_LIST']>0" class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
     <el-container class="page-fixed-height padding-vertical-x2">
         <el-main  class="no-padding">
             <div class="filter-container ">
@@ -7,7 +7,7 @@
                     <div class="buttons-row">
                     </div>
                     <div class="buttons-row white-space-nowrap">
-                    <el-button class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
+                    <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1&&Permission['CUSTOMER_ADD']>1" class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
                     <item :icon="'create-white'"/> 
                     </el-button>
                     </div>
@@ -114,10 +114,10 @@
                 </el-table-column>
                 <el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
-                    <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
+                    <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1&&Permission['CUSTOMER_EDIT']>1" type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
-                    <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+               <!--v-if="row.Status!='deleted'"-->     <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1" size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
                     </el-button><!--
                     <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
@@ -331,7 +331,7 @@
         <i class="el-icon-arrow-left" />
       </div>
       <div class="panel-toolbar panel-toolbar-bottom padding-x2">
-        <el-row :gutter="16">
+        <el-row v-if="Permission['CUSTOMER_SEARCH']>0" :gutter="16">
           <el-col :xs="100">
 
 
@@ -432,6 +432,11 @@
       </div>
     </el-aside>
 </el-container>  
+<div v-else class="no-data-info">    
+  <div class="py-20">
+    Permission denied
+  </div>
+</div>   
 </template>
 
 <script>
@@ -446,6 +451,7 @@ import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList,
 import { fetchCustomersListAjax, createCustomerAjax, updateCustomerAjax, deleteCustomerAjax, fetchServiceProfileListAjax, changeOrgStateAjax } from "@/api/user";
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
+import { Permission } from '@/utils/role-permissions'
 
 
 export default {
@@ -463,6 +469,7 @@ export default {
   },
   data() {
     return {
+      Permission,
       searchedParentName: '',
       parentCreateArr: [],
       searchedParentCreate: null,

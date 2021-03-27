@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container role-managment-page">
+  <div v-if="isAccessed" class="app-container role-managment-page">
     <div class="filter-container">
       <div class="display-flex justify-content-between">
           <div class="buttons-row">
@@ -71,17 +71,17 @@
             <span>{{ row.Name }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="State"  width="180px" align="center">
+        <el-table-column label="State"  min-width="160px" align="center">
           <template slot-scope="{row}">
             <span>{{ row.State }}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="showAdditionalInfo" label="Remark" width="160px" align="center">
+        <el-table-column v-if="showAdditionalInfo" label="Remark" min-width="200px" align="center">
           <template slot-scope="{row}">
             <span>{{ row.Remark }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Order"  class-name="status-col" width="100">
+        <el-table-column label="Order"  class-name="status-col" min-width="160" align="center">
           <template slot-scope="{row}">
             
               {{ row.Order }}
@@ -89,11 +89,11 @@
         </el-table-column>
         <el-table-column label="Actions" align="center" width="160" class-name="small-padding fixed-width" fixed="right">
           <template slot-scope="{row,$index}">
-             <el-tooltip effect="dark" :content="'Manage'" placement="top-end">
+             <!--<el-tooltip effect="dark" :content="'Manage'" placement="top-end">-->
               <el-button type="primary" class="blue-btn" size="mini" @click="handleManage(row)">
                 {{ $t('TEXT_COMMON_EDIT') }}
               </el-button>
-            </el-tooltip>
+           <!-- </el-tooltip>-->
             <el-button  size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
                     </el-button>
@@ -109,7 +109,7 @@
         <el-row :gutter="16">
           <el-col :xs="24" :sm="12">
             <el-form-item label="State" prop="state">
-              <el-select v-model="temp.State" class="filter-item w-100" placeholder="Please select">
+              <el-select v-model="temp.State" class="filter-item w-100" placeholder="Please select" disabled>
                 <el-option v-for="item in stateOptions" :key="item.code" :label="item.name" :value="item.code" />
               </el-select>
             </el-form-item>
@@ -187,6 +187,11 @@
       </span>
     </el-dialog>
   </div>
+  <div v-else class="no-data-info">    
+    <div class="py-20">
+      Permission denied
+    </div>
+  </div> 
 </template>
 
 <script>
@@ -235,6 +240,7 @@ export default {
   },
   data() {
     return {
+      isAccessed: false,
       tableKey: 0,
       list: null,
       tree: [],
@@ -254,7 +260,7 @@ export default {
       statusOptions,
       // sortOptions: [{ label: 'ID Ascending', code: '+code' }, { label: 'ID Descending', code: '-code' }],
       // statusOptions: ['A', 'V'],
-      showAdditionalInfo: false,
+      showAdditionalInfo: true,
       temp: {
         Code: undefined,
         Name: undefined,
@@ -291,6 +297,8 @@ export default {
     }*/
   },
   created() {
+    this.isAccessed = this.$store.getters.userInfo.RoleCode === '00000000-0000-0000-0000-000000000000'
+    
     this.getList()
   },
   methods: {
@@ -513,6 +521,7 @@ export default {
             },
             children: firstLevelTree
           })
+          console.log('tree',self.tree)
 
           /* setTimeout(() => {
             self.listLoading = false
@@ -788,7 +797,7 @@ export default {
   width: 100%;
 }
 
-.left, .right {
+/*.left, .right {
     display: inline-block;
     //display: inline;
     //zoom: 1;
@@ -802,7 +811,7 @@ export default {
 .left a, .right a { display: inline-block; position: relative; }
 .left a { width: 200px; height: 100px; background: green; }
 .right a { width: 100px; height: 200px; background: pink; }
-
+*/
 .table-tree{
   border: 1px solid #EBEEF5;
   border-bottom: 0px;
@@ -852,7 +861,7 @@ export default {
     color: rgba(0,0,0,0.45);
 }*/
 
-.el-tree-node__children div[tabindex="-1"]  .custom-tree-node span{
+.role-managment-page  .el-tree-node__children div[tabindex="-1"]  .custom-tree-node span{
   font-weight: 400;
   color: #606266;
 }
@@ -875,26 +884,26 @@ export default {
   opacity:0;
 }
 
-.custom-tree-node span:last-child div{
+.role-managment-page  .custom-tree-node span:last-child div{
   width: 160px;
   height: 100%;
   padding: 19px 0;
   text-align: center;
 }
 
-.custom-tree-node span:last-child div:last-child{
+.role-managment-page  .custom-tree-node span:last-child div:last-child{
   padding: 12px 0px;
 }
 
-.table-tree .custom-tree-node span:last-child div{
+.role-managment-page  .table-tree .custom-tree-node span:last-child div{
   border-left: 1px solid #EBEEF5;
 }
 
-.table-tree .custom-tree-node span:last-child .edit-button{
+.role-managment-page  .table-tree .custom-tree-node span:last-child .edit-button{
   border-left: 1px solid #EBEEF5;
 }
 
-.table-tree .custom-tree-node span:last-child .delete-button{
+.role-managment-page  .table-tree .custom-tree-node span:last-child .delete-button{
   border-left: 1px solid #EBEEF5;
 }
 

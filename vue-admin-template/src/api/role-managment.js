@@ -261,6 +261,22 @@ export function deleteArticle(data) {
 }*/
 
 
+export function getPermissionListAjax(query) {
+  var options = {
+    "url": API_METHODS.PERMISSIONS_GET_LIST,
+    "method": "POST",
+    "data": query
+  }
+  //console.log('opt', getRequestOptions(options))
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
 
 export function getRolesPermissionsAjax(query) {
   var options = {

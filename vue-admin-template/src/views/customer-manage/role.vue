@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container role-page">
+  <div v-if="isAccessed" class="app-container role-page">
 
     <modal name="role-modal" height="auto" :scrollable="true">
       <!--<el-tree
@@ -71,7 +71,7 @@
         default-expand-all
         class="table-tree"
       >
-        <span slot-scope="{ node, data }" class="custom-tree-node">
+        <span slot-scope="{ node, data }" class="custom-tree-node custom-tree-node-permission">
           <span>{{ node.label.name }}</span>
           <span class="flex">
             <div>{{ node.label.type }}</div>
@@ -217,6 +217,11 @@
       </div>
     </el-dialog>
   </div>
+  <div v-else class="no-data-info">    
+    <div class="py-20">
+      Permission denied
+    </div>
+  </div> 
 </template>
 
 <script>
@@ -249,6 +254,7 @@ export default {
   data() {
     const data = []
     return {      
+      isAccessed: false,
       searchedParentName: '',
       parentCreateArr: [],
       searchedParentCreate: null,
@@ -318,6 +324,7 @@ export default {
     }*/
   },
   created() {
+    this.isAccessed = this.$store.getters.userInfo.RoleCode === '00000000-0000-0000-0000-000000000000'
     this.getList()
   },
   methods: {
@@ -524,6 +531,7 @@ export default {
 
     },
     resetTemp() {
+      this.searchedParentName = ''
       this.temp = {
         code: undefined,
         key: undefined,
@@ -746,7 +754,7 @@ export default {
   display: flex;
   width: 100%;
 }
-
+/*
 .left, .right {
     display: inline-block;
     //display: inline;
@@ -761,7 +769,7 @@ export default {
 .left a, .right a { display: inline-block; position: relative; }
 .left a { width: 200px; height: 100px; background: green; }
 .right a { width: 100px; height: 200px; background: pink; }
-
+*/
 .table-tree{
   border: 1px solid #EBEEF5;
   border-bottom: 0px;
@@ -884,15 +892,17 @@ export default {
     width: 128px;
   }
 
-  .role-page .custom-tree-node span, .custom-tree-node div{
-    overflow:hidden;
-    text-overflow: ellipsis;    
-  }
+  
 
   .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
     width: 110px;
   }
 }
+
+.custom-tree-node-permission span, .custom-tree-node-permission div{
+    overflow:hidden !important;
+    text-overflow: ellipsis !important;    
+  }
 
 /*@import url("//unpkg.com/element-ui@2.13.2/lib/theme-chalk/index.css");*/
 .custom-tree-node {

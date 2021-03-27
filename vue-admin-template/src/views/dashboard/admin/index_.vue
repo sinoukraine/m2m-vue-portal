@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-editor-container">
+  <div v-if="Permission['HOME']>0" class="dashboard-editor-container">
     <el-row :gutter="40" >
       <el-col :xs="24" :sm="24" :lg="12" style="">
         <panel-group
@@ -156,6 +156,11 @@
       </el-col>
     </el-row>
   </div>
+  <div v-else class="no-data-info">    
+    <div class="py-20">
+      Permission denied
+    </div>
+  </div>
 </template>
 
 <script>
@@ -165,7 +170,9 @@ import LineChart from './components/LineChart.js'
 import BoxCard from './components/BoxCard'
 import moment from 'moment'
 import { addUser, getUserList, getDemoOwerview, getDemoTopUsage, getCDRSList } from '@/api/sim'
-import { getDashboardAjax, fetchSIMListAjax } from "@/api/user";
+import { getDashboardAjax, fetchSIMListAjax } from '@/api/user'
+import { Permission } from '@/utils/role-permissions'
+//import { fetchPermissionList } from '@/api/role'
 
 export default {
   name: 'Dashboard',
@@ -177,6 +184,7 @@ export default {
   },
   data() {
     return {
+        Permission,
         tablePeriod: 'Today',
         tableData: 'Data Usage',
         boxData: {
@@ -229,7 +237,6 @@ export default {
             loaded: true
           }
 
-          console.log(total)
           const newCspArr = []         
           const cspArr = Object.keys(total.ServiceProfiles)
           cspArr.forEach(element => {
@@ -496,13 +503,12 @@ export default {
     handleTablePeriod(val){
       this.tablePeriod = val
       this.searchTable()
-    }
+    },
+  },
+  created(){
   },
   async mounted() {    
-    //await this.searchTotalByPeriod('daily')
     await this.initDasboard()
-    //await this.searchTable()
-
   }
 }
 </script>

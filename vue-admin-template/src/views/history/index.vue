@@ -1,5 +1,5 @@
 <template>
-  <el-container class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+  <el-container v-if="Permission['HISTORY']>1" class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
@@ -126,6 +126,11 @@
       </div>
     </el-aside>
   </el-container>
+  <div v-else class="no-data-info">    
+    <div class="py-20">
+      Permission denied
+    </div>
+</div>   
 </template>
 
 <script>
@@ -137,6 +142,7 @@ import waves from '@/directive/waves'
 import { getSIMList, getSMSHistoryAsync } from '@/api/sim'
 import { fetchSIMListAjax, getHistoryAjax } from "@/api/user";
 import moment from 'moment'
+import { Permission } from '@/utils/role-permissions'
 
 const today = new Date()
 
@@ -148,6 +154,7 @@ export default {
   directives: { waves },
   data() {
     return {
+      Permission,
       oldHistoryArray: [],
       page: 1,
       checkboxSent: true,
@@ -1111,13 +1118,6 @@ div.square {
   .el-select-dropdown__item.selected {
     color: #606266;
     font-weight: 500;
-}
-.no-data-info{
-    text-align: center;
-    color: #d9d9d9;
-    font-weight: 500;
-    padding: 0 20px;
-    font-size: 14px;
 }
 
 

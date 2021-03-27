@@ -1,5 +1,5 @@
 <template>
-<el-container class="with-panel-wrapper sim-list-page" :class="{'panel-opened': isRightPanelVisible}">
+<el-container v-if="Permission['SIM_LIST']>0" class="with-panel-wrapper sim-list-page" :class="{'panel-opened': isRightPanelVisible}">
   <loading :active.sync="isLoading" 
       :can-cancel="true" 
       :is-full-page="fullPage">
@@ -128,6 +128,11 @@
                 <el-input v-model="tempMove.ToICCID"  :placeholder="'To ICCID'"/>
               </el-form-item>
           </el-col>
+          <el-col v-if="tempMove.sendWay==3" :xs="24" :sm="24">            
+              <el-form-item :label="'To IMSI List'" prop="ToIMSIs">                
+                <el-input type="textarea" v-model="mIMSIs" placeholder="IMSIs" class="filter-item" />
+              </el-form-item>
+          </el-col>
         
         <el-col :xs="24" :sm="12">            
             <el-form-item :label="'Number'" prop="Number">
@@ -176,7 +181,7 @@
      <el-row :gutter="16">
         <el-col :xs="24" :sm="24" class="lg-pr-0">
             <el-select v-model="selectedState" :placeholder="$t('STATE')" class="">
-              <el-option v-for="item in stateOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+              <el-option  v-for="item in stateOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
             </el-select>
         </el-col>
       </el-row>      
@@ -197,12 +202,14 @@
             <div class="filter-container ">
                 <div class="display-flex justify-content-between">                    
                   <div class="buttons-row">
-                      <el-button v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATION') }}</el-button>
-                      <el-button v-waves class="button-custom" @click="showStateForm"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
-                      <el-button v-waves class="button-custom" @click="showMoveForm"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
-                      <el-button v-waves class="button-custom" @click="showCSPForm"><item :icon="'csp-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
+                    <div v-if="Permission['SIM_LIST']>1">
+                      <el-button v-if="Permission['SIM_ACTIVATE']>1" v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATION') }}</el-button>
+                      <el-button  v-if="Permission['SIM_SUSPEND_RESUME']>1||Permission['SIM_TERMINATE']>1" v-waves class="button-custom" @click="showStateForm"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
+                      <el-button  v-if="Permission['SIM_MOVE']>1" v-waves class="button-custom" @click="showMoveForm"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
+                      <el-button v-if="Permission['SIM_CHANGE_CSP']>1" v-waves class="button-custom" @click="showCSPForm"><item :icon="'csp-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
                       <!--<el-button v-waves class="button-custom"><item :icon="'profile-blue'"/> {{ $t('CUSTOM') }}</el-button>
                       <el-button v-waves class="button-custom"><item :icon="'solution-blue'"/> {{ $t('SOLUTION') }}</el-button>-->
+                    </div>
                   </div>
                   <div class="buttons-row white-space-nowrap">
                     <el-button v-waves class="button-custom blue-btn" type="primary" @click="getList"><item :icon="'update-white'"/></el-button>
@@ -350,7 +357,7 @@
                     <span>{{ row.update }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="Actions" align="center" width="100" class-name="small-padding fixed-width" fixed="right">
+                <el-table-column v-if="Permission['SIM_LIST']>1&&Permission['SIM_EDIT']>1" label="Actions" align="center" width="100" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
                     <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
@@ -482,22 +489,22 @@
                     <el-form-item label="To ICCID" prop="toiccid" class="">
                     <el-input v-model="listQuery.ToICCID" placeholder="To ICCID" class="filter-item" />
                     </el-form-item>
-                </el-col><!--
+                </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="IMSIs" prop="imsis" class="no-margin-bottom">
-                    <el-input type="textarea" v-model="listQuery.IMSIs" placeholder="IMSIs" class="filter-item" />
+                    <el-form-item label="IMSIs" prop="imsis" class="">
+                    <el-input type="textarea" v-model="sIMSIs" placeholder="IMSIs" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="ICCIDs" prop="iccids" class="no-margin-bottom">
-                    <el-input type="textarea" v-model="listQuery.ICCIDs" placeholder="ICCIDs" class="filter-item" />
+                    <el-form-item label="ICCIDs" prop="iccids" class="">
+                    <el-input type="textarea" v-model="sICCIDs" placeholder="ICCIDs" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="MSISDNs" prop="msisdns" class="no-margin-bottom">
-                    <el-input type="textarea" v-model="listQuery.MSISDNs" placeholder="MSISDNs" class="filter-item" />
+                    <el-form-item label="MSISDNs" prop="msisdns" class="">
+                    <el-input type="textarea" v-model="sMSISDNs" placeholder="MSISDNs" class="filter-item" />
                     </el-form-item>
-                </el-col>-->
+                </el-col>
                 </el-row>
             </div>
             <!--
@@ -547,7 +554,12 @@
         </el-form>
       </div>
     </el-aside>
-</el-container>  
+</el-container>
+<div v-else class="no-data-info">    
+  <div class="py-20">
+    Permission denied
+  </div>
+</div> 
 </template>
 
 <script>
@@ -569,6 +581,7 @@ import { fetchSIMListAjax, fetchCustomersListAjax, setActivateStateAjax, setSusp
 import Item from '@/layout/components/Sidebar/Item'
 import { getSIMListAsync, getSIM, getSIMAsync, getCustomerList, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
 import moment from 'moment'
+import { Permission } from '@/utils/role-permissions'
 
 export default {
   name: 'Customers',
@@ -619,6 +632,7 @@ export default {
       ))
 
     return {
+      Permission,
       searchedOrganizeName: '',
       searchedFilterOrganizeName: '',
       queryLBS: {
@@ -673,7 +687,8 @@ export default {
       sendWayOptions: [
         {Code:'0',Name:'Selected SIMs'},
         {Code:'1',Name:'IMSI range'},
-        {Code:'2',Name:'ICCID range'}
+        {Code:'2',Name:'ICCID range'},
+        {Code:'3',Name:'IMSI list'}
       ],
       selectedState: 0,
       isRightPanelVisible: true,
@@ -682,6 +697,10 @@ export default {
       list: null,
       total: 0,
       isListLoading: true,
+      mIMSIs: '',
+      sIMSIs: '',
+      sICCIDs: '',
+      sMSISDNs: '',
       listQuery: {
         Page: 1,
         Rows: 10,
@@ -1122,6 +1141,22 @@ export default {
               FromICCID: this.tempMove.FromICCID,
               ToICCID: this.tempMove.ToICCID,
             }
+          }else if(this.tempMove.sendWay == '3'){   
+            let st = ''
+            let ar = []
+            if(this.mIMSIs.length){
+              st = this.mIMSIs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+              ar = this.mIMSIs.split('\n')
+              if(ar.length == 1) ar = this.mIMSIs.split(',') 
+              ar = ar.filter(function (el) {
+                return el != null && el != ''
+              })
+              if(ar.length){
+                query.IMSIs = ar.map(function (el) {
+                  return el.replace(/\s/g, '').replace(',', '')
+                })
+              }
+            } 
           }
 
           if(!checkSIM && this.tempMove.sendWay == '0'){
@@ -1208,49 +1243,49 @@ export default {
       let oneDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-1, 'days').format('YYYY-MM-DD HH'); 
       let threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
           
-      this.isListLoading = true         
-      console.log('fil', this.listQuery)
+      this.isListLoading = true      
       fetchSIMListAjax(this.listQuery).then(response => { 
-        response.rows.forEach(async element_1 => {
-          const activityTime = element_1.DataUpdateTime
-          let rag = 'bg-color-grey'
-          let jsonDataArr = []
-          let dataSession = 0
-          let totalSumm = 0
-          let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
-              
-          if(activityTime){
-            if(simActivityTime >= halfDayAgo){
-              rag = 'bg-color-green'
-            }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
-              rag = 'bg-color-yellow'
-            }else {
-              rag = 'bg-color-red'
+        if(!response.MajorCode){      
+          response.rows.forEach(async element_1 => {
+            const activityTime = element_1.DataUpdateTime
+            let rag = 'bg-color-grey'
+            let jsonDataArr = []
+            let dataSession = 0
+            let totalSumm = 0
+            let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
+                
+            if(activityTime){
+              if(simActivityTime >= halfDayAgo){
+                rag = 'bg-color-green'
+              }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
+                rag = 'bg-color-yellow'
+              }else {
+                rag = 'bg-color-red'
+              }
             }
-          }
 
-          arr.push({
-            IMSI: element_1.IMSI.toString(),
-            ICCID: element_1.ICCID.toString(),
-            MSISDN: element_1.MSISDN.toString(),
-            ServiceProfile: element_1.ServiceProfileName,
-            State: element_1.State,
-            rag,
-            update: simActivityTime!='Invalid date'?simActivityTime:'',
-            OrganizeName: element_1.OrganizeName,          
-            dataSession: element_1.SessionDay.toString(),         
-            smsUsage: (element_1.SMSMODay + element_1.SMSMTDay).toString(),    
-            DataUsage: element_1.DataDay?(element_1.DataDay/1048576).toFixed(3).toString():0,     
-            PayPlan: element_1.PayPlanCode,
-            IPAddress: element_1.IPAddress,
-            CustomField1: element_1.CustomField1,
-            CustomField2: element_1.CustomField2,
-            CustomField3: element_1.CustomField3,
-            CustomField4: element_1.CustomField4,
-            CustomField5: element_1.CustomField5,
-          })        
-        })
-        
+            arr.push({
+              IMSI: element_1.IMSI.toString(),
+              ICCID: element_1.ICCID.toString(),
+              MSISDN: element_1.MSISDN.toString(),
+              ServiceProfile: element_1.ServiceProfileName,
+              State: element_1.State,
+              rag,
+              update: simActivityTime!='Invalid date'?simActivityTime:'',
+              OrganizeName: element_1.OrganizeName,          
+              dataSession: element_1.SessionDay.toString(),         
+              smsUsage: (element_1.SMSMODay + element_1.SMSMTDay).toString(),    
+              DataUsage: element_1.DataDay?(element_1.DataDay/1048576).toFixed(3).toString():0,     
+              PayPlan: element_1.PayPlanCode,
+              IPAddress: element_1.IPAddress,
+              CustomField1: element_1.CustomField1,
+              CustomField2: element_1.CustomField2,
+              CustomField3: element_1.CustomField3,
+              CustomField4: element_1.CustomField4,
+              CustomField5: element_1.CustomField5,
+            })        
+          })
+        }
         self.isListLoading = false
         self.total = response.total
         self.list = arr
@@ -1274,12 +1309,18 @@ export default {
       }].concat(arr)
     },    
     getStateOptions(){
-      this.stateOptions = [
-        {'Code': '0', 'Name': 'Suspend'},
-        {'Code': '1', 'Name': 'Resume'},
-        {'Code': '2', 'Name': 'Terminate'}
-      ]
-      this.selectedState = this.stateOptions[0].Code
+      if(Permission['SIM_SUSPEND_RESUME']>1){
+        this.stateOptions = [
+          {'Code': '0', 'Name': 'Suspend'},
+          {'Code': '1', 'Name': 'Resume'}
+        ]
+      }
+      if(Permission['SIM_TERMINATE']>1){
+        this.stateOptions.push({'Code': '2', 'Name': 'Terminate'})
+      }
+      if(this.stateOptions.length){
+        this.selectedState = this.stateOptions[0].Code
+      }      
     },
     async getServiceProfileOptions(){      
       fetchServiceProfileOptionsAjax().then(response => {        
@@ -1298,7 +1339,55 @@ export default {
     },
     handleFilter() {
       this.listQuery.Page = 1
-            
+
+      let arr = []
+      let str = ''
+      this.listQuery.IMSIs = []
+      this.listQuery.ICCIDs = []
+      this.listQuery.MSISDNs = []
+
+      if(this.sIMSIs.length){
+        str = this.sIMSIs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        arr = this.sIMSIs.split('\n')
+        if(arr.length == 1) arr = this.sIMSIs.split(',') 
+        arr = arr.filter(function (el) {
+          return el != null && el != ''
+        })
+        if(arr.length){
+          this.listQuery.IMSIs = arr.map(function (el) {
+            return el.replace(/\s/g, '').replace(',', '')
+          })
+        }
+      }
+
+      if(this.sICCIDs.length){
+        str = this.sICCIDs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        arr = this.sICCIDs.split('\n')
+        if(arr.length == 1) arr = this.sICCIDs.split(',') 
+        arr = arr.filter(function (el) {
+          return el != null && el != ''
+        })
+        if(arr.length){
+          this.listQuery.ICCIDs = arr.map(function (el) {
+            return el.replace(/\s/g, '').replace(',', '')
+          })
+        }
+      }
+
+      if(this.sMSISDNs.length){
+        str = this.sMSISDNs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        arr = this.sMSISDNs.split('\n')
+        if(arr.length == 1) arr = this.sMSISDNs.split(',') 
+        arr = arr.filter(function (el) {
+          return el != null && el != ''
+        })
+        if(arr.length){
+          this.listQuery.MSISDNs = arr.map(function (el) {
+            return el.replace(/\s/g, '').replace(',', '')
+          })
+        }
+      }           
+          
       this.getList()
     },
     sortChange(data) {
