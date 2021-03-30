@@ -784,107 +784,67 @@ export default {
 }
 
 
-  .pagination-container{
-    margin: 20px;
-  }  
-
-.align-center{
-  text-align: center;
-}
-
-.header-permission{
+.role-managment-page .header-permission{
   display: flex;
   width: 100%;
 }
 
-/*.left, .right {
-    display: inline-block;
-    //display: inline;
-    //zoom: 1;
-    width: 100%;
-    margin-right: -100%;
-    vertical-align: bottom;
-}
-.right {
-    text-align: right;
-}
-.left a, .right a { display: inline-block; position: relative; }
-.left a { width: 200px; height: 100px; background: green; }
-.right a { width: 100px; height: 200px; background: pink; }
-*/
-.table-tree{
+.role-managment-page .table-tree{
   border: 1px solid #EBEEF5;
   border-bottom: 0px;
 }
 
-.modal-tree{
+.role-managment-page .modal-tree{
   margin: 0px;
 }
 
-.el-select-dropdown{
+.role-managment-page .el-select-dropdown{
   margin-top:-5px !important;
 }
 
-.el-input__suffix{
+.role-managment-page .el-input__suffix{
   padding: 0 !important;
 }
 
-.el-tree-node__content{
-  height: 54px;
-}
 
-.block{
+.role-managment-page .block{
   padding-top: 20px;
 }
 
-.bottom-line {
+.role-managment-page .bottom-line {
     display: flex;
     flex: 0 1 auto;
     width: 100%;
     border-top: 1px solid #EBEEF5;
 }
 
-.el-form-item__label{
+.role-managment-page .el-form-item__label{
   line-height: 15px;
 }
 
-.form-content{
+.role-managment-page .form-content{
   padding: 20px;
 }
-
-.flex{
-    display: flex;
-}
-
-/*.el-tree .el-tree-node:first-child .custom-tree-node{
-  font-weight: bold;
-    color: rgba(0,0,0,0.45);
-}*/
 
 .role-managment-page  .el-tree-node__children div[tabindex="-1"]  .custom-tree-node span{
   font-weight: 400;
   color: #606266;
 }
 
-
-
-
-
-
-.el-tree-node__children div[tabindex="-1"]  .actions-div span{
+.role-managment-page .el-tree-node__children div[tabindex="-1"]  .actions-div span{
   color: #ffffff;
 }
 
-.el-tree .el-tree-node[tabindex="-1"] .actions-title{
+.role-managment-page .el-tree .el-tree-node[tabindex="-1"] .actions-title{
   padding:18px 0px;
 }
 
-.el-tree .el-tree-node[tabindex="0"] .el-tree-node__expand-icon{
+.role-managment-page .el-tree .el-tree-node[tabindex="0"] .el-tree-node__expand-icon{
   cursor:inherit;
   opacity:0;
 }
 
-.role-managment-page  .custom-tree-node span:last-child div{
+.role-managment-page .role-managment-page  .custom-tree-node span:last-child div{
   width: 160px;
   height: 100%;
   padding: 19px 0;
@@ -907,81 +867,53 @@ export default {
   border-left: 1px solid #EBEEF5;
 }
 
-.el-tree-node__content{
+.role-managment-page .el-tree-node__content{
   border-bottom: 1px solid #EBEEF5;
 }
 
-.modal-tree .el-tree-node__content{
+.role-managment-page .modal-tree .el-tree-node__content{
   border: none;
 }
 
-.el-table__body tr td:last-child{
+.role-managment-page .el-table__body tr td:last-child{
   width: 100px;
 }
-.el-button--mini{
+.role-managment-page .el-button--mini{
   padding: 7px 15px;
 }
 
-.actions-div{
+.role-managment-page .actions-div{
   margin-top:4px;
 }
-/*
-@media only screen and (max-width: 1100px) {
-  .custom-tree-node span:first-child{
-    width: 100px;
-  }
-
-  .el-tree-node__children div[tabindex="-1"]  span:first-child{
-    width: 82px;
-  }
-
-  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
-    width: 64px;
-  }
-}*/
-
-.el-input__inner{
+.role-managment-page .el-input__inner{
   height: 36px;
 }
 
-.el-tree-node__content {
+/*.role-managment-page .el-tree-node__content {
   height: 50px;
-}
+}*/
 
-/*@import url("//unpkg.com/element-ui@2.13.2/lib/theme-chalk/index.css");*/
-.custom-tree-node {
+.role-managment-page .custom-tree-node {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-size: 14px;
-    /*padding-right: 8px;*/
   }
-/*.el-table{
-  margin-top: 20px;
-}
-.el-dialog{
-  min-width: 400px;
-}
-@media (max-width: 991px){
-  .el-form{
-    width: 100% !important;
-    margin-left: 0px !important;
-  }
-  .el-dialog{
-    width: 90%;
-  }
-}*/
 
-.el-dialog__body{
+.role-managment-page .el-dialog__body{
   padding-top: 10px;
 }
 
-.custom-tree-node input{
+.role-managment-page .custom-tree-node input{
   width: 100px;
 }
-
-.custom-tree-node .el-input__suffix {
+/*
+.role-managment-page .custom-tree-node .el-input__suffix {
     right: 35px;
+}*/
+
+.role-managment-page .el-select-dropdown.el-popper{
+  margin-top:-6px;
 }
 </style>

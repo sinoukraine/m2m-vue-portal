@@ -40,7 +40,7 @@ export const API_METHODS = {
   SIM_SET_TERMINATE: DOMAIN2 + 'JT/Sim/Terminate',
   SIM_GET_POSITION: DOMAIN2 + 'JT/Sim/QueryLBSInfo',
   SIM_MOVE: DOMAIN2 + 'JT/Sim/Transfer',
-  
+  SIM_IMPORT: DOMAIN2 + 'JT/Sim/Import',
 
   CUSTOMER_GET_LIST: DOMAIN1 + 'Service/Organize/Query',
   CUSTOMER_CREATE: DOMAIN1 + 'service/Organize/Add',

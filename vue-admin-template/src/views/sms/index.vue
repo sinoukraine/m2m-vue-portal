@@ -1,5 +1,5 @@
 <template>
-  <el-container v-if="Permission['SMS']>0" class="chat-container sms-page">
+  <el-container v-if="Permission['SMS']>0" class=" sms-page">
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
@@ -73,8 +73,7 @@
         </div>
         <el-scrollbar wrap-class="scrollbar-wrapper" 
           :class="listLoading?'scrollbar-loading':''">   
-            <el-collapse v-model="activeCommandGroups"
-               @change="handleChange"      
+            <el-collapse v-model="activeCommandGroups"   
                v-loading="listLoading"
                class="collapse-list">
               <el-collapse-item           
@@ -371,7 +370,7 @@ export default {
       this.messageList = [] 
       this.getHistory()
     },
-    async sendMessage(){     
+    async sendMessage(){   
       let self = this 
       if(this.newMessage){
         if(this.deviceList.length) {
@@ -389,33 +388,13 @@ export default {
                   IMSI: this.deviceList[i].name,
                   SMS: this.newMessage
                 }
-				/*
-                var settings = {
-                  "url": "https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId="+query.IMSI+"&message="+query.SMS+"",
-                  "method": "GET",
-                  "timeout": 0,
-                  "headers": {
-                  "token": "00000000-0000-0000-0000-000000000000",
-                  "Content-Type": "application/x-www-form-urlencoded"
-                  },
-                  //"data": query
-                }*/
-                
-              const result = await fetch("https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId="+query.IMSI+"&message="+encodeURIComponent(query.SMS)).catch(e=>{
-                console.log(e)
-                   self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
-                 return
-              })
-                let jsonResult = await result.json()
-                //$.ajax(settings).done(function (result) {
-                console.log(jsonResult)
-                if(jsonResult.MajorCode=='000'){
-                    const obj = {
+
+              /*- const obj = {
                       new: true,
-                      timestamp: time,
+                      timestamp: '4 Feb 00:55:12',
                       from: 'me',
-                      to: this.deviceList[i].name,
-                      text: this.newMessage,
+                      to: '8879798989899',
+                      text: 'WHERE#',
                       type: 'sent',
                     }
                     self.messageList.push(obj)
@@ -435,41 +414,49 @@ export default {
                     self.intervalForReply = setInterval(function () {          
                       self.getHistory()
                     }, 30000)
-                  }
+                  }-*/
+                  const obj = {
+                      new: true,
+                      timestamp: time,
+                      from: 'me',
+                      to: self.deviceList[i].name,
+                      text: self.newMessage,
+                      type: 'sent',
+                    }
+                    self.messageList.push(obj)
+                  
+
+                    self.newMessage = ''
+                    self.$nextTick(() => {
+                    
+                      const ele = self.$el.getElementsByClassName('unreaded')[0];  
+                      if (ele) {
+                        ele.scrollIntoView({behavior: 'smooth'});
+                      }
+                        
+                    })
+                      
+                    if(!self.intervalForReply){
+                      self.intervalForReply = setInterval(function () {          
+                        self.getHistory()
+                      }, 30000)
+                    }
+                  
+              const result = await fetch("https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId="+query.IMSI+"&message="+encodeURIComponent(query.SMS)).catch(e=>{
+                console.log(e)
+                   self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
+                 return
+              })
+                let jsonResult = await result.json()
+                //$.ajax(settings).done(function (result) {
+                console.log(jsonResult)
+                if(jsonResult.MajorCode=='000'){
+                
 
                     }else{
                        self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
                  
                     }
-                  //this.isLoading = false  
-                  
-                 
-                //}).fail(async function (e){
-                  //console.log('err = '+e);
-                //     self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
-                 
-                
-              
-                //})
-                
-                /*~~~const query = {
-                  imsi: this.deviceList[i].name,
-                  content: this.newMessage
-                }
-                const response = await sendCommandAsync(query).catch(e=>{
-                  this.$alert('Command was not sent to IMSI ' + this.deviceList[i].name, 'M2M Data Message', {type: 'message'})
-                })
-                if(response){
-                  const obj = {
-                    new: true,
-                    timestamp: time,
-                    from: 'me',
-                    to: this.deviceList[i].name,
-                    text: this.newMessage,
-                    type: 'sent',
-                  }
-                  this.messageList.push(obj)
-                }*/
               }
             }      
            
@@ -571,6 +558,7 @@ export default {
           
         }
       })
+      
       this.$nextTick(() => {
         const el = this.$el.getElementsByClassName('unreaded')[0];
       
@@ -581,12 +569,12 @@ export default {
         this.isLoading = false     
       })
     },
-    handleChange(val) {
-      
-    },
-    async chooseCommand(val){
-			let smsFormat = val.Format
-      let arr = eval(val.Params)
+    async chooseCommand(val){console.log(val)
+      let smsFormat = val.Format
+      let arr = []
+      if(val.Params[0]==='['){
+        arr = eval(val.Params)
+      }
       let params = []							
       let count=arr.length
       if(count){        
@@ -628,13 +616,10 @@ export default {
 
 <style lang="scss">
 
-  .rotate-90{
-    transform: rotate(90deg);
-  }
-  .sms-page.chat-container{
-    height: calc(100vh - 75px) !important;
+  .sms-page{
+    height: calc(100vh - 75px);
     width: 100%;
-    position: inherit !important;
+    position: inherit;
   }
   .sms-page .chat-sidebar{
     background-color: #ffffff;
@@ -654,8 +639,8 @@ export default {
     padding-left: 16px;
     padding-right: 16px;
   }
-  .sms-page{
-     .list{
+ 
+    .sms-page .list{
     list-style: none;
     position: relative;
     margin: 0;
@@ -765,10 +750,10 @@ export default {
       }
     }
   }
-  }
+  
 
-  .sms-page{
-   .messages{
+  
+  .sms-page .messages{
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -968,141 +953,127 @@ export default {
       }
     }
   }
-}
 
 
-.sms-page{
-  .panel-right p{
+
+ .sms-page .panel-right p{
     padding-right: 25px;
 }
-.panel-right{
+.sms-page .panel-right{
     background-color: rgb(238, 241, 246)
 }
-.messages-container {
+.sms-page .messages-container {
     background-color: #ffffff;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
 
-.messagebar-container{
+.sms-page .messagebar-container{
     border-top: 1px solid #e3e3e3;
     background-color: #ffffff;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
 }
-.time-border{
+.sms-page .time-border{
     border-radius: 50px;
     padding: 10px 30px;
     border: 1px solid #e3e3e3;
     color: rgb(96, 98, 104);
     font-weight: 500px;
 }
-.user-avatar {
+.sms-page .user-avatar {
     cursor: pointer;
     width: 40px;
     height: 40px;
     border-radius: 20px;
     vertical-align: middle;
 }
-.message-header {
+.sms-page .message-header {
     padding: 5px 0;
 }
-.message-status {
+.sms-page .message-status {
     padding: 5px;
     color: rgb(65, 190, 162);
     line-height: 1.144;
     font-size: 14px;
 }
-.message-status-new{
+.sms-page .message-status-new{
   padding: 5px;
     color: #ffc496;
     line-height: 1.144;
     font-size: 14px;
 }
-.message-time {
+.sms-page .message-time {
     padding: 5px;
     color: rgb(96, 98, 104);
     line-height: 1.144;
     font-size: 14px;
 }
- /*buttons*/
-.dark-btn{
-  border-color: #304257;
-  background-color: #304257;
-}
-.dark-btn:hover,.dark-btn:active,.dark-btn:focus{
-  border-color: #35475c;
-  background-color: #35475c;
-}
-.blue-btn{
-    border-color: #28a5e0;
-    background-color: #28a5e0;
-  }
-  .blue-btn:hover,.blue-btn:active,.blue-btn:focus{
+ .sms-page .blue-btn:hover, .sms-page .blue-btn:active,.sms-page .blue-btn:focus{
     border-color: #32aee8;
     background-color: #32aee8;
   }
-  .commands-form{
+ .sms-page .commands-form{
       background-color: #ffffff;
       border-top: 1px solid #e3e3e3;
   }
 
-  .group-btn{
+.sms-page  .group-btn{
     padding: 12px 0;
   }
-  .no-sim-info{
+.sms-page  .no-sim-info{
     text-align: center;
     background-color: #ffffff;
     padding: 15px;
     font-size: 12px;
     color: grey;
   }
-  .el-footer{
+ .sms-page .el-footer{
     padding: 20px 10px 20px 20px;
     height: 80px !important;
     position: relative !important;
   }
-  .scrollbar-loading .collapse-list{
+ .sms-page .scrollbar-loading .collapse-list{
     padding: 25px 0;
   }
-  .scrollbar-loading{
+ .sms-page .scrollbar-loading{
     padding-top: calc(50vh - 110px);
   }
-  .scrollbar-loading .el-collapse{
+.sms-page  .scrollbar-loading .el-collapse{
     border: none;
   }
-  .scrollbar-loading .el-scrollbar__wrap{
-    overflow: hidden;
-    margin: 0 !important;
+ .sms-page .scrollbar-loading .el-scrollbar__wrap{
+    /*overflow: hidden;
+    margin: 0 !important;*/
   }
-  .collapse-item .el-collapse-item__header{
+.sms-page  .collapse-item .el-collapse-item__header{
     font-size: 12px;
     padding: 0 12px 0 20px;
     font-weight: 600;
     color: rgb(96, 98, 104);
   }
-  .right-column-header{
+.sms-page  .right-column-header{
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
     color: rgb(96, 98, 104);
   }
-  .right-column-header:hover{
+.sms-page  .right-column-header:hover{
     background-color: rgb(238, 241, 246);
   }
-  .collapse-item .item-content{
+ .sms-page .collapse-item .item-content{
     font-size: 12px;
     border-top: 1px solid #e3e3e3;
     color: rgb(96, 98, 104);
   }
-  .el-collapse-item__content{
+.sms-page  .el-collapse-item__content{
     padding-bottom: 0;
   }
-  .el-collapse-item__content .list .item-content{
+ .sms-page .el-collapse-item__content .list .item-content{
     cursor: pointer;
   }
 
-  .dialog-mask {
+  .sms-page .dialog-mask {
     position: fixed;
     z-index: 2;
     top: 0;
@@ -1117,12 +1088,12 @@ export default {
     justify-content: center;
     background-color: rgba(0,0,0,.33);
   }
-  .message-box .dialog-content {
+ .sms-page .message-box .dialog-content {
     min-width: 240px;
     text-align: center;
     font-size: 16px;
 }
-.dialog-content {
+.sms-page .dialog-content {
     margin: 0 20px;
     padding: 20px 30px;
     border: 1px solid #ebeef5;
@@ -1131,18 +1102,13 @@ export default {
     box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
     color: #303133;
 }
-.el-aside {
-    overflow: hidden !important;
-}
-}
-
-.app-main{
-  overflow: inherit;
+.sms-page .el-aside {
+    overflow-x: hidden !important;
 }
 
-</style>
 
-<style >
-
+.sms-page .app-main{
+  overflow: inherit !important;
+}
 
 </style>

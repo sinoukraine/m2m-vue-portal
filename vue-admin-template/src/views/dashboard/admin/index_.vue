@@ -1,5 +1,5 @@
 <template>
-  <div v-if="Permission['HOME']>0" class="dashboard-editor-container">
+  <div v-if="Permission['HOME']>0" class="dashboard-editor-container dashboard-page">
     <el-row :gutter="40" >
       <el-col :xs="24" :sm="24" :lg="12" style="">
         <panel-group
@@ -542,13 +542,13 @@ export default {
   }
 }
 
-.menu-container{
+.dashboard-page .menu-container{
   padding-left: 30px;
 }
 
 
 @media (max-width:1024px) {
-  .chart-wrapper {
+  .dashboard-page .chart-wrapper {
     padding: 8px;
   }
 }
@@ -556,125 +556,82 @@ export default {
 
 <style>
 
-.el-loading-mask{
+.dashboard-page .el-loading-mask{
   z-index: 2 !important;
 }
 
-.el-radio-button__inner{
+.dashboard-page .el-radio-button__inner{
   background: transparent;
   color: #606266;
 }
 
-.el-radio-button__inner:hover{
+.dashboard-page .el-radio-button__inner:hover{
   background: rgba(255, 255, 255, .1);
   color: #606266;
 }
 
-.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+.dashboard-page .el-radio-button__orig-radio:checked+.el-radio-button__inner {
     background-color: #28a5e0;
     -webkit-box-shadow: -1px 0 0 0 #fff;
     box-shadow: -1px 0 0 0 #fff;
 }
 
-.is-active .el-radio-button__inner{
+.dashboard-page .is-active .el-radio-button__inner{
   background: #28a5e0;
   border: 1px solid #28a5e0;
   color: #ffffff;
 }
 
-.chart-container{
+.dashboard-page .chart-container{
   background:#fff;
   padding: 30px;
   margin-bottom:32px;
 }
-.jqvmap-zoomin, .jqvmap-zoomout {
+.dashboard-page .jqvmap-zoomin,.dashboard-page .jqvmap-zoomout {
     background: #fff !important;
     width: 18px !important;
     height: 18px !important;
 }
-  .bar-chart-container{
-    border-radius: 5px;
-  }
-
-  .chart-wrapper{
-    border-radius: 5px;
-  }
-
-  .w-100{
-    width: 100%;
-  }
-
-  .d-flex{
-    display: flex;
-    -webkit-box-pack: justify;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-  }
-
-  .pointer{
-    cursor: pointer;
-  }
-
-  .bold {
-    font-weight: 600;
-  }
-
-  .color-grey{
-    color: #606266;
-  }
-
-  .el-radio-button__inner{
-    padding: 6px 8px 8px !important;
-  }
-
-  .el-table {
-    width: 100%;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    font-size: 12px;
+.dashboard-page .bar-chart-container{
+  border-radius: 5px;
 }
 
-.el-table td, .el-table th {
+.dashboard-page .chart-wrapper{
+  border-radius: 5px;
+}
+
+.dashboard-page  .el-radio-button__inner{
+  padding: 6px 8px 8px !important;
+}
+
+.dashboard-page  .el-table {
+  width: 100%;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+/*.el-table td, .el-table th {
     padding: 10px 0;
+}*/
+
+.dashboard-page .el-progress-bar{
+  width: 75%;
 }
-
-
-  .font-12{
-    font-size: 12px;
-  }
-
-    div.square {
-    border-radius: 3px;
-    width: 24px;
-    height: 14px;
-    }
-    
-    .el-progress-bar{
-      width: 75%;
-
-    }
-    .box-header{
-      margin-top:10px;
-      margin-bottom: 40px;
-    }
+.dashboard-page .box-header{
+  margin-top:10px;
+  margin-bottom: 40px;
+}
   
-  .mb-30{
-    margin-bottom:30px;
-  }
-  
-  .el-progress .el-progress__text{
-      display: none
-    }
-
+.dashboard-page .el-progress .el-progress__text{
+  display: none
+}
     
-.cell a{
+/*.cell a{
   color: #28a5e0;
-}
+}*/
 </style>

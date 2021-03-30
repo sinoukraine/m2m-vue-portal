@@ -245,7 +245,7 @@
       <div class="panel-container">
         <el-form ref="listQuery" :model="listQuery" label-position="top" class="form-padding" @submit.native.prevent="handleFilter">
           <input :id="filterSubmitId" type="submit" class="display-none">
-          <el-row :gutter="16" style="border-bottom: 1px solid #e3e3e3">
+          <el-row :gutter="16" style="border-bottom: 0px solid #e3e3e3">
             <el-col :xs="100" :sm="100" :md="100" :lg="100">
               <el-form-item label="" prop="title">                
                 <span class="label-span">Customer</span>
@@ -952,6 +952,10 @@ export default {
   .rotate-90{
     transform: rotate(90deg);
   }
+  
+.quikdata-imns-page .form-padding {
+  padding: 0px 20px;
+}
  
   .quikdata-imns-page .chat-sidebar{
     background-color: rgb(255, 255, 255);
@@ -1290,62 +1294,64 @@ export default {
 
 <style > 
 
-  .chart-container{
+  .quikdata-imns-page .chart-container{
     background:#fff;
     padding: 30px;
     border-radius: 5px;
+    font-size: 12px;
   }
 
-  .sim-container{
-    overflow: hidden;
-    width: 100%;
-    height: 439px;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-  }
-  .el-dialog{
+.quikdata-imns-page .el-dialog{
     background-color:#f2f5fb;
   }
-  .el-dialog__title{
+  .quikdata-imns-page .el-dialog__title{
     color: #606268;
     font-weight: 600;
     font-size: 14px;
   }
-  .el-dialog__headerbtn .el-dialog__close {
+  .quikdata-imns-page  .el-dialog__headerbtn .el-dialog__close {
     color: #909399;
     font-weight: bold;
     font-size: 14px;
   }
-  .modal-info-table{
+ .quikdata-imns-page  .modal-info-table{
     width: 100%;
     background-color:#ffffff;
     box-shadow: none;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
   }
-  .modal-info-table td{
+  .quikdata-imns-page .modal-info-table td{
     background-color: initial !important;
   }
-  .el-table td{
-    padding: 10px 0;
-    font-size: 12px;
-  }
-  .modal-info-table td .cell{
-    white-space: nowrap; /* Запрещаем перенос строк */
-    overflow: hidden; /* Обрезаем все, что не помещается в область */
-    text-overflow: ellipsis; /* Добавляем многоточие */
-  }
 
+  
+.quikdata-imns-page .bar-chart-container {
+    border-radius: 5px;
+}
 
-
-.sim-table-icon{      
+.quikdata-imns-page .bar-chart-container .apexcharts-toolbar {
+    display: none;
+}
+.quikdata-imns-page .apexcharts-toolbar{
+  display: none;
+}
+.quikdata-imns-page .sim-table-icon{      
     cursor: pointer;
     color: #28a5e0;
   }
-.label-span{
-  color: #9a9a9a;
-  font-size: 12px;
-}
+  /*.sim-container{
+    overflow: hidden;
+    width: 100%;
+    height: 439px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }*/
+  /*
+
+
+
+
 .el-container{
   background-color: #f2f5fb !important;
 }
@@ -1374,13 +1380,6 @@ export default {
     position: absolute;
 }
 
-.bar-chart-container {
-    border-radius: 5px;
-}
-
-.bar-chart-container .apexcharts-toolbar {
-    display: none;
-}
 
 .table-title{  
     color: #97a8be;

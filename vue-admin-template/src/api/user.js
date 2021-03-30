@@ -504,6 +504,21 @@ export function setTerminateStateAjax(query) {
   })
 }
 
+export function importSIMsAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_IMPORT,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
 export function moveSIMsAjax(query) {
   var options = {
     "url": API_METHODS.SIM_MOVE,

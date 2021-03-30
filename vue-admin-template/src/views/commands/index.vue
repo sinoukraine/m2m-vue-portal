@@ -1,5 +1,5 @@
 <template>
-    <el-container v-if="Permission['COMMANDS']>0" class="page-fixed-height padding-vertical-x2">
+    <el-container v-if="Permission['COMMANDS']>0" class="page-fixed-height padding-vertical-x2 commands-page">
         <el-main  class="no-padding">
             <div class="filter-container ">
                 <div class="display-flex justify-content-between">
@@ -460,240 +460,56 @@ export default {
 
 
 <style>
-/*map*/
 
-  .map-container{
-    overflow: hidden;
-    width: 100%;
-    height: 439px;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-  }
-  .el-dialog__title{
-    color: #606268;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .el-dialog__headerbtn .el-dialog__close {
-    color: #909399;
-    font-weight: bold;
-    font-size: 14px;
-  }
-  
-.el-dialog__body{
-    padding: 20px;
-}
-.el-dialog__header{
-    padding: 20px;
-    border-bottom: 1px solid #e3e3e3;
-}
-.el-dialog__body{    
-    border-bottom: 1px solid #e3e3e3;
-}
-.el-dialog__footer{    
-    padding: 20px;
-}
-.el-button{
-    overflow: inherit !important;
-}
-  .location-table{
-    width: 100%;
-    background-color:#ffffff;
-    box-shadow: none;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-  }
-  .location-table td{
-    background-color: initial !important;
-  }
-  .el-table td, .el-table th {
-    padding: 7px 0 !important;
-}
-  .el-table td{
-    padding: 7px 0;
-    font-size: 12px;
-  }
-  .location-table td .cell{
-    white-space: nowrap; /* Запрещаем перенос строк */
-    overflow: hidden; /* Обрезаем все, что не помещается в область */
-    text-overflow: ellipsis; /* Добавляем многоточие */
-  }
-  .leaflet-control-zoom, .leaflet-control-attribution{
-    display: none;
-  }
-  .card-panel-right {
-    text-align: right;
-  }
- /*buttons*/
-.dark-btn{
-  border-color: #304257;
-  background-color: #304257;
-}
-.dark-btn:hover,.dark-btn:active,.dark-btn:focus{
-  border-color: #35475c;
-  background-color: #35475c;
-}
-.blue-btn{
-  border-color: #28a5e0;
-  background-color: #28a5e0;
-}
-.blue-btn:hover,.blue-btn:active,.blue-btn:focus{
-  border-color: #32aee8;
-  background-color: #32aee8;
-}
-
-
-  .w-100{
-    width: 100%;
-  }
-  .mt-25{
-    margin-top: 25px;
-  }
-  .mt-30{
-    margin-top: 30px;
-  }
-  .mb-30{
-    margin-bottom: 30px;
-  }
-  .el-form-item {
-    margin-bottom: 10px;
-  }
-  .el-form-item__label{
-    color: #97a8be;
-    line-height: 2em;
-  }
-  .footer-border .el-card__body{
-    border-bottom: 1px solid #ebeef5;
-    margin-bottom: 100px;
-    padding-bottom: 10px;
-  }
-  .el-card__footer button{
-    float: right;
-    margin-top: 38px;
-  }
-.el-table {
-    font-size: 12px;
-}
-.el-pagination.is-background .el-pager li:not(.disabled).active {
-    background-color: #28a5e0;
-}
-.el-pagination.is-background .el-pager li:not(.disabled):hover {
-    color: #28a5e0;
-}
-.cell a{
-  color: #28a5e0;
-}
-.el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
-    background-color: #28a5e0;
-    border-color: #28a5e0;
-}
-div.square {
-  border-radius: 3px;
-  margin: 0 14px;
-  width: 10px;
-  height: 10px;
-}
-.pagination-container{
-  margin-top: 30px;
-  border-radius: 5px;
-}
-
-.map-table-icon{
-  width: 16px;
-  cursor: pointer;
-}
-.el-table td, .el-table th {
-    padding: 12px 0;
-}
-.el-table {
-    width: 100%;
-    border-radius: 5px;
-    -webkit-box-shadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
-    box-shadow: 0px 0px 4.9px 0.1px rgba(151, 164, 193, 0.2);
-}
-.el-asside{    
-    overflow-x: hidden;
-}
-.px-0{
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-@media (min-width: 768px){
-    .lg-pr-0{
-      padding-right: 0 !important;
-    }
-    .lg-pl-0{
-      padding-left: 0 !important;
-    }
-    .lg-card-flex{
-      display: flex;
-      -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-      justify-content: space-between;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-    }
-  }
-  .orange-btn{
-    border-color: #ffb880;
-    background-color: #ffb880;
-  }
-  .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
-    border-color: #ffc496;
-    background-color: #ffc496;
-  }
-
-
-.bordered{
+.commands-page .bordered{
   border: none;
 }
   
-  .scrollbar-loading .collapse-list{
+ .commands-page  .scrollbar-loading .collapse-list{
     padding: 25px 0;
   }
-  .scrollbar-loading{
+.commands-page   .scrollbar-loading{
     padding-top: calc(50vh - 110px);
   }
-  .scrollbar-loading .el-collapse{
+.commands-page   .scrollbar-loading .el-collapse{
     border: none;
   }
-  .scrollbar-loading .el-scrollbar__wrap{
+ .commands-page  .scrollbar-loading .el-scrollbar__wrap{
     overflow: hidden;
     margin: 0 !important;
   }
-  .collapse-item .el-collapse-item__header{
+ .commands-page  .collapse-item .el-collapse-item__header{
     font-size: 12px;
     padding: 0 12px 0 20px;
     font-weight: 600;
     color: rgb(96, 98, 104);
   }
-  .right-column-header{
+ .commands-page  .right-column-header{
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
     color: rgb(96, 98, 104);
   }
-  .right-column-header:hover{
+ .commands-page  .right-column-header:hover{
     background-color: rgb(238, 241, 246);
   }
-  .collapse-item .item-content{
+ .commands-page  .collapse-item .item-content{
     font-size: 12px;
     border-top: 1px solid #e3e3e3;
     color: rgb(96, 98, 104);
   }
-  .el-collapse-item__content{
+ .commands-page  .el-collapse-item__content{
     padding-bottom: 0;
   }
-  .el-collapse-item__content .list .item-content{
+ .commands-page  .el-collapse-item__content .list .item-content{
     cursor: pointer;
   }
 
-.list {
+.commands-page  .list {
   list-style-type: none;
   padding: 0;
 }
-.list .item-title{
+.commands-page  .list .item-title{
   padding: 10px 20px;
 }
 </style>

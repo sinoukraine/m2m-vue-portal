@@ -1,19 +1,61 @@
 <template>
 <el-container v-if="Permission['CUSTOMER_MANAGE']>0&&Permission['CUSTOMER_LIST']>0" class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+    
+  <loading :active.sync="isLoading" 
+      :can-cancel="true" 
+      :is-full-page="fullPage">
+  </loading>
+    
+  <el-dialog title="Import SIMs" :visible.sync="moveFormVisible" width="70%" class="bg-white" >
+      <el-form ref="dataFormMove"  :rules="rulesMove" :model="tempMove" label-position="top" label-width="70px">
+        <input type="submit" class="display-none" >
+        <el-row :gutter="16">
+          <el-col :xs="24" :sm="24">            
+            <el-form-item :label="'CSV'" prop="CSV">                
+              <el-input type="textarea" v-model="tempMove.CSV" placeholder="CSV" class="filter-item" />
+            </el-form-item>
+          </el-col>        
+        <el-col :xs="24" :sm="12">            
+            <el-form-item :label="$t('NUMBER')" prop="Number">
+              <el-input v-model="tempMove.Number" :placeholder="'Number'"/>
+            </el-form-item>
+        </el-col>
+        <el-col :xs="24" :sm="12">            
+            <el-form-item :label="$t('REMARK')" prop="Remark">
+              <el-input v-model="tempMove.Remark" :placeholder="$t('REMARK')"/>
+            </el-form-item>
+        </el-col>
+      </el-row>      
+      <el-row>
+        <div class="card-flex">
+          <div class="card-inline card-panel-left">
+          </div>
+          <div class="card-inline card-panel-right">
+            <el-button type="info" class="blue-btn mt-25" @click="handleMoveSIMs">Save</el-button>
+          </div>
+        </div>
+      </el-row>
+      </el-form>
+  </el-dialog>
+    
     <el-container class="page-fixed-height padding-vertical-x2">
         <el-main  class="no-padding">
             <div class="filter-container ">
-                <div class="display-flex justify-content-between">
-                    <div class="buttons-row">
-                    </div>
+                <div class="display-flex justify-content-between">                    
+                  <div class="buttons-row">                    
+                    <el-checkbox v-model="checkboxEmail">{{ $t('EMAIL') }}</el-checkbox>
+                    <el-checkbox v-model="checkboxMobile">{{ $t('MOBILE') }}</el-checkbox>   
+                    <el-checkbox v-model="checkboxNumber">{{ $t('NUMBER') }}</el-checkbox>     
+                  </div>
                     <div class="buttons-row white-space-nowrap">
-                    <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1&&Permission['CUSTOMER_ADD']>1" class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
-                    <item :icon="'create-white'"/> 
-                    </el-button>
+                      <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1&&Permission['CUSTOMER_ADD']>1" class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
+                        <item :icon="'create-white'"/> 
+                      </el-button>
+                      <el-button v-waves class="button-custom blue-btn" type="primary" @click="getList"><item :icon="'update-white'"/></el-button>
+                      <el-button v-waves :loading="downloadLoading" class="button-custom blue-btn" type="primary" @click="handleDownload"><item :icon="'save-white'"/></el-button>
                     </div>
                 </div>
-                <div class="buttons-row">
-                    
+                <div class="buttons-row">            
                 </div>
                 </div>
             <div class="table-wrapper">
@@ -49,17 +91,12 @@
                     <span>{{ row.FirstName ? row.FirstName + ' ' + row.SubName : $t('TEXT_COMMON_NA') }}</span>
                 </template>
                 </el-table-column>
-                <!--<el-table-column label="Last Name" min-width="120px" align="center" sortable="custom" prop="SubName">
-                <template slot-scope="{row}">
-                    <span>{{ row.SubName ? row.SubName : $t('TEXT_COMMON_NA') }}</span>
-                </template>
-                </el-table-column>-->
-                <el-table-column label="Email" min-width="180px" align="center" sortable="custom" prop="Email">
+                <el-table-column v-if="checkboxEmail" label="Email" min-width="180px" align="center" sortable="custom" prop="Email">
                 <template slot-scope="{row}">
                     <span>{{ row.Email }}</span>
                 </template>
                 </el-table-column>
-                <el-table-column label="Mobile" min-width="120px" align="center">
+                <el-table-column v-if="checkboxMobile" label="Mobile" min-width="120px" align="center">
                 <template slot-scope="{row}">
                     <span>{{ row.Mobile ? row.Mobile : $t('TEXT_COMMON_NA') }}</span>
                 </template>
@@ -70,57 +107,28 @@
                     <span>{{ row.ServiceProfileName }}</span>
                 </template>
                 </el-table-column>
-                <el-table-column label="Number" min-width="100px" align="center" sortable="custom" prop="Number">
+                <el-table-column v-if="checkboxNumber" label="Number" min-width="100px" align="center" sortable="custom" prop="Number">
                 <template slot-scope="{row}">
                     <span>{{ row.Number }}</span>
                 </template>
-                </el-table-column><!--
-                <el-table-column label="Language" min-width="120px" align="center" sortable="custom" prop="Language">
-                <template slot-scope="{row}">
-                    <span>{{ row.Language }}</span>
-                </template>
                 </el-table-column>
-                <el-table-column label="Country" min-width="100px" align="center" sortable="custom" prop="CountryCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.CountryCode }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="Province" min-width="100px" align="center" sortable="custom" prop="ProvinceCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.ProvinceCode }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="City" min-width="100px" align="center" sortable="custom" prop="CityCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.CityCode }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="Address" min-width="100px" align="center" sortable="custom" prop="Address">
-                <template slot-scope="{row}">
-                    <span>{{ row.Address }}</span>
-                </template>
-                </el-table-column>
-                <el-table-column label="ZIPCode" min-width="100px" align="center" sortable="custom" prop="ZIPCode">
-                <template slot-scope="{row}">
-                    <span>{{ row.AddressCode }}</span>
-                </template>
-                </el-table-column>-->
                 <el-table-column label="State" min-width="100px" align="center">
                 <template slot-scope="{row}">
-                    <el-tag :type="row.State | statusFilter">
+                    <!--<el-tag :type="row.State | statusFilter">-->
                     {{ getStatusText(row.State) }}
-                    </el-tag>
+                    <!--</el-tag>-->
                 </template>
                 </el-table-column>
-                <el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width" fixed="right">
+                <el-table-column label="Actions" align="center" width="240" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
                     <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1&&Permission['CUSTOMER_EDIT']>1" type="primary" class="blue-btn" size="mini" @click="handleUpdate(row)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
-               <!--v-if="row.Status!='deleted'"-->     <el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1" size="mini" type="danger" @click="handleDelete(row,$index)">
+               <!--v-if="row.Status!='deleted'"--><el-button v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1" size="mini" type="danger" @click="handleDelete(row,$index)">
                     {{ $t('TEXT_COMMON_DELETE') }}
-                    </el-button><!--
-                    <el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
+                    </el-button>
+                    <el-button type="primary" v-if="Permission['CUSTOMER_MANAGE']>1&&Permission['CUSTOMER_LIST']>1&&Permission['CUSTOMER_IMPORT']>1" v-waves size="mini" class="violet-btn" @click="showMoveForm(row)">{{ $t('IMPORT') }}</el-button>
+                    <!--<el-button type="primary" class="violet-btn" size="mini" @click="remoteAccess(row.Token)">
                     Remote 
                     </el-button>-->
                 </template>
@@ -194,7 +202,7 @@
                     <el-input v-model="temp.Mobile" placeholder="Mobile" />
                     </el-form-item>
                 </el-col>
-                <el-col :xs="24" :sm="12">
+                <el-col checkboxNumber :xs="24" :sm="12">
                     <el-form-item label="Number" prop="Number" >
                     <el-input v-model="temp.Number" placeholder="Number" />
                     </el-form-item>
@@ -353,29 +361,29 @@
 
         <div class="content-divider"></div>
         
-        <el-form ref="listQuery"  :model="listQuery" label-position="top" class="form-padding" @submit.native.prevent="handleFilter" >
+        <el-form ref="listQuery"  :model="listQuery" label-position="top"  @submit.native.prevent="handleFilter" >
           <input :id="filterSubmitId" type="submit" class="display-none">
           <div class="padding-horizontal-x2 pb-3">
                 
                 <input type="submit" class="display-none">
-                <el-row :gutter="16">
+                <el-row :gutter="16" class="p-7">
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="Fuzzy query" prop="q" class="no-margin-bottom">
+                    <el-form-item label="Fuzzy query" prop="q" class="">
                     <el-input v-model="listQuery.q" placeholder="Type something" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="Code" prop="code" class="no-margin-bottom">
+                    <el-form-item label="Code" prop="code" class="">
                     <el-input v-model="listQuery.Code" placeholder="Organize Code" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="Name" prop="name" class="no-margin-bottom">
+                    <el-form-item label="Name" prop="name" class="">
                     <el-input v-model="listQuery.Name" placeholder="Name" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100"  class="px-0">
-                    <el-form-item label="Number" prop="number" class="no-margin-bottom">
+                    <el-form-item label="Number" prop="number" class="">
                     <el-input v-model="listQuery.Number" placeholder="Number" class="filter-item" />
                     </el-form-item>
                 </el-col>                
@@ -403,26 +411,26 @@
                   </el-form-item>
                 </el-col>
                 <el-col :xs="100"  class="px-0">
-                    <el-form-item label="Service Profile" prop="serviceProfile" class="no-margin-bottom">
+                    <el-form-item label="Service Profile" prop="serviceProfile" class="">
                     <el-select v-model="listQuery.ServiceProfileCode" placeholder="Service Profile">
                       <el-option v-for="item in serviceProfileOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100"  class="px-0">
-                    <el-form-item label="Country" prop="country" class="no-margin-bottom">
+                    <el-form-item label="Country" prop="country" class="">
                     <el-select v-model="listQuery.CountryCode" :placeholder="$t('COUNTRY')">
                       <el-option v-for="item in countryOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="State / Province" prop="province" class="no-margin-bottom">
+                    <el-form-item label="State / Province" prop="province" class="">
                     <el-input v-model="listQuery.ProvinceCode" placeholder="Province" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="City" prop="city" class="no-margin-bottom">
+                    <el-form-item label="City" prop="city" class="">
                     <el-input v-model="listQuery.CityCode" placeholder="City" class="filter-item" />
                     </el-form-item>
                 </el-col>
@@ -444,11 +452,14 @@
 import waves from '@/directive/waves' // waves directive
 import { mapGetters } from 'vuex'
 
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
 //import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchCustomersListAjax, createCustomerAjax, updateCustomerAjax, deleteCustomerAjax, fetchServiceProfileListAjax, changeOrgStateAjax } from "@/api/user";
+import { fetchCustomersListAjax, createCustomerAjax, updateCustomerAjax, deleteCustomerAjax, fetchServiceProfileListAjax, changeOrgStateAjax, importSIMsAjax } from "@/api/user";
+
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
 import { Permission } from '@/utils/role-permissions'
@@ -456,7 +467,7 @@ import { Permission } from '@/utils/role-permissions'
 
 export default {
   name: 'Customers',
-  components: { Pagination, Item },
+  components: { Pagination, Item, Loading },
   directives: { waves },
   filters: {
     statusFilter(status) {
@@ -469,6 +480,12 @@ export default {
   },
   data() {
     return {
+      isLoading:false,
+      fullPage: true,
+      moveFormVisible: false,
+      checkboxEmail: true,
+      checkboxMobile: true,
+      checkboxNumber: true,
       Permission,
       searchedParentName: '',
       parentCreateArr: [],
@@ -514,6 +531,12 @@ export default {
       //cityOptions: [],
       serviceProfileOptions: [],
       webSiteOptions: [],
+      tempMove: { 
+        CSV: '',       
+        ToOrganizeCode: '',
+        Remark: '',
+        Number: ''
+      },
       temp: {       
         Language: LanguageList.find(e=>e.Code==='EN'),
         TimeZoneCode: TimeZoneList[0],
@@ -556,6 +579,11 @@ export default {
         ParentCode: [{ required: true, message: 'Parent is required', trigger: 'change' }],
         ServiceProfileCode: [{ required: true, message: 'Service Profile is required', trigger: 'change' }],
         WebSiteCode: [{ required: true, message: 'Web Site is required', trigger: 'change' }],
+      },
+      rulesMove: {
+        Remark: [{ required: false, message: 'Remark cannot be longer than 100 characters', max: 100 }],
+        Number: [{ required: false, message: 'Number cannot be longer than 50 characters', max: 50 }],
+        CSV: [{ required: true, message: 'CSV is required', min: 1 }],
       },
       downloadLoading: false
 
@@ -726,6 +754,28 @@ export default {
         Code: '000'
       }]
     },*/
+     async handleMoveSIMs(row){
+       this.$refs['dataFormMove'].validate(async (valid) => {
+        
+        if (!valid){
+          return false
+        }
+
+        const query = this.tempMove
+            
+        importSIMsAjax(query).then(r=>{
+          if(r.MajorCode == '000'){            
+            this.$alert('SIMs was imported successfully', 'M2M Data Message', {type: 'message'})
+            this.moveFormVisible = false
+            this.getList()
+          }else{
+            this.$alert('SIMs was not imported', 'M2M Data Message', {type: 'message'})
+          }
+        }).catch(e=>{
+          this.$alert('Something wrong...', 'M2M Data Message', {type: 'message'})
+        })
+       })
+     },
     async getWebSiteOptions(){
       this.webSiteOptions = [{
         Name: 'new.m2mdata.co',
@@ -771,6 +821,12 @@ export default {
     },*/
     resetTemp() {
       this.searchedParentCreate = null
+      this.tempMove = {
+        Remark: '',
+        Number: '',
+        CSV: '',
+        ToOrganizeCode: ''
+      }
       this.temp = {        
         Language: LanguageList.find(e=>e.Code==='EN'),
         TimeZoneCode: TimeZoneList[0],
@@ -859,6 +915,13 @@ export default {
         this.isDialogFormVisible = false  
       })
     },
+    showMoveForm(row){
+      this.isLoading = true    
+      this.resetTemp()
+      this.tempMove.ToOrganizeCode = row.Code
+      this.moveFormVisible = true
+      this.isLoading = false     
+    },
     async onChangeState(state){
       this.isChangeStateLoading = true;
       changeOrgStateAjax({ Code: this.temp.Code, State: state }).then(response => {
@@ -869,31 +932,23 @@ export default {
           type: 'success',
           duration: 2000
         })
-      })
-      
-    },
-    /*onParentCodeChange(value){
-      this.getParentRoles(value)
-      //console.log(event)
-    },
-    onServiceProfileChange(value){ 
-    },
-    
+      })      
+    },    
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['key', 'type', 'zn', 'en', 'fr', 'pt', 'description']
-        const filterVal = ['key', 'type', 'zn', 'en', 'fr', 'pt', 'description']
+        const tHeader = ['Customer', 'Parent', 'Name', 'Surname', 'Email', 'Mobile', 'Serfice Profile', 'Number', 'State']
+        const filterVal = ['Name', 'ParentName', 'FirstName', 'SubName', 'Email', 'Mobile', 'ServiceProfileName', 'Number', 'State']
         const data = this.formatJson(filterVal)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'table-list'
+          filename: 'customer-list'
         })
         this.downloadLoading = false
       })
-    },*/
-    /*formatJson(filterVal) {
+    },
+    formatJson(filterVal) {
       return this.list.map(v => filterVal.map(j => {
         if (j === 'timestamp') {
           return parseTime(v[j])
@@ -901,7 +956,14 @@ export default {
           return v[j]
         }
       }))
-    },*/
+    },
+    /*onParentCodeChange(value){
+      this.getParentRoles(value)
+      //console.log(event)
+    },
+    onServiceProfileChange(value){ 
+    },
+    */
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
@@ -915,8 +977,7 @@ export default {
 
 
 <style>
-/*map*/
-
+/*map
   .map-container{
     overflow: hidden;
     width: 100%;
@@ -961,25 +1022,19 @@ export default {
   .location-table td{
     background-color: initial !important;
   }
-  .el-table td, .el-table th {
-    padding: 7px 0 !important;
-}
+
   .el-table td{
     padding: 7px 0;
     font-size: 12px;
   }
-  .location-table td .cell{
-    white-space: nowrap; /* Запрещаем перенос строк */
-    overflow: hidden; /* Обрезаем все, что не помещается в область */
-    text-overflow: ellipsis; /* Добавляем многоточие */
-  }
+ 
   .leaflet-control-zoom, .leaflet-control-attribution{
     display: none;
   }
   .card-panel-right {
     text-align: right;
   }
- /*buttons*/
+
 .dark-btn{
   border-color: #304257;
   background-color: #304257;
@@ -1119,11 +1174,5 @@ div.square {
   .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
     border-color: #ffc496;
     background-color: #ffc496;
-  }
-</style>
-
-<style scoped lang="scss">
-
-
-
+  }*/
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-container v-if="Permission['HISTORY']>1" class="with-panel-wrapper " :class="{'panel-opened': isRightPanelVisible}">
+  <el-container v-if="Permission['HISTORY']>1" class="with-panel-wrapper history-page" :class="{'panel-opened': isRightPanelVisible}">
     <loading :active.sync="isLoading" 
         :can-cancel="true" 
         :is-full-page="fullPage">
@@ -75,7 +75,7 @@
         
         <el-form class="commands-form" ref="simListQuery" :model="simListQuery" label-position="top" @submit.native.prevent="handleFilter">
           <input :id="filterSubmitId" type="submit" class="display-none">   
-            <div class="padding-horizontal-x2 pb-20">
+            <div class="padding-horizontal-x2 pt-10 pb-10">
               <el-row :gutter="16" style="">
                 <el-col :xs="100" :sm="100" :md="100" :lg="100">
                   <el-form-item label="Start date" prop="title" class="mb-0">
@@ -88,7 +88,7 @@
               </el-row>  
             </div>
             <div class="content-divider"></div>
-            <div class="padding-horizontal-x2 pb-20">
+            <div class="padding-horizontal-x2 pt-10 pb-20">
               <el-row :gutter="16" style="">
                 <el-col :xs="100">       
                   <el-form-item :label="$t('IMSI')" prop="imsi" class="no-margin-bottom">
@@ -110,7 +110,7 @@
               </el-row>     
             </div>        
             <div class="content-divider"></div>
-            <div class="padding-horizontal-x2">
+            <div class="padding-horizontal-x2 pt-10">
               <el-row :gutter="16" style="">
                 <el-col :xs="100">
                   <el-form-item :label="$t('SMS/Command')" prop="title" class="">
@@ -423,22 +423,20 @@ export default {
 
 
 <style lang="scss">
-  .rotate-90{
-    transform: rotate(90deg);
-  }
-  .chat-container{
+  
+  .history-page .chat-container{
     position: relative;
     height: calc(100vh - 0px);
     width: 100%;
   }
-    .chat-sidebar{
+    .history-page .chat-sidebar{
       background-color: #ffffff;
       color: #333;
 
       -webkit-box-shadow: 0 1px 4px rgba(0,21,41,0.08);
       box-shadow: 0 1px 4px rgba(0,21,41,0.08);
     }
-      .sidebar-header{
+      .history-page .sidebar-header{
         height: 50px;
         line-height: 50px;
         overflow: hidden;
@@ -450,7 +448,7 @@ export default {
         padding-left: 16px;
         padding-right: 16px;
       }
-  .list{
+  .history-page .list{
     list-style: none;
     position: relative;
     margin: 0;
@@ -562,7 +560,7 @@ export default {
     }
 
   }
-  .commands{
+  .history-page .commands{
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -780,142 +778,118 @@ export default {
 
 
 <style >
-.mb-0{
-  margin-bottom: 0px !important;
-}
-.p-20{
-    padding: 20px;
-}
-.pb-20{
-  padding-bottom: 20px;
-}
-.py-20{
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
-.panel-right p{
+.history-page .panel-right p{
     padding-right: 25px;
 }
-.panel-right{
+.history-page .panel-right{
     background-color: rgb(238, 241, 246)
 }
-.commands-container {
+.history-page .commands-container {
     background-color: #ffffff;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
 
-.commandbar-container{
+.history-page .commandbar-container{
     border-top: 1px solid #e3e3e3;
     background-color: #ffffff;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
 }
-.user-avatar {
+.history-page .user-avatar {
     cursor: pointer;
     width: 40px;
     height: 40px;
     border-radius: 20px;
     vertical-align: middle;
 }
-.command-header {
+.history-page .command-header {
     padding: 5px 0;
 }
-.command-status {
+.history-page .command-status {
     padding: 5px;
     color: rgb(65, 190, 162);
     line-height: 1.144;
     font-size: 14px;
 }
-.command-status-new{
+.history-page .command-status-new{
   padding: 5px;
     color: #ffc496;
     line-height: 1.144;
     font-size: 14px;
 }
-.command-time {
+.history-page .command-time {
     padding: 5px;
     color: rgb(96, 98, 104);
     line-height: 1.144;
     font-size: 14px;
 }
- /*buttons*/
-.dark-btn{
-  border-color: #304257;
-  background-color: #304257;
-}
-.dark-btn:hover,.dark-btn:active,.dark-btn:focus{
-  border-color: #35475c;
-  background-color: #35475c;
-}
-.blue-btn{
-    border-color: #28a5e0;
-    background-color: #28a5e0;
-  }
-  .blue-btn:hover,.blue-btn:active,.blue-btn:focus{
-    border-color: #32aee8;
-    background-color: #32aee8;
-  }
-  .commands-form{
+ 
+ .history-page  .commands-form{
       background-color: #ffffff;
       border-top: 1px solid #e3e3e3;
+      height: -webkit-fill-available;
   }
 
-  .group-btn{
+  .history-page .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #32aee8;
+}
+
+  .history-page  .group-btn{
     padding: 12px 0;
   }
-  .no-sim-info{
+  .history-page .no-sim-info{
     text-align: center;
     background-color: #ffffff;
     padding: 15px;
     font-size: 12px;
     color: grey;
   }
-  .el-footer{
+  .history-page .el-footer{
     padding: 20px 10px 20px 20px;
     height: 80px !important;
   }
-  .scrollbar-loading .collapse-list{
+  .history-page .scrollbar-loading .collapse-list{
     padding: 25px 0;
   }
-  .scrollbar-loading{
+  .history-page .scrollbar-loading{
     padding-top: calc(50vh - 0px);
   }
-  .scrollbar-loading .el-collapse{
+  .history-page .scrollbar-loading .el-collapse{
     border: none;
   }
-  .scrollbar-loading .el-scrollbar__wrap{
+  .history-page .scrollbar-loading .el-scrollbar__wrap{
     overflow: hidden;
     margin: 0 !important;
   }
-  .collapse-item .el-collapse-item__header{
+ .history-page  .collapse-item .el-collapse-item__header{
     font-size: 12px;
     padding: 0 12px 0 20px;
     font-weight: 600;
     color: rgb(96, 98, 104);
   }
-  .right-column-header{
+  .history-page .right-column-header{
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
     color: rgb(96, 98, 104);
   }
-  .right-column-header:hover{
+  .history-page .right-column-header:hover{
     background-color: rgb(238, 241, 246);
   }
-  .collapse-item .item-content{
+  .history-page .collapse-item .item-content{
     font-size: 12px;
     border-top: 1px solid #e3e3e3;
     color: rgb(96, 98, 104);
   }
-  .el-collapse-item__content{
+  .history-page .el-collapse-item__content{
     padding-bottom: 0;
   }
-  .el-collapse-item__content .list .item-content{
+  .history-page .el-collapse-item__content .list .item-content{
     cursor: pointer;
   }
 
-  .dialog-mask {
+  .history-page .dialog-mask {
     position: fixed;
     z-index: 2;
     top: 0;
@@ -930,12 +904,12 @@ export default {
     justify-content: center;
     background-color: rgba(0,0,0,.33);
   }
-  .command-box .dialog-content {
+  .history-page .command-box .dialog-content {
     min-width: 240px;
     text-align: center;
     font-size: 16px;
 }
-.dialog-content {
+.history-page .dialog-content {
     margin: 0 20px;
     padding: 20px 30px;
     border: 1px solid #ebeef5;
@@ -948,7 +922,7 @@ export default {
 
 
 <style>
-/*map*/
+/*map
 
   .map-container{
     overflow: hidden;
@@ -984,18 +958,12 @@ export default {
     padding: 10px 0;
     font-size: 12px;
   }
-  .location-table td .cell{
-    white-space: nowrap; /* Запрещаем перенос строк */
-    overflow: hidden; /* Обрезаем все, что не помещается в область */
-    text-overflow: ellipsis; /* Добавляем многоточие */
-  }
   .leaflet-control-zoom, .leaflet-control-attribution{
     display: none;
   }
   .card-panel-right {
     text-align: right;
   }
- /*buttons*/
 .dark-btn{
   border-color: #304257;
   background-color: #304257;
@@ -1072,49 +1040,35 @@ div.square {
 .map-table-icon{
   width: 16px;
   cursor: pointer;
-}
+}*/
 
-.time-title{
+.history-page .time-title{
     padding: 50px 0px 50px 20px;
     border-right: 5px solid #28a5e0;
     width: 145px;
     min-width: 145px;
 }
 
-.command-time-div{
+.history-page .command-time-div{
   display: inline-block;
   width: 102px;
   height: 20px; 
 }
 
-.time-dot{
+.history-page .time-dot{
     margin-left: 16px;
     position: absolute;
     width: 10px;
 }
 
-.timebutton-now{
+.history-page .timebutton-now{
     width: 80px;
     margin: 0 103px;
 }
-
-@media (min-width: 768px){
-    .lg-pr-0{
-      padding-right: 0 !important;
-    }
-    .lg-pl-0{
-      padding-left: 0 !important;
-    }
-    .lg-card-flex{
-      display: flex;
-      -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-      justify-content: space-between;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-    }
-  }
+.panel-hide{
+  background-color: #ffffff;
+}
+/*
   .el-select-dropdown__item.selected {
     color: #606266;
     font-weight: 500;
@@ -1123,5 +1077,5 @@ div.square {
 
 .el-aside {
     overflow: hidden !important;
-}
+}*/
 </style>

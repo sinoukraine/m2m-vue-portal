@@ -661,7 +661,7 @@ export default {
 
 
 <style>
-/*map*/
+/*map
 
   .map-container{
     overflow: hidden;
@@ -707,25 +707,19 @@ export default {
   .location-table td{
     background-color: initial !important;
   }
-  .el-table td, .el-table th {
-    padding: 7px 0 !important;
-}
+
   .el-table td{
     padding: 7px 0;
     font-size: 12px;
   }
-  .location-table td .cell{
-    white-space: nowrap; /* Запрещаем перенос строк */
-    overflow: hidden; /* Обрезаем все, что не помещается в область */
-    text-overflow: ellipsis; /* Добавляем многоточие */
-  }
+ 
   .leaflet-control-zoom, .leaflet-control-attribution{
     display: none;
   }
   .card-panel-right {
     text-align: right;
   }
- /*buttons*/
+ 
 .dark-btn{
   border-color: #304257;
   background-color: #304257;
@@ -834,11 +828,5 @@ div.square {
   .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
     border-color: #ffc496;
     background-color: #ffc496;
-  }
-</style>
-
-<style scoped lang="scss">
-
-
-
+  }*/
 </style>

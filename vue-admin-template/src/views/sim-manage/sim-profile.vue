@@ -5,7 +5,7 @@
         
         :is-full-page="fullPage"></loading>
     
-    <el-dialog class="dialog-download" title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
+    <el-dialog class="dialog-download bg-blue" title="Session Data" :visible.sync="sessionFormVisible" width="100%" >
       <div class="display-flex justify-content-between">
         <div class="buttons-row">
         </div>
@@ -42,7 +42,7 @@
       </el-table>       
     </el-dialog>
 
-    <el-dialog class="dialog-download" title="HLR Info" :visible.sync="hlrFormVisible" width="100%" >
+    <el-dialog class="dialog-download bg-blue" title="HLR Info" :visible.sync="hlrFormVisible" width="100%" >
       <div class="display-flex justify-content-between">
         <div class="buttons-row">
         </div>
@@ -120,7 +120,7 @@
       </el-table>       -->
     </el-dialog>
 
-    <el-dialog class="dialog-download" title="SMS History" :visible.sync="smsFormVisible" width="100%" >
+    <el-dialog class="dialog-download bg-blue" title="SMS History" :visible.sync="smsFormVisible" width="100%" >
       <div class="display-flex justify-content-between">
         <div class="buttons-row">
         </div>
@@ -163,7 +163,7 @@
       </el-table>       
     </el-dialog>
 
-    <el-dialog title="View Map" :visible.sync="mapFormVisible" width="70%" >
+    <el-dialog title="View Map" class="bg-blue" :visible.sync="mapFormVisible" width="70%" >
       <el-row :gutter="16">
         <el-col :xs="24" :sm="12" class="lg-pr-0">
           <div class="map-container">
@@ -793,13 +793,24 @@ export default {
             this.lastUpdateTime = utcDate
           
             let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
-            if(simActivityTime >= halfDayAgo){
+            /*if(simActivityTime >= halfDayAgo){
               rag = 'bg-color-green'
             }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
               rag = 'bg-color-yellow'
             }else {
              console.log(simActivityTime, halfDayAgo)
               rag = 'bg-color-red'
+            }*/
+            switch(objProfile.RAG){
+              case 'GREEN':
+                rag = 'bg-color-green'
+              break;
+              case 'YELLOW':
+                rag = 'bg-color-yellow'
+              break;
+              case 'RED':
+                rag = 'bg-color-red'
+              break;
             }
           }
           
@@ -1136,19 +1147,39 @@ export default {
 
 
 <style >
- .apexcharts-toolbar {
+.sim-profile-page .apexcharts-toolbar {
     display: none !important;
 }
-  .bold {
-    font-weight: 600;
-  }
-  .font-14{
-    font-size: 14px;
-  }
-  .color-grey{
-    color: #606266;
-  }
 
+.sim-profile-page .chart-container{
+  background:#fff;
+  padding: 30px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+}
+
+.sim-profile-page .card-details .el-button {
+    margin: 0px 10px 10px 0px;
+}
+.sim-profile-page .dialog-download .el-dialog__body {
+  padding: 0 30px 20px;
+  color: #606266;
+  font-size: 14px;
+  word-break: break-all;
+}
+.sim-profile-page .footer-border .el-card__body{
+  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 100px;
+  padding-bottom: 10px;
+}
+.sim-profile-page .el-card__footer button{
+  float: right;
+  margin-top: 38px;
+}
+
+ /*
+ 
   .map-container{
     overflow: hidden;
     width: 100%;
@@ -1157,134 +1188,13 @@ export default {
     border-bottom-left-radius: 5px;
   }
   
-  .w-100{
-    width: 100%;
-  }
-  .mt-25{
-    margin-top: 25px;
-  }
-  .mt-30{
-    margin-top: 30px;
-  }
-  .mb-30{
-    margin-bottom: 30px;
-  }
-  .el-form-item {
-    margin-bottom: 20px;
-  }
-  .el-form-item__label{
-    color: #97a8be;
-    line-height: 2em;
-  }
-  .footer-border .el-card__body{
-    border-bottom: 1px solid #ebeef5;
-    margin-bottom: 100px;
-    padding-bottom: 10px;
-  }
-  .el-card__footer button{
-    float: right;
-    margin-top: 38px;
-  }
-  
-  .chart-container{
-    background:#fff;
-    padding: 30px;
-    border-radius: 5px;
-    -webkit-box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
-  }
-  /*map*/
-  .el-dialog{
-    background-color:#f2f5fb;
-  }
-  .el-dialog__title{
-    color: #606268;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .el-dialog__headerbtn .el-dialog__close {
-    color: #909399;
-    font-weight: bold;
-    font-size: 14px;
-  }
-  .location-table{
-    width: 100%;
-    background-color:#ffffff;
-    box-shadow: none;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-  }
-  .location-table td{
-    background-color: initial !important;
-  }
-  .el-table td{
-    padding: 10px 0;
-    font-size: 12px;
-  }
-  .location-table td .cell{
-    white-space: nowrap; /* Запрещаем перенос строк */
-    overflow: hidden; /* Обрезаем все, что не помещается в область */
-    text-overflow: ellipsis; /* Добавляем многоточие */
-  }
+ 
   .leaflet-control-zoom, .leaflet-control-attribution{
     display: none;
   }
-  /*buttons*/
-  .dark-btn{
-    border-color: #304257;
-    background-color: #304257;
-  }
-  .dark-btn:hover,.dark-btn:active,.dark-btn:focus{
-    border-color: #35475c;
-    background-color: #35475c;
-  }
-  .green-btn{
-    border-color: #34bfa3;
-    background-color: #34bfa3;
-  }
-  .green-btn:hover,.green-btn:active,.green-btn:focus{
-    border-color: #3ec8ac;
-    background-color: #3ec8ac;
-  }
-  .blue-btn{
-    border-color: #28a5e0;
-    background-color: #28a5e0;
-  }
-  .blue-btn:hover,.blue-btn:active,.blue-btn:focus{
-    border-color: #32aee8;
-    background-color: #32aee8;
-  }
-  .violet-btn{
-    border-color: rgb(182, 162, 222);
-    background-color: rgb(182, 162, 222);
-  }
-  .violet-btn:hover,.violet-btn:active,.violet-btn:focus{
-    border-color: rgb(196, 180, 228);
-    background-color: rgb(196, 180, 228);
-  }
-  .orange-btn{
-    border-color: #ffb880;
-    background-color: #ffb880;
-  }
-  .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
-    border-color: #ffc496;
-    background-color: #ffc496;
-  }
   
-  .red-btn{
-    border-color: #d47980;
-    background-color: #d47980;
-  }
-  .red-btn:hover,.red-btn:active,.red-btn:focus{
-    border-color: #e48990;
-    background-color: #e48990;
-  }
-  .dialog-download .el-dialog__body {
-    padding: 0 30px 20px;
-    color: #606266;
-    font-size: 14px;
-    word-break: break-all;
-  }
+  
+  
   @media (min-width: 768px){
     .lg-pr-0{
       padding-right: 0 !important;
@@ -1303,42 +1213,6 @@ export default {
     }
   }
 
-.font-14{
-  font-size: 14px;
-}
- 
- .m-30{
-  margin: 30px;
-}
-.pt-10{
-  padding-top:10px;
-}
-.pt-20{
-  padding-top:20px;
-}
-.pl-15{
-  padding-left: 15px;
-}
-.px-5{
-  padding: 0 5px;
-}
-.big-round{
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-}
-
-.vertical-middle{
-  display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: justify;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-}
 
 .bg-color-grey{
   background-color: #e3e3e3;
@@ -1360,9 +1234,6 @@ export default {
   background-color: #d47980;
 }
 
-.card-details .el-button {
-    margin: 0px 10px 10px 0px;
-
-}
+*/
 
 </style>

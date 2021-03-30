@@ -72,7 +72,7 @@
 
   
   <el-dialog title="Move SIMs to" :visible.sync="moveFormVisible" width="70%" class="bg-white" >
-      <el-form ref="dataFormMove" :rules="rulesMove" :model="tempMove" label-position="top" label-width="70px" @submit.native.prevent="onMoveFormSubmit">
+      <el-form ref="dataFormMove" :rules="rulesMove" :model="tempMove" label-position="top" label-width="70px"><!-- @submit.native.prevent="onMoveFormSubmit"-->
         <input type="submit" class="display-none" >
 
         <el-row :gutter="16">
@@ -131,6 +131,11 @@
           <el-col v-if="tempMove.sendWay==3" :xs="24" :sm="24">            
               <el-form-item :label="'To IMSI List'" prop="ToIMSIs">                
                 <el-input type="textarea" v-model="mIMSIs" placeholder="IMSIs" class="filter-item" />
+              </el-form-item>
+          </el-col>
+          <el-col v-if="tempMove.sendWay==4" :xs="24" :sm="24">            
+              <el-form-item :label="'To ICCID List'" prop="ToICCIDs">                
+                <el-input type="textarea" v-model="mICCIDs" placeholder="ICCIDs" class="filter-item" />
               </el-form-item>
           </el-col>
         
@@ -247,7 +252,7 @@
                 :key="tableKey"
                 v-loading="isListLoading"
                 :data="list"
-                :default-sort = "{prop: 'Name', order: 'ascending'}"
+                :default-sort = "{prop: 'IMSI', order: 'ascending'}"
                 border
                 fit
                 highlight-current-row
@@ -265,94 +270,94 @@
                   <img src="map-blue.svg" class="map-table-icon" @click="showLocation(row)"/>              
                 </template>
               </el-table-column>
-                <el-table-column :label="$t('IMSI')"   :class-name="getSortClass('imsi')" align="left" width="130px">
+                <el-table-column :label="$t('IMSI')"  sortable :class-name="getSortClass('IMSI')" prop="IMSI" align="left" width="130px">
                   <template slot-scope="{row}">
                     <router-link class="link" :to="{ path: `/sim-list/${row.IMSI}` }">
                       {{ row.IMSI }}
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxICCID" :label="$t('ICCID')"  :class-name="getSortClass('ICCID')" align="left" width="160px">
+                <el-table-column v-if="checkboxICCID" sortable :label="$t('ICCID')"  :class-name="getSortClass('ICCID')" prop="ICCID" align="left" width="160px">
                   <template slot-scope="{row}">
                     <span>{{ row.ICCID }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxMSISDN" :label="$t('MSISDN')"  :class-name="getSortClass('MSISDN')" align="left" width="140px">
+                <el-table-column v-if="checkboxMSISDN" sortable :label="$t('MSISDN')"  :class-name="getSortClass('MSISDN')" prop="MSISDN" align="left" width="140px">
                   <template slot-scope="{row}">
                     <span>{{ row.MSISDN }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxServiceProfile" :label="$t('SERVICEPROFILE')" :class-name="getSortClass('ServiceProfileCode')" align="left" min-width="180px">
+                <el-table-column v-if="checkboxServiceProfile" sortable :label="$t('SERVICEPROFILE')" :class-name="getSortClass('ServiceProfileCode')" prop="ServiceProfileCode" align="left" min-width="110px">
                   <template slot-scope="{row}">
                     <span>{{ row.ServiceProfile }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxState" label="State" width="90px" >
+                <el-table-column v-if="checkboxState" sortable :class-name="getSortClass('State')" prop="State" label="State" width="90px" >
                   <template slot-scope="{row}">
                     <span>{{ row.State }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxRAG" :label="$t('RAG')" align="center" min-width="60px">
+                <el-table-column v-if="checkboxRAG" sortable :class-name="getSortClass('RAG')" prop="RAG" :label="$t('RAG')" align="center" min-width="60px">
                   <template slot-scope="{row}" align="center">
                     <div class="square" :class="row.rag"></div>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxOrganize" :label="$t('CUSTOMER')" align="left" min-width="100px">
+                <el-table-column v-if="checkboxOrganize" sortable :class-name="getSortClass('OrganizeName')" prop="OrganizeName" :label="$t('CUSTOMER')" align="left" min-width="100px">
                   <template slot-scope="{row}">
                     <span>{{ row.OrganizeName }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxDataSession" :label="$t('DATA_SESSION')" align="left" min-width="130px">
+                <el-table-column v-if="checkboxDataSession" sortable :class-name="getSortClass('SessionDay')" prop="SessionDay" :label="$t('DATA_SESSION')" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.dataSession }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')+'(Mb)'" :class-name="getSortClass('dataUsage')" align="left" min-width="120px">
+                <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')+'(Mb)'" sortable :class-name="getSortClass('DataDay')" prop="DataDay" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.DataUsage }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')"  :class-name="getSortClass('smsUsage')" align="left" min-width="120px">
+                <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')" sortable  :class-name="getSortClass('SMSMtDay')" prop="SMSMtDay" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.smsUsage }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxPayPlan" :label="$t('PAYPLAN')"  :class-name="getSortClass('PayPlanCode')" align="left" min-width="100px">
+                <el-table-column v-if="checkboxPayPlan" :label="$t('PAYPLAN')" sortable :class-name="getSortClass('PayPlanCode')" prop="PayPlanCode" align="left" min-width="100px">
                   <template slot-scope="{row}">
                     <span>{{ row.PayPlan }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxIPAddress" :label="$t('IPADDRESS')"  align="left" min-width="100px">
+                <el-table-column v-if="checkboxIPAddress" :label="$t('IPADDRESS')"  sortable :class-name="getSortClass('IPAddress')" prop="IPAddress" align="left" min-width="100px">
                   <template slot-scope="{row}">
                     <span>{{ row.IPAddress }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxCustomField1" :label="$t('CUSTOMFIELD1')"   align="left" min-width="120px">
+                <el-table-column v-if="checkboxCustomField1" :label="$t('CUSTOMFIELD1')" sortable :class-name="getSortClass('CustomField1')" prop="SuctomField1" align="left" min-width="120px">
                   <template slot-scope="{row}">
                     <span>{{ row.CustomField1 }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxCustomField2" :label="$t('CUSTOMFIELD2')"  align="left" min-width="120px">
+                <el-table-column v-if="checkboxCustomField2" :label="$t('CUSTOMFIELD2')" sortable :class-name="getSortClass('CustomField2')" prop="SuctomField2" align="left" min-width="120px">
                   <template slot-scope="{row}">
                     <span>{{ row.CustomField2 }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxCustomField3" :label="$t('CUSTOMFIELD3')"  align="left" min-width="120px">
+                <el-table-column v-if="checkboxCustomField3" :label="$t('CUSTOMFIELD3')" sortable :class-name="getSortClass('CustomField3')" prop="SuctomField3" align="left" min-width="120px">
                   <template slot-scope="{row}">
                     <span>{{ row.CustomField3 }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxCustomField4" :label="$t('CUSTOMFIELD4')"  align="left" min-width="120px">
+                <el-table-column v-if="checkboxCustomField4" :label="$t('CUSTOMFIELD4')" sortable :class-name="getSortClass('CustomField4')"  prop="SuctomField4" align="left" min-width="120px">
                   <template slot-scope="{row}">
                     <span>{{ row.CustomField4 }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxCustomField5" :label="$t('CUSTOMFIELD5')"  align="left" min-width="120px">
+                <el-table-column v-if="checkboxCustomField5" :label="$t('CUSTOMFIELD5')" sortable :class-name="getSortClass('CustomField5')"  prop="SuctomField5" align="left" min-width="120px">
                   <template slot-scope="{row}">
                     <span>{{ row.CustomField5 }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column :label="'Update time'"  align="left" min-width="90px">
+                <el-table-column :label="'Update time (UTC)'" sortable :class-name="getSortClass('DataUpdateTime')" prop="DataUpdateTime" align="left" min-width="90px">
                   <template slot-scope="{row}">
                     <span>{{ row.update }}</span>
                   </template>
@@ -371,7 +376,7 @@
 
 
             <el-dialog :title="textMap[dialogStatus]" :visible.sync="isDialogFormVisible" >
-            <el-form ref="dataForm" :rules="rules" :model="temp" label-position="top" label-width="70px" @submit.native.prevent="onEditFormSubmit">
+            <el-form ref="dataForm" :rules="rules" :model="temp" label-position="top"  label-width="70px" @submit.native.prevent="onEditFormSubmit">
                 <input type="submit" class="display-none" >
 
                 <el-row v-if="dialogStatus !== 'create'" :gutter="16" >
@@ -439,11 +444,11 @@
           </el-col>
         </el-row>
         <div class="content-divider"></div>        
-        <el-form ref="listQuery"  :model="listQuery" label-position="top" class="form-padding" @submit.native.prevent="handleFilter" >
+        <el-form ref="listQuery"  :model="listQuery" label-position="top" class="" @submit.native.prevent="handleFilter" >
           <input :id="filterSubmitId" type="submit" class="display-none">
-          <div class="padding-horizontal-x2 pb-3">                
+          <div class="padding-horizontal-x2  pb-10">                
                 <input type="submit" class="display-none">
-                <el-row :gutter="16">
+                <el-row :gutter="16" class="p-7">
                 <el-col :xs="100" class="px-0">
                     <el-form-item label="Query" prop="fromimsi" class="">
                     <el-input v-model="listQuery.q" placeholder="Enter 5 symbols minimum" class="filter-item" />
@@ -507,50 +512,73 @@
                 </el-col>
                 </el-row>
             </div>
-            <!--
-          <div class="content-divider"></div>
-          <div class="padding-horizontal-x2">
-            <el-row :gutter="16" style="">
-              <el-col :xs="100">
-                <el-form-item :label="$t('RAG')" prop="title" class="">
-                  <el-checkbox @input="handleRAGChecked(0)"><span class="rag bg-color-red"></span></el-checkbox>
-                  <el-checkbox @input="handleRAGChecked(1)"><span class="rag bg-color-yellow"></span></el-checkbox>
-                  <el-checkbox @input="handleRAGChecked(2)"><span class="rag bg-color-green"></span></el-checkbox>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="content-divider"></div>
-          <div class="padding-horizontal-x2">
-            <el-form-item :label="$t('STATE')" prop="title" class="">
-              <el-row :gutter="16" style="">
-                <el-col :span="12">
-                  <el-checkbox  v-model="searchedStates.Productive">{{ $t('PRODUCTIVE') }}</el-checkbox>
-                </el-col>
-                <el-col :span="12">
-                  <el-checkbox  v-model="searchedStates.OnStock">{{ $t('ON_STOCK') }}</el-checkbox>
-                </el-col>
-                <el-col :span="12">
-                  <el-checkbox>{{ $t('ON_STOCK') }}</el-checkbox>
-                </el-col>
-                <el-col :span="12">
-                  <el-checkbox>{{ $t('PRODUCTIVE') }}</el-checkbox>
-                </el-col>
-                <el-col :span="12">
-                  <el-checkbox>{{ $t('SUSPENDED') }}</el-checkbox>
-                </el-col>
-                <el-col :span="12">
-                  <el-checkbox>{{ $t('TEST') }}</el-checkbox>
-                </el-col>
-                <el-col :span="12">
-                  <el-checkbox>{{ $t('TEST_END') }}</el-checkbox>
-                </el-col>
-                <el-col :span="12">
-                  <el-checkbox>{{ $t('TEST_PRODUCTIVE') }}</el-checkbox>
+            <div class="content-divider"></div>
+            <div class="padding-horizontal-x2 pt-10">
+              <el-row :gutter="16" >
+                <el-col :xs="100">
+                  <el-form-item :label="$t('RAG')" prop="title" class="">
+                    <el-checkbox v-model="checkboxSearchRAGr"><span class="rag bg-color-red"></span></el-checkbox>
+                    <el-checkbox v-model="checkboxSearchRAGy"><span class="rag bg-color-yellow"></span></el-checkbox>
+                    <el-checkbox v-model="checkboxSearchRAGg"><span class="rag bg-color-green"></span></el-checkbox>
+                  </el-form-item>
                 </el-col>
               </el-row>
-            </el-form-item>
-          </div>       -->   
+            </div>
+            <div class="content-divider"></div>
+            <div class="padding-horizontal-x2 pt-10">
+              <el-form-item :label="$t('STATE')" prop="title" class="">
+                <el-row :gutter="16" style="">
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusProductive" >{{ $t('PRODUCTIVE') }}</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusOnStock" >{{ $t('ON_STOCK') }}</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusSuspended">{{ $t('SUSPENDED') }}</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusActivated">{{ $t('ACTIVATED') }}</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusOrdered">Ordered</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusTest">{{ $t('TEST') }}</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusTestEnd">{{ $t('TEST_END') }}</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusTestProductive">{{ $t('TEST_PRODUCTIVE') }}</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusAutoSuspended">AutoSuspended</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusReserved">Reserved</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusDeleted">Deleted</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusPaused">Paused</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusLost">Lost</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusEuiccControl">EuiccControl</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusDeleting">Deleting</el-checkbox>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusPassive">Passive</el-checkbox>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+            </div>        
         </el-form>
       </div>
     </el-aside>
@@ -632,6 +660,25 @@ export default {
       ))
 
     return {
+      checkboxSearchRAGg: false,
+      checkboxSearchRAGy: false,
+      checkboxSearchRAGr: false,
+      checkboxSearchStatusOnStock: false,
+      checkboxSearchStatusActivated: false,
+      checkboxSearchStatusOrdered: false,
+      checkboxSearchStatusTest: false,
+      checkboxSearchStatusTestProductive: false,
+      checkboxSearchStatusTestEnd: false,
+      checkboxSearchStatusProductive: false,
+      checkboxSearchStatusSuspended: false,
+      checkboxSearchStatusAutoSuspended: false,      
+      checkboxSearchStatusDeleted: false,
+      checkboxSearchStatusPaused: false,
+      checkboxSearchStatusLost: false,
+      checkboxSearchStatusReserved: false,
+      checkboxSearchStatusEuiccControl: false,
+      checkboxSearchStatusDeleting: false,
+      checkboxSearchStatusPassive: false,
       Permission,
       searchedOrganizeName: '',
       searchedFilterOrganizeName: '',
@@ -688,7 +735,8 @@ export default {
         {Code:'0',Name:'Selected SIMs'},
         {Code:'1',Name:'IMSI range'},
         {Code:'2',Name:'ICCID range'},
-        {Code:'3',Name:'IMSI list'}
+        {Code:'3',Name:'IMSI list'},
+        {Code:'4',Name:'ICCID list'}
       ],
       selectedState: 0,
       isRightPanelVisible: true,
@@ -698,6 +746,7 @@ export default {
       total: 0,
       isListLoading: true,
       mIMSIs: '',
+      mICCIDs: '',
       sIMSIs: '',
       sICCIDs: '',
       sMSISDNs: '',
@@ -872,8 +921,7 @@ export default {
       this.organizeArr = []
       this.searchedFilterOrganizeName = val.Name
       this.listQuery.OrganizeCode = val.Code     
-    },
-    
+    },    
     doSomethingOnReady() {
         this.map = this.$refs.map.mapObject
         this.map.invalidateSize()
@@ -1117,6 +1165,10 @@ export default {
         if (!valid){
           return false
         }
+           
+        let st = ''
+        let ar = []
+        
         if(this.tempMove.searchedOrganize?.Code != undefined){
           this.searchedOrganizeName = ''
           let checkSIM = false
@@ -1141,9 +1193,7 @@ export default {
               FromICCID: this.tempMove.FromICCID,
               ToICCID: this.tempMove.ToICCID,
             }
-          }else if(this.tempMove.sendWay == '3'){   
-            let st = ''
-            let ar = []
+          }else if(this.tempMove.sendWay == '3'){
             if(this.mIMSIs.length){
               st = this.mIMSIs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
               ar = this.mIMSIs.split('\n')
@@ -1153,6 +1203,20 @@ export default {
               })
               if(ar.length){
                 query.IMSIs = ar.map(function (el) {
+                  return el.replace(/\s/g, '').replace(',', '')
+                })
+              }
+            } 
+          }else if(this.tempMove.sendWay == '4'){   
+            if(this.mICCIDs.length){
+              st = this.mICCIDs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+              ar = this.mICCIDs.split('\n')
+              if(ar.length == 1) ar = this.mICCIDs.split(',') 
+              ar = ar.filter(function (el) {
+                return el != null && el != ''
+              })
+              if(ar.length){
+                query.ICCIDs = ar.map(function (el) {
                   return el.replace(/\s/g, '').replace(',', '')
                 })
               }
@@ -1244,8 +1308,10 @@ export default {
       let threeDayAgo = moment(currentTime, 'YYYY-MM-DD HH').add(-3, 'days').format('YYYY-MM-DD HH');
           
       this.isListLoading = true      
+      console.log(this.listQuery)
       fetchSIMListAjax(this.listQuery).then(response => { 
-        if(!response.MajorCode){      
+        if(!response.MajorCode){         
+      console.log(response.rows)
           response.rows.forEach(async element_1 => {
             const activityTime = element_1.DataUpdateTime
             let rag = 'bg-color-grey'
@@ -1254,7 +1320,18 @@ export default {
             let totalSumm = 0
             let simActivityTime = moment(activityTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')
                 
-            if(activityTime){
+            switch(element_1.RAG){
+              case 'GREEN':
+                rag = 'bg-color-green'
+              break;
+              case 'YELLOW':
+                rag = 'bg-color-yellow'
+              break;
+              case 'RED':
+                rag = 'bg-color-red'
+              break;
+            }
+            /*if(activityTime){
               if(simActivityTime >= halfDayAgo){
                 rag = 'bg-color-green'
               }else if(simActivityTime >= oneDayAgo && simActivityTime < halfDayAgo){
@@ -1262,7 +1339,10 @@ export default {
               }else {
                 rag = 'bg-color-red'
               }
-            }
+            }*/
+
+            //item.CreateDateTime = moment.utc(item.CreateDateTime).toDate();
+            //item.CreateDateTime = moment(item.CreateDateTime).format(window.COM_TIMEFORMAT);
 
             arr.push({
               IMSI: element_1.IMSI.toString(),
@@ -1345,6 +1425,29 @@ export default {
       this.listQuery.IMSIs = []
       this.listQuery.ICCIDs = []
       this.listQuery.MSISDNs = []
+      this.listQuery.RAGs = []
+      this.listQuery.Status = []
+      
+      this.checkboxSearchRAGg?this.listQuery.RAGs.push('GREEN'):null
+      this.checkboxSearchRAGr?this.listQuery.RAGs.push('RED'):null
+      this.checkboxSearchRAGy?this.listQuery.RAGs.push('YELLOW'):null
+      
+      this.checkboxSearchStatusOnStock?this.listQuery.Status.push('OnStock'):null
+      this.checkboxSearchStatusSuspended?this.listQuery.Status.push('Suspended'):null
+      this.checkboxSearchStatusProductive?this.listQuery.Status.push('Productive'):null
+      this.checkboxSearchStatusTest?this.listQuery.Status.push('Test'):null
+      this.checkboxSearchStatusTestProductive?this.listQuery.Status.push('TestProductive'):null
+      this.checkboxSearchStatusTestEnd?this.listQuery.Status.push('TestEnd'):null
+      this.checkboxSearchStatusActivated?this.listQuery.Status.push('Activated'):null
+      this.checkboxSearchStatusOrdered?this.listQuery.Status.push('Ordered'):null
+      this.checkboxSearchStatusAutoSuspended?this.listQuery.Status.push('AutoSuspended'):null
+      this.checkboxSearchStatusReserved?this.listQuery.Status.push('Reserved'):null
+      this.checkboxSearchStatusDeleted?this.listQuery.Status.push('Deleted'):null
+      this.checkboxSearchStatusPaused?this.listQuery.Status.push('Paused'):null
+      this.checkboxSearchStatusLost?this.listQuery.Status.push('Lost'):null
+      this.checkboxSearchStatusEuiccControl?this.listQuery.Status.push('EuiccControl'):null
+      this.checkboxSearchStatusDeleting?this.listQuery.Status.push('Deleting'):null
+      this.checkboxSearchStatusPassive?this.listQuery.Status.push('Passive'):null
 
       if(this.sIMSIs.length){
         str = this.sIMSIs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -1390,9 +1493,9 @@ export default {
           
       this.getList()
     },
-    sortChange(data) {
+    sortChange(data) {console.log(data)
       const { prop, order } = data
-      this.listQuery.Order = order === 'ascending' ? 'ASC' : (order === 'descending') ? 'DESC' : ''
+      this.listQuery.Order = this.listQuery.Order === 'ASC' ? 'DESC' : this.listQuery.Order === 'DESC' ? 'ASC' : 'ASC' //order === 'ascending' ? 'ASC' : (order === 'descending') ? 'DESC' : 'ASC'
       this.listQuery.Sort = prop
       this.getList()
     },
@@ -1488,9 +1591,9 @@ export default {
         }
       }))
     },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
+    getSortClass: function(key) { 
+      const order = this.listQuery.Order
+      return order === `+${key}` ? 'ascending' : 'descending'
     },
     async forceReconnect(){      
       this.isLoading = true
@@ -1531,129 +1634,25 @@ export default {
 
 
 <style>
-/*map*/
+.sim-list-page div.square {
+  border-radius: 3px;
+  margin: 0 14px;
+  width: 10px;
+  height: 10px;
+}
 
-  .map-container{
-    overflow: hidden;
-    width: 100%;
-    height: 439px;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-  }
-  .el-dialog__title{
-    color: #606268;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .el-dialog__headerbtn .el-dialog__close {
-    color: #909399;
-    font-weight: bold;
-    font-size: 14px;
-  }
+.sim-list-page .el-checkbox__label{
+  font-size: 12px;
+}
+/*map sim-list-page*/
   
-.el-button{
-    overflow: inherit !important;
-}
-  .location-table{
-    width: 100%;
-    background-color:#ffffff;
-    box-shadow: none;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-  }
-  .location-table td{
-    background-color: initial !important;
-  }
-  .el-table td, .el-table th {
-    padding: 7px 0 !important;
-    font-size: 12px;
-}
-.location-table td, .location-table th {
-    padding: 10px 0 !important;
-}
-  .location-table td .cell{
-    white-space: nowrap; /* Запрещаем перенос строк */
-    overflow: hidden; /* Обрезаем все, что не помещается в область */
-    text-overflow: ellipsis; /* Добавляем многоточие */
-  }
-  .leaflet-control-zoom, .leaflet-control-attribution{
-    display: none;
-  }
-  .card-panel-right {
-    text-align: right;
-  }
- /*buttons*/
-.dark-btn{
-  border-color: #304257;
-  background-color: #304257;
-}
-.dark-btn:hover,.dark-btn:active,.dark-btn:focus{
-  border-color: #35475c;
-  background-color: #35475c;
-}
-.green-btn{
-    border-color: #34bfa3;
-    background-color: #34bfa3;
-  }
-  .green-btn:hover,.green-btn:active,.green-btn:focus{
-    border-color: #3ec8ac;
-    background-color: #3ec8ac;
-  }
-.blue-btn{
-  border-color: #28a5e0;
-  background-color: #28a5e0;
-}
-.blue-btn:hover,.blue-btn:active,.blue-btn:focus{
-  border-color: #32aee8;
-  background-color: #32aee8;
-}
-
-  .violet-btn{
-    border-color: rgb(182, 162, 222);
-    background-color: rgb(182, 162, 222);
-  }
-  .violet-btn:hover,.violet-btn:active,.violet-btn:focus{
-    border-color: rgb(196, 180, 228);
-    background-color: rgb(196, 180, 228);
-  }
-
-  .w-100{
-    width: 100%;
-  }
-  .mt-25{
-    margin-top: 25px;
-  }
-  .mt-30{
-    margin-top: 30px;
-  }
-  .mb-30{
-    margin-bottom: 30px;
-  }
-  .el-form-item {
-    margin-bottom: 10px;
-  }
-  .el-form-item__label{
-    color: #97a8be;
-    line-height: 2em;
-  }
-  .footer-border .el-card__body{
-    border-bottom: 1px solid #ebeef5;
-    margin-bottom: 100px;
-    padding-bottom: 10px;
-  }
+  /*
+  
   .el-card__footer button{
     float: right;
     margin-top: 38px;
   }
-.el-table {
-    font-size: 12px;
-}
-.el-pagination.is-background .el-pager li:not(.disabled).active {
-    background-color: #28a5e0;
-}
-.el-pagination.is-background .el-pager li:not(.disabled):hover {
-    color: #28a5e0;
-}
+
 .cell a{
   color: #28a5e0;
 }
@@ -1661,27 +1660,7 @@ export default {
     background-color: #28a5e0;
     border-color: #d9ebf3;
 }
-.sim-list-page div.square {
-  border-radius: 3px;
-  margin: 0 14px;
-  width: 10px;
-  height: 10px;
-}
-.pagination-container{
-  margin-top: 30px;
-  border-radius: 5px;
-}
 
-.map-table-icon{
-  width: 16px;
-  cursor: pointer;
-}
-.el-table td, .el-table th {
-    padding: 12px 0;
-}
-.el-select{
-  width: 100%;
-}
 .el-table {
     width: 100%;
     border-radius: 5px;
@@ -1691,19 +1670,7 @@ export default {
 .el-aside{    
     overflow: hidden;
 }
-.px-0{
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-.pb-3{
-  padding-bottom: 30px;
-}
-.bg-white .el-dialog {
-    background-color: #ffffff !important;
-}
- .bg-blue .el-dialog {
-    background-color: #f2f5fb !important;
-}
+
 
 
 .el-dialog__body{
@@ -1716,64 +1683,9 @@ export default {
     padding: 20px;
 }
 
-.bg-white .el-dialog__header{
-    border-bottom: 1px solid #e3e3e3;
-}
 
 
-.bg-color-grey{
-  background-color: #e3e3e3;
-}
 
-.bg-color-blue{
-  background-color: rgb(92, 174, 230);
-}
-
-.bg-color-yellow{
-  background-color: #ffb880;
-}
-
-.bg-color-green{
-  background-color: #34bfa3;
-}
-.bg-color-red{
-  background-color: #d47980;
-}
-
-@media (min-width: 768px){
-    .lg-pr-0{
-      padding-right: 0 !important;
-    }
-    .lg-pl-0{
-      padding-left: 0 !important;
-    }
-    .lg-card-flex{
-      display: flex;
-      -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-      justify-content: space-between;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-    }
-  }
-  .orange-btn{
-    border-color: #ffb880;
-    background-color: #ffb880;
-  }
-  .orange-btn:hover,.orange-btn:active,.orange-btn:focus{
-    border-color: #ffc496;
-    background-color: #ffc496;
-  }
-
-  .mt-10{
-    margin-top: 10px;
-  }
-
-</style>
-
-<style scoped lang="scss">
-
-
+*/
 
 </style>

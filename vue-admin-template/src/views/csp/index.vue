@@ -1,5 +1,5 @@
 <template>
-  <div v-if="Permission['CSP_MANAGE']>0" class="app-container">
+  <div v-if="Permission['CSP_MANAGE']>0" class="app-container csp-page">
     <div class="filter-container">
       <div class="display-flex justify-content-between">
           <div class="buttons-row">
@@ -410,7 +410,7 @@ export default {
 </script>
 
 <style>
-  .pagination-container{
-    margin: 20px;
-  }  
+  .csp-page .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #32aee8;
+}
 </style>

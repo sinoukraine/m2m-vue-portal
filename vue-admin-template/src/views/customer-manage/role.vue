@@ -79,16 +79,16 @@
             <div>{{ node.label.value }}</div>
             <div>{{ node.label.order }}</div>
             <div v-if="node.label.parent!='None'" class="actions-div">
-              <el-tooltip effect="dark" :content="$t('TEXT_COMMON_EDIT')" placement="top-end">
-                <el-button type="primary" class="blue-btn" size="mini" @click="handleUpdate(data)">
+              <!--<el-tooltip  effect="dark" :content="$t('TEXT_COMMON_EDIT')" placement="top-end">-->
+                <el-button :disabled="node.label.key=='ROOT'" type="primary" class="blue-btn" size="mini" @click="handleUpdate(data)">
                     {{ $t('TEXT_COMMON_EDIT') }}
                     </el-button>
-              </el-tooltip>
-              <el-tooltip effect="dark" :content="$t('TEXT_COMMON_DELETE')" placement="top-end">
-                <el-button size="mini" type="danger" @click="handleDelete(data.code)">
+              <!--</el-tooltip>
+              <el-tooltip  effect="dark" :content="$t('TEXT_COMMON_DELETE')" placement="top-end">-->
+                <el-button :disabled="node.label.key=='ROOT'" size="mini" type="danger" @click="handleDelete(data.code)">
                     {{ $t('TEXT_COMMON_DELETE') }}
                 </el-button>
-              </el-tooltip>
+              <!--</el-tooltip>-->
             </div>
             <div v-else class="actions-title">
               Actions
@@ -126,13 +126,13 @@
         </el-table-column>
         <el-table-column label="" :width="'87px'">
           <template>
-            <el-button
+            <!--<el-button
               type="success"
               size="medium"
               @click.stop="sayHello"
             >
               Edit
-            </el-button>
+            </el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -746,11 +746,8 @@ export default {
 .role-page .el-select{
   width: 100%;
 }
-.align-center{
-  text-align: center;
-}
 
-.header-permission{
+.role-page .header-permission{
   display: flex;
   width: 100%;
 }
@@ -770,142 +767,132 @@ export default {
 .left a { width: 200px; height: 100px; background: green; }
 .right a { width: 100px; height: 200px; background: pink; }
 */
-.table-tree{
+.role-page .table-tree{
   border: 1px solid #EBEEF5;
   border-bottom: 0px;
 }
 
-.modal-tree{
+.role-page .modal-tree{
   margin: 10px 20px;
 }
 
-.el-tree-node__content{
-  height: 54px;
-}
-
-.block{
+.role-page .block{
   padding-top: 20px;
 }
 
-.bottom-line {
+.role-page .bottom-line {
     display: flex;
     flex: 0 1 auto;
     width: 100%;
     border-top: 1px solid #EBEEF5;
 }
 
-.el-form-item__label{
+.role-page .el-form-item__label{
   line-height: 15px;
 }
 
-.form-content{
+.role-page .form-content{
   padding: 20px;
 }
 
-.flex{
-    display: flex;
-}
-
-.el-tree .el-tree-node:first-child .custom-tree-node{
+.role-page .el-tree .el-tree-node:first-child .custom-tree-node{
   font-weight: bold;
     color: rgba(0,0,0,0.45);
 }
 
-.el-tree-node__children div[tabindex="-1"]  .custom-tree-node span{
+.role-page .el-tree-node__children div[tabindex="-1"]  .custom-tree-node span{
   font-weight: 400;
   color: #606266;
 }
 
-.el-tree-node__children div[tabindex="-1"]  .actions-div span{
+.role-page .el-tree-node__children div[tabindex="-1"]  .actions-div span{
   color: #ffffff;
 }
 
-.el-tree .el-tree-node[tabindex="-1"] .actions-title{
+.role-page .el-tree .el-tree-node[tabindex="-1"] .actions-title{
   padding:18px 0px;
 }
 
-.el-tree .el-tree-node[tabindex="0"] .el-tree-node__expand-icon{
+.role-page .el-tree .el-tree-node[tabindex="0"] .el-tree-node__expand-icon{
   cursor:inherit;
   opacity:0;
 }
 
-.custom-tree-node span:last-child div{
+.role-page .custom-tree-node span:last-child div{
   width: 160px;
   height: 100%;
   padding: 19px 0;
   text-align: center;
 }
 
-.custom-tree-node span:last-child div:last-child{
+.role-page .custom-tree-node span:last-child div:last-child{
   padding: 12px 0px;
 }
 
-.table-tree .custom-tree-node span:last-child div{
+.role-page .table-tree .custom-tree-node span:last-child div{
   border-left: 1px solid #EBEEF5;
 }
 
-.table-tree .custom-tree-node span:last-child .edit-button{
+.role-page .table-tree .custom-tree-node span:last-child .edit-button{
   border-left: 1px solid #EBEEF5;
 }
 
-.table-tree .custom-tree-node span:last-child .delete-button{
+.role-page .table-tree .custom-tree-node span:last-child .delete-button{
   border-left: 1px solid #EBEEF5;
 }
 
-.el-tree-node__content{
+.role-page .el-tree-node__content{
   border-bottom: 1px solid #EBEEF5;
 }
 
-.modal-tree .el-tree-node__content{
+.role-page .modal-tree .el-tree-node__content{
   border: none;
 }
 
-.el-table__body tr td:last-child{
+.role-page .el-table__body tr td:last-child{
   width: 100px;
 }
-.el-button--mini{
+.role-page .el-button--mini{
   padding: 7px 15px;
 }
 
-.actions-div{
+.role-page .actions-div{
   margin-top:4px;
 }
 
 @media only screen and (max-width: 1100px) {
-  .custom-tree-node span:first-child{
+  .role-page .custom-tree-node span:first-child{
     width: 200px;
   }
 
-  .el-tree-node__children div[tabindex="-1"]  span:first-child{
+  .role-page .el-tree-node__children div[tabindex="-1"]  span:first-child{
     width: 182px;
   }
 
-  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
+  .role-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
     width: 164px;
   }
 
-  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
+  .role-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
     width: 146px;
   }
 
-  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
+  .role-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
     width: 128px;
   }
 
-  
-
-  .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
+  .role-page .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] .el-tree-node__children div[tabindex="-1"] span:first-child{
     width: 110px;
   }
 }
 
-.custom-tree-node-permission span, .custom-tree-node-permission div{
+.role-page .custom-tree-node-permission span,.role-page  .custom-tree-node-permission div{
     overflow:hidden !important;
     text-overflow: ellipsis !important;    
   }
 
 /*@import url("//unpkg.com/element-ui@2.13.2/lib/theme-chalk/index.css");*/
-.custom-tree-node {
+.role-page .custom-tree-node {
     flex: 1;
     display: flex;
     align-items: center;
