@@ -287,7 +287,7 @@
                     <span>{{ row.MSISDN }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxServiceProfile" sortable :label="$t('SERVICEPROFILE')" :class-name="getSortClass('ServiceProfileCode')" prop="ServiceProfileCode" align="left" min-width="110px">
+                <el-table-column v-if="checkboxServiceProfile" sortable :label="$t('SERVICEPROFILE')" :class-name="getSortClass('ServiceProfileCode')" prop="ServiceProfileCode" align="left" min-width="130px">
                   <template slot-scope="{row}">
                     <span>{{ row.ServiceProfile }}</span>
                   </template>
@@ -307,17 +307,17 @@
                     <span>{{ row.OrganizeName }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxDataSession" sortable :class-name="getSortClass('SessionDay')" prop="SessionDay" :label="$t('DATA_SESSION')" align="left" min-width="70px">
+                <el-table-column v-if="checkboxDataSession" sortable :class-name="getSortClass('SessionDay')" prop="SessionDay" :label="'Session'" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.dataSession }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxDataUsage" :label="$t('DATA_USAGE')+'(Mb)'" sortable :class-name="getSortClass('DataDay')" prop="DataDay" align="left" min-width="70px">
+                <el-table-column v-if="checkboxDataUsage" :label="'Data'" sortable :class-name="getSortClass('DataDay')" prop="DataDay" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.DataUsage }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="checkboxSMSUsage" :label="$t('SMS_USAGE')" sortable  :class-name="getSortClass('SMSMtDay')" prop="SMSMtDay" align="left" min-width="70px">
+                <el-table-column v-if="checkboxSMSUsage" :label="'SMS'" sortable  :class-name="getSortClass('SMSMtDay')" prop="SMSMtDay" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.smsUsage }}</span>
                   </template>
