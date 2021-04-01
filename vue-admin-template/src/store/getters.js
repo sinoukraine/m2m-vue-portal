@@ -6,6 +6,7 @@ const getters = {
   name: state => state.user.name,
   language: state => state.user.language,
   login: state => state.user.login,
+  org: state => state.user.org,
   userInfo: state => state.user.qtUserInfo,
   imsi: state => state.dashboard.imsi,
   period: state => state.dashboard.period,

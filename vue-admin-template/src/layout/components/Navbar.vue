@@ -12,6 +12,9 @@
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
+          <router-link to="/profile/index">
+            <el-dropdown-item>Profile</el-dropdown-item>
+          </router-link>
           <router-link to="/">
             <el-dropdown-item>
               Home

@@ -577,6 +577,7 @@ export default {
         }
         this.searchedOrganizeName = ''
         
+        console.log(tempData)
         this.isFormLoading = true;
         //let response = this.dialogStatus === 'create' ? await createUser(tempData) : await updateUser(tempData)
 

@@ -27,6 +27,7 @@ export const API_METHODS = {
   USER_EDIT: DOMAIN1 + 'service/User/Edit',
   USER_DELETE: DOMAIN1 + 'service/User/Remove',
   USER_RESET_PASSWORD: DOMAIN1 + 'Service/User/ResetPassword',
+  USER_RESET_MY_PASSWORD: DOMAIN1 + 'Service/User/ResetMyPassword',
   
   SIM_GET_LIST: DOMAIN2 + 'JT/Sim/Query',
   SIM_CREATE: DOMAIN2 + 'JT/Sim/Add',

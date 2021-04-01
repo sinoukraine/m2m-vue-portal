@@ -160,7 +160,7 @@ export default {
       checkboxSent: true,
       checkboxReceived: true, 
       isShowNow: false,
-      searchedIMSI: '234500003096617',
+      searchedIMSI: '',
       isLoading: false,
       fullPage: true,      
       listLoading: true,
@@ -187,7 +187,7 @@ export default {
         sample: ''
       },
       listHistoryQuery: {
-        imsi: '234500003096617',
+        imsi: '',
         date1: moment(today, 'YYYY-MM-DD').add(-90, 'days').format('YYYY-MM-DD'),
         date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
       },

@@ -259,6 +259,23 @@ export function deleteUserAjax(query) {
 }
 
 
+export function resetMyPasswordAjax(query) {
+  var options = {
+    "url": API_METHODS.USER_RESET_MY_PASSWORD,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+
 export function resetPasswordAjax(query) {
   var options = {
     "url": API_METHODS.USER_RESET_PASSWORD,

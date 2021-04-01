@@ -152,10 +152,10 @@
                       v-model="node.label.permissionStatus"
                       @change="checkSelected(data.code, node.label.roleCode, node.label.permissionStatus)"
                     >
-                      <el-option label="N" value="0" />
-                      <el-option label="R" value="1" />
-                      <el-option label="W" value="2" />
-                      <el-option label="WR" value="3" />
+                      <el-option label="None" value="0" />
+                      <el-option label="ViewOnly" value="1" />
+                      <!--<el-option label="W" value="2" />-->
+                      <el-option label="Controllable" value="3" />
                     </el-select>
                   </div>
                   <div v-else class="actions-title">
@@ -906,7 +906,7 @@ export default {
 }
 
 .role-managment-page .custom-tree-node input{
-  width: 100px;
+  width: 110px;
 }
 /*
 .role-managment-page .custom-tree-node .el-input__suffix {

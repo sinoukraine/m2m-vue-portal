@@ -130,6 +130,7 @@ export default {
           this.$store.commit('user/SET_NAME', response.FirstName + ' ' + response.SubName)
           this.$store.commit('user/SET_LANGUAGE', response.Language)
           this.$store.commit('user/SET_LOGIN', response.Account)
+          this.$store.commit('user/SET_ORG', response.OrganizeName)
         
           if(this.loginForm.Account == 'M2madmin' || this.loginForm.Account == 'm2madmin' || this.loginForm.Account == 'Root' || this.loginForm.Account == 'root'){
             this.$store.commit('user/SET_AVATAR', 'avatar.png')
@@ -150,7 +151,7 @@ export default {
           this.$store.commit('user/SET_LANGUAGE', test.Language)
       }*/
 
-      
+      console.log(response)
           this.$store.commit('user/SET_TOKEN', response.Token)
           setToken(response.Token)
 

@@ -15,6 +15,7 @@ const getDefaultState = () => {
     avatar: '',
     language: 'en',
     login: 'Root',
+    org: '',
     qtUserInfo: {}
   }
 }
@@ -30,6 +31,9 @@ const mutations = {
   },
   SET_NAME: (state, name) => {
     state.name = name
+  },  
+  SET_ORG: (state, org) => {
+    state.org = org
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar

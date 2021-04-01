@@ -1,5 +1,8 @@
 import Vue from 'vue'
 
+import ImageUploader from 'vue-image-upload-resize'
+Vue.use(ImageUploader);
+
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 import 'leaflet/dist/leaflet.css'
 import ElementUI from 'element-ui'

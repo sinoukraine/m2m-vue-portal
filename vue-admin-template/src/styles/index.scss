@@ -122,6 +122,10 @@ padding-bottom: 30px;
 .px-5{
   padding: 0 5px;
 }
+.px-20{
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
 .big-round{
   width: 30px;
   height: 30px;
@@ -157,6 +161,15 @@ div.square {
 }
 .el-button--primary:hover,.el-button--primary:active,.el-button--primary:focus{
   border-color: #32aee8;
+  background-color: #32aee8;
+}
+.el-tabs__item.is-active {
+  color: #32aee8;
+}
+.el-tabs__item:hover {
+  color: #32aee8;
+}
+.el-tabs__active-bar {
   background-color: #32aee8;
 }
 .dark-btn{

@@ -64,6 +64,7 @@ router.beforeEach(async(to, from, next) => {
     if(code != '00000000-0000-0000-0000-000000000000'){
       getRolesPermissionsAjax({code}).then(response => {
         getPermissionListAjax(null).then(async response_1 => {
+          console.log('debug code',response, response_1[0])
           Permission.ROOT = getPermissionStatus(response, response_1[0].Code)
           
           const firstLevelArray = response_1[0].Children
