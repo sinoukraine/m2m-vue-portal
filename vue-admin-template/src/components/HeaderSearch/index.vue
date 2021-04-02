@@ -134,7 +134,8 @@ export default {
       const arr = []
       this.simListQuery = {
         Rows: 5,
-        FromIMSI: query.padEnd(15, "0"),
+        //FromIMSI: query.padEnd(15, "0"),
+        q: query
       }
       fetchSIMListAjax(this.simListQuery).then(response => {
         response.rows.forEach(element => {
