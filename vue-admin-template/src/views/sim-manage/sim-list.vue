@@ -512,6 +512,7 @@
                 </el-col>
                 </el-row>
             </div>
+            
             <div class="content-divider"></div>
             <div class="padding-horizontal-x2 pt-10">
               <el-row :gutter="16" >
@@ -537,7 +538,7 @@
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusSuspended">{{ $t('SUSPENDED') }}</el-checkbox>
                   </el-col>
-                  <el-col :span="12">
+                  <!--<el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusActivated">{{ $t('ACTIVATED') }}</el-checkbox>
                   </el-col>
                   <el-col :span="12">
@@ -548,37 +549,61 @@
                   </el-col>
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusTestEnd">{{ $t('TEST_END') }}</el-checkbox>
-                  </el-col>
+                  </el-col>-->
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusTestProductive">{{ $t('TEST_PRODUCTIVE') }}</el-checkbox>
                   </el-col>
-                  <el-col :span="12">
+                  <!--<el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusAutoSuspended">AutoSuspended</el-checkbox>
                   </el-col>
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusReserved">Reserved</el-checkbox>
-                  </el-col>
+                  </el-col>-->
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusDeleted">Deleted</el-checkbox>
                   </el-col>
-                  <el-col :span="12">
+                  <!--<el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusPaused">Paused</el-checkbox>
                   </el-col>
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusLost">Lost</el-checkbox>
-                  </el-col>
+                  </el-col>-->
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusEuiccControl">EuiccControl</el-checkbox>
                   </el-col>
-                  <el-col :span="12">
+                  <!--<el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusDeleting">Deleting</el-checkbox>
                   </el-col>
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusPassive">Passive</el-checkbox>
+                  </el-col>-->
+                </el-row>
+                
+              </el-form-item>
+            </div>   
+            
+            <div class="content-divider"></div>
+            <div class="padding-horizontal-x2 pt-10">
+              <el-form-item :label="$t('CSP')" prop="title" class="">
+                <el-row :gutter="16" style="">
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MData" >M2M Data</el-checkbox>
+                  </el-col>
+                   <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataHigh" >M2M Data High</el-checkbox>
+                  </el-col> 
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataNormal" >M2M Data Normal</el-checkbox>
+                  </el-col>
+                 <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataEmergency">M2M Data Emergency</el-checkbox>
+                  </el-col>    
+                  <el-col :span="24">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataVodafoneAustralia" >M2M Data Vodafone Australia</el-checkbox>
                   </el-col>
                 </el-row>
               </el-form-item>
-            </div>        
+            </div>
         </el-form>
       </div>
     </el-aside>
@@ -679,6 +704,11 @@ export default {
       checkboxSearchStatusEuiccControl: false,
       checkboxSearchStatusDeleting: false,
       checkboxSearchStatusPassive: false,
+      checkboxSearchCSPM2MData: false,
+      checkboxSearchCSPM2MDataEmergency: false,
+      checkboxSearchCSPM2MDataNormal: false,
+      checkboxSearchCSPM2MDataHigh: false,
+      checkboxSearchCSPM2MDataVodafoneAustralia: false,      
       Permission,
       searchedOrganizeName: '',
       searchedFilterOrganizeName: '',
@@ -755,6 +785,7 @@ export default {
         Rows: 10,
         Order: 'ASC',
         Sort: 'IMSI',
+        //ServiceprofileCodes: ['M2M Data High CSP Z1-3', 'M2M Data']
       },
       //searchedStates: {
         //Productive: true,
@@ -1427,6 +1458,7 @@ export default {
       this.listQuery.MSISDNs = []
       this.listQuery.RAGs = []
       this.listQuery.Status = []
+      this.listQuery.ServiceprofileCodes = []
       
       this.checkboxSearchRAGg?this.listQuery.RAGs.push('GREEN'):null
       this.checkboxSearchRAGr?this.listQuery.RAGs.push('RED'):null
@@ -1449,6 +1481,12 @@ export default {
       this.checkboxSearchStatusDeleting?this.listQuery.Status.push('Deleting'):null
       this.checkboxSearchStatusPassive?this.listQuery.Status.push('Passive'):null
 
+      this.checkboxSearchCSPM2MData?this.listQuery.ServiceprofileCodes.push('M2M Data'):null
+      this.checkboxSearchCSPM2MDataEmergency?this.listQuery.ServiceprofileCodes.push('M2M Data Emergency CSP Z1- 9'):null
+      this.checkboxSearchCSPM2MDataNormal?this.listQuery.ServiceprofileCodes.push('M2M Data Normal CSP Z1 &2'):null
+      this.checkboxSearchCSPM2MDataHigh?this.listQuery.ServiceprofileCodes.push('M2M Data High CSP Z1-3'):null
+      this.checkboxSearchCSPM2MDataVodafoneAustralia?this.listQuery.ServiceprofileCodes.push('M2M Data Custom Network Profile Australia'):null
+      
       if(this.sIMSIs.length){
         str = this.sIMSIs.replace(/</g, "&lt;").replace(/>/g, "&gt;")
         arr = this.sIMSIs.split('\n')
