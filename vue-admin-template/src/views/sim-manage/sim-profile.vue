@@ -135,7 +135,7 @@
         border
         class="sms-table"
       >
-        <el-table-column label="Date" align="center" min-width="100px" >
+        <el-table-column label="Date (UTC)" align="center" min-width="100px" >
           <template slot-scope="{row}">
             <span>{{row.CreateTime}}</span>
           </template>
@@ -414,6 +414,7 @@ export default {
       ))
 
     return {
+        oldHistoryArray: [],
         Permission,
         tablePeriod: 'Today',
         tableData: 'data',
@@ -437,6 +438,7 @@ export default {
         title: 'EPCMMERealm',
         value: '',
       }],
+      page: 1,
       tableKey: 0,
       downloadLoading: false,
       isLoading: false,
@@ -941,12 +943,10 @@ export default {
     async showSMSUsage(){
       let self = this
       this.isLoading = true
-      /*const query = {
-        imsi: this.$route.params.id
-      }*/
 
-              
-          getHistoryAjax({
+      this.getHistory()
+          
+          /*getHistoryAjax({
 						"IMSI": this.$route.params.id,
 						"PAGE": "1",
 						"pagesize": "100",
@@ -967,23 +967,74 @@ export default {
               self.smsFormVisible = true
               self.isLoading = false
             },5000)
-          })/*.fail(function (e){
-            self.smsFormVisible = false
-            self.isLoading = false
-            
-            self.smsFormVisible = true
-            self.smsUsageList = []
-            return
           })*/
-        /*const response = await getSMSHistoryAsync(query).catch(e=>{
-        this.smsFormVisible = false
-        this.isLoading = false
-        
-        this.smsFormVisible = true
-        this.smsUsageList = []
-        return
-      })
-      */
+    },
+    getHistory(){
+      let self = this
+
+      getHistoryAjax({
+						"IMSI": this.$route.params.id,
+						"PAGE": this.page,
+						"pagesize": "100",
+					  }).then(response => {   
+              if (response.MajorCode == '000') {
+                if (response.Data.length) {
+                  let historyArray = response.Data
+                  
+                  if(self.page > 1){
+                      self.oldHistoryArray= self.oldHistoryArray.concat(historyArray);
+                    }else{
+                      self.isLoading = true
+                      self.oldHistoryArray= historyArray;													
+                    }
+                      let incr = self.page + 1;
+                      
+                      self.page = incr
+                      
+                      self.getHistory()
+                  }else{
+                    if(self.oldHistoryArray.length > 0){
+                      self.oldHistoryArray.sort(function(a,b){
+                        var c = new Date(a.CreateTime);
+                        var d = new Date(b.CreateTime);
+                        return d-c;
+                      });
+                      //self.setHistory(self.oldHistoryArray)
+
+                      let renderArr = self.oldHistoryArray.map(el => ({...el, CreateTime: el.CreateTime.slice(0,19).replace('T', ' '), CenterNumber: el.CenterNumber.toString(), Direction: el.Direction==2?'Outbound':'Inbound', State: el.State==0?'Error':el.State==1?'Sent':el.State==2?'Submitted':el.State==3?'Delivered':'Received'}))
+            
+                      self.smsUsageList = renderArr 
+                      console.log('OKKK-his',self.smsUsageList) 
+                      setTimeout(() => {
+                        self.smsFormVisible = true
+                        self.isLoading = false
+                      },5000)
+
+                    }else{
+                      self.smsFormVisible = true
+                      self.isLoading = false
+                      //self.requestCommandOldHistory([])
+                    }
+                  }
+              }else{
+                
+                      self.smsFormVisible = true
+                      self.isLoading = false
+              }
+
+              /*let sortedArr = concatArr.sort(function(a,b){
+                var c = new Date(a.CreateTime)
+                var d = new Date(b.CreateTime)
+                return d-c
+              })
+              self.setHistory(sortedArr) */      
+              
+          }).catch(e=>{
+            
+                      self.smsFormVisible = true
+                      self.isLoading = false
+          })
+              
     },
     showHLR(){
       this.isLoading = true

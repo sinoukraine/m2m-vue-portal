@@ -220,6 +220,8 @@ export default {
   name: 'App',
   data() {
     return {     
+      page: 1,
+      oldHistoryArray: [],
       Permission, 
       isLoading: false,
       fullPage: true,      
@@ -472,26 +474,23 @@ export default {
     },
     getHistory(){     
       let i = 0
+      this.oldHistoryArray = []
+      
       let concatArr = []
       this.deviceList.forEach(async (element, index, arr) => {
+        
+        this.page = 1
+
         if(this.deviceList[index].state) {
-          const query = {
-            imsi: this.deviceList[index].name
-          } 
           
-          let self = this
+          
+          this.getFullHistory(this.deviceList[index].name)
+          /*let self = this
           getHistoryAjax({
 						"IMSI":  query.imsi,
 						"PAGE": "1",
 						"pagesize": "100",
 					  }).then(response => {
-					//$.ajax(settings).done(function (response) {           
-            /*let sortedArr = response.Data.sort(function(a,b){
-              let c = new Date(a.CreateTime)
-              let d = new Date(b.CreateTime)
-              return d-c
-            })
-            console.log('OKKK-his',sortedArr) */
             concatArr = concatArr.concat(response.Data)
             i++
             if(i == arr.length) {
@@ -503,13 +502,80 @@ export default {
               })
               self.setHistory(sortedArr.reverse())       
             }
-          })
-          /*~~~const response = await getSMSHistoryAsync(query).catch(e=>[])
-          if (response.data) {
-            concatArr = concatArr.concat(response.data)          						
-          }*/        
+          })*/
+
         }
       })
+    },
+    getFullHistory(imsi){
+      let self = this
+
+      const query = {
+        imsi
+      } 
+      
+      getHistoryAjax({
+						"IMSI": imsi,
+						"PAGE": this.page,
+						"pagesize": "100",
+					  }).then(response => {   
+              if (response.MajorCode == '000') {
+                if (response.Data.length) {
+                  let historyArray = response.Data
+                  
+                  if(self.page > 1){
+                      self.oldHistoryArray= self.oldHistoryArray.concat(historyArray);
+                    }else{
+                      //self.isLoading = true
+                      self.oldHistoryArray= historyArray;													
+                    }
+                      let incr = self.page + 1;
+                      
+                      self.page = incr
+                      
+                      self.getFullHistory(imsi)
+                  }else{
+                    if(self.oldHistoryArray.length > 0){
+                      self.oldHistoryArray.sort(function(a,b){
+                        var c = new Date(a.CreateTime);
+                        var d = new Date(b.CreateTime);
+                        return d-c;
+                      });
+                      //self.setHistory(self.oldHistoryArray)
+
+                      //let renderArr = self.oldHistoryArray.map(el => ({...el, CreateTime: el.CreateTime.slice(0,19).replace('T', ' '), CenterNumber: el.CenterNumber.toString(), Direction: el.Direction==2?'Outbound':'Inbound', State: el.State==0?'Error':el.State==1?'Sent':el.State==2?'Submitted':el.State==3?'Delivered':'Received'}))
+            
+                      //self.smsUsageList = renderArr 
+                      //self.isLoading = true
+                      /*let sortedArr = concatArr.sort(function(a,b){
+                        var c = new Date(a.CreateTime)
+                        var d = new Date(b.CreateTime)
+                        return d-c
+                      })*/
+                      self.setHistory(self.oldHistoryArray.reverse()) 
+
+                      console.log('OKKK-his',self.oldHistoryArray) 
+                     
+
+                    }else{
+                      self.isLoading = false
+                    }
+                  }
+              }else{     
+                      self.isLoading = false           
+              }
+
+              /*let sortedArr = concatArr.sort(function(a,b){
+                var c = new Date(a.CreateTime)
+                var d = new Date(b.CreateTime)
+                return d-c
+              })
+              self.setHistory(sortedArr) */      
+              
+          }).catch(e=>{     
+                      self.isLoading = false     
+          })
+              
     },
     setHistory(arr){
       arr.forEach(value => {

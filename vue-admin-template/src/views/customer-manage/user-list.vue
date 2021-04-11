@@ -334,6 +334,7 @@ export default {
         SubName: '',
         Mobile: '',
         Account: '',
+        IncludeSelf: true
       },
       //importanceOptions: ['Event'],
       //calendarTypeOptions,
@@ -392,7 +393,7 @@ export default {
     //this.getOSPAdditionalInfo()
     this.getList()
     //this.getOrganisationsList()
-    this.getOrganisationRoles()
+    //this.getOrganisationRoles()
 
   },
   computed: {
@@ -434,6 +435,9 @@ export default {
       this.searchedOrganizeCreate = val
       this.searchedOrganizeName = val.Name
       this.temp.OrganizeCode = val.Code
+      
+      //this.temp.RoleCode = ''
+      this.getOrganisationRoles()
     },
 
 
@@ -477,12 +481,15 @@ export default {
       })
     },
     async getOrganisationRoles(){
-      //if(!token) {
-        const token = getToken()
-      //}token = this.$store.getters.userInfo.Token
-      fetchRoleListAjax({token}).then(response => {        
-        this.roleTypeOptions = sortArrayByObjProps(response, [{prop:'Name', direction: 1}])
-      })
+      const token = getToken()
+      console.log('set roles?')
+      fetchCustomersListAjax({Code:this.temp.OrganizeCode}).then(response => {
+        let maxRole = response.rows[0].ServiceProfileCode
+        fetchRoleListAjax({token}).then(response_1 => {  
+          let filteredOptions = response_1.filter(el=>el.Code>=maxRole)      
+          this.roleTypeOptions = sortArrayByObjProps(filteredOptions, [{prop:'Name', direction: 1}])
+        })
+      })      
     },
     /*async getOrganisationsList(){
       let query = {
@@ -524,6 +531,7 @@ export default {
       this.handleFilter()
     },*/
     resetTemp() {
+      this.roleTypeOptions = []
       this.searchedOrganizeCreate = null
       this.temp = {
         //GroupCode: '',
@@ -551,6 +559,9 @@ export default {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.Organize = this.organizeOptions.find(el=>el.Code = this.temp.OrganizeCode)
      // this.temp.timestamp = new Date(this.temp.timestamp)
+
+     this.getOrganisationRoles()
+
       this.dialogStatus = 'update'
       this.isDialogFormVisible = true
       this.$nextTick(() => {
