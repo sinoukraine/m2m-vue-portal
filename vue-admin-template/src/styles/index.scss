@@ -571,6 +571,13 @@ div:focus {
 
 }
 
+.el-table--border::after, .el-table--group::after, .el-table::before {
+  background-color: transparent;
+}
+
+.border-bottom{
+  border-bottom: 1px solid #e3e3e3;
+}
 
 .bg-white .el-dialog {
   background-color: #ffffff !important;
