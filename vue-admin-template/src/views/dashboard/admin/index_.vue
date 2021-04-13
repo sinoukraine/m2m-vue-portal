@@ -463,7 +463,7 @@ export default {
       let self = this
       
       const query = {
-        'UsageReportType': pref_1 + pref_2,
+        'ReportType': pref_1 + pref_2,
         'sort': sort,
         'order': 'desc' 
       }

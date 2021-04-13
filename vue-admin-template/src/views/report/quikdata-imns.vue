@@ -737,7 +737,7 @@ export default {
       let self = this
 
       fetchSIMListAjax({
-          'UsageReportType': pref_1 + pref_2,
+          'ReportType': pref_1 + pref_2,
           'sort': sort,
           'order': 'desc' 
         }).then(response => {

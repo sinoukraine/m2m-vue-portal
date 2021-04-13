@@ -103,8 +103,7 @@
                                 </div>
                             </div>
                         <!--</el-form-item>-->
-                        
-                        <div v-if="manageType=='list'">                            
+                                              
                             <el-table
                                 v-loading="isListLoading"
                                 :data="paramList"
@@ -119,7 +118,9 @@
                                 </el-table-column>
                                 <el-table-column :label="'Type'" align="right" min-width="60px">
                                 <template  slot-scope="{row}">
-                                    <el-input v-model="row.Type" class="edit-input" size="small" />  
+                                    <el-select size="small" v-model="row.Type" class="filter-item w-100" placeholder="Please select">
+                                      <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
+                                    </el-select>
                                 </template>
                                 </el-table-column>
                                 <el-table-column :label="'Default'" align="right" min-width="60px">
@@ -135,7 +136,6 @@
                                 </template>
                                 </el-table-column>
                             </el-table>
-                        </div>
                     </el-col>
                 </el-row>
             </el-form>
@@ -238,7 +238,7 @@ export default {
   data() {
     return {
         manageType: 'list',
-        paramList: [{'Name':'Test Param1','Type':'Text', 'Default':'400'},{'Name':'Test Param2','Type':'Number', 'Default':'600'}],
+        paramList: [],//[{'Name':'Test Param1','Type':'Text', 'Default':'400'},{'Name':'Test Param2','Type':'Number', 'Default':'600'}],
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       tableKey: 0,
@@ -256,6 +256,11 @@ export default {
         Mobile: '',
         Name: '',
       },
+      typeOptions: [
+        {'code':'TEXT','name':'TEXT'},
+        {'code':'NUMBER','name':'NUMBER'},
+        {'code':'LIST','name':'LIST'}
+      ],
       //importanceOptions: ['Event'],
       //calendarTypeOptions,
       //sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
@@ -471,7 +476,7 @@ export default {
       }
     },    
     handleCreateParam() {
-        this.paramList.push({'Name':'','Type':'', 'Default':''})        
+        this.paramList.push({'Name':'','Type':'TEXT', 'Default':''})        
     },
     handleCreate() {
       this.resetTemp()
@@ -488,9 +493,11 @@ export default {
       this.temp = Object.assign({}, row) // copy obj
       this.dialogStatus = 'update'
 
-      this.paramList = [{'Name':'Test Param1','Type':'Text', 'Default':'400'},{'Name':'Test Param2','Type':'Number', 'Default':'600'}],
+      this.paramList = [
+        {'Name':'Test Param1','Type':'TEXT', 'Default':'400'},
+        {'Name':'Test Param2','Type':'NUMBER', 'Default':'600'}
+      ],
       
-
       this.isDialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
