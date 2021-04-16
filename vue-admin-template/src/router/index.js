@@ -183,13 +183,13 @@ export const constantRoutes = [
         component: () => import('@/views/report/quikdata-imns'),
         meta: { title: 'QuikData IMNS', icon: 'reports' }
       },
-      {
+      /*{
         path: 'imns-activity',
         name: 'IMNS Activity',
         component: () => import('@/views/report/imns-activity'),
         meta: { title: 'IMNS Activity', icon: 'reports' }
       },
-      /*{
+      {
         path: 'sms-activity',
         name: 'SMS Activity',
         component: () => import('@/views/report/sms-activity'),

@@ -581,4 +581,69 @@ export function fetchServiceProfileOptionsAjax(query) {
   })
 }
 
+export function getCommandsTemplatesListAsync(query) {
+  var options = {
+    "url": API_METHODS.COMMANDS_GET_TEMPLATES,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function createTemplateAjax(query) {
+  var options = {
+    "url": API_METHODS.COMMANDS_ADD_TEMPLATE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) { 
+      console.log('response',response)   
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function updateTemplateAjax(query) {
+  var options = {
+    "url": API_METHODS.COMMANDS_EDIT_TEMPLATE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) { 
+      console.log('response',response)   
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+export function deleteTemplateAjax(query) {
+  var options = {
+    "url": API_METHODS.COMMANDS_DELETE_TEMPLATE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) { 
+      console.log('response',response)   
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+
 

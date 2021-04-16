@@ -50,7 +50,12 @@ export const API_METHODS = {
   CUSTOMER_DELETE: DOMAIN1 + 'service/Organize/Remove',
 
   TEMPLATE_GET_LIST: DOMAIN1 + 'service/CommandTemplate/Attributes',
-  
+
+  COMMANDS_GET_TEMPLATES: DOMAIN1 + 'Service/SMSTemplate/Query',
+  COMMANDS_ADD_TEMPLATE: DOMAIN1 + 'Service/SMSTemplate/Add',
+  COMMANDS_EDIT_TEMPLATE: DOMAIN1 + 'Service/SMSTemplate/Edit',
+  COMMANDS_DELETE_TEMPLATE: DOMAIN1 + 'Service/SMSTemplate/Remove',
+
   PERMISSIONS_GET_LIST: DOMAIN2 + 'service/Permission/Query',
   PERMISSIONS_CREATE: DOMAIN2 + 'service/Permission/Add',
   PERMISSIONS_EDIT: DOMAIN2 + 'service/Permission/Edit',

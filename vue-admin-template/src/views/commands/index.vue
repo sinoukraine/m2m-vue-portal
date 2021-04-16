@@ -38,19 +38,14 @@
                     <span>{{ row.Name }}</span>
                 </template>
                 </el-table-column>
-                <el-table-column label="Format" min-width="120px" align="center" sortable="custom" prop="Format">
+                <el-table-column label="Content" min-width="120px" align="center" sortable="custom" prop="Content">
                 <template slot-scope="{row}">
-                    <span>{{ row.Format }}</span>
+                    <span>{{ row.Content }}</span>
                 </template>
                 </el-table-column>
-                <!--<el-table-column label="Organize Code" min-width="140px" align="center" sortable="custom" prop="OrganizeCode">
+                <el-table-column label="Organize Code" min-width="140px" align="center" sortable="custom" prop="OrganizeCode">
                 <template slot-scope="{row}">
-                    <span>{{ row.CreateOrganizeCode }}</span>
-                </template>
-                </el-table-column>-->
-                <el-table-column label="Product" min-width="160px" align="center" sortable="custom" prop="Product">
-                <template slot-scope="{row}">
-                    <span>{{ row.Product }}</span>
+                    <span>{{ row.OrganizeCode }}</span>
                 </template>
                 </el-table-column>
                 <el-table-column label="Actions" align="center" width="180" class-name="small-padding fixed-width" fixed="right">
@@ -73,11 +68,6 @@
             <el-form ref="dataForm" :rules="rules" :model="temp" label-position="top" label-width="70px" @submit.native.prevent="onEditFormSubmit">
                 <input type="submit" class="display-none" >
 
-                <el-row v-if="dialogStatus !== 'create'" :gutter="16" >
-                    <el-col :xs="24" :sm="24" class="text-right">
-                    </el-col>
-                </el-row>
-
                 <el-row :gutter="16">
                     <el-col :xs="24" :sm="24">
                         <el-form-item label="Name" prop="Name">
@@ -86,56 +76,59 @@
                     </el-col>   
                     
                     <el-col :xs="24" :sm="24">            
-                        <el-form-item :label="'Format'" prop="Format">                
-                            <el-input type="textarea" v-model="temp.Format" placeholder="Format" class="filter-item" />
+                        <el-form-item :label="'Format'" prop="Content">                
+                            <el-input type="textarea" v-model="temp.Content" placeholder="Format" class="filter-item" />
                         </el-form-item>
                     </el-col>
 
-                    <el-col  :title="'Parametrs'" :xs="24" :sm="24">
-                        <!--<el-form-item label="Parametrs" prop="Parametrs">-->
-                            <div class="display-flex justify-content-between border-bottom">
-                                <div class="buttons-row">
-                                </div>
-                                <div class="buttons-row white-space-nowrap">
-                                <el-button v-if="manageType=='list'" class="filter-item button-custom blue-btn mt-10" type="primary" @click="handleCreateParam">
-                                    <item :icon="'create-white'"/> 
-                                </el-button>
-                                </div>
-                            </div>
-                        <!--</el-form-item>-->
-                                              
-                            <el-table
-                                v-loading="isListLoading"
-                                :data="paramList"
-                                :default-sort = "{prop: 'Name', order: 'ascending'}"                                
-                                fit
-                                style="width: 100%;box-shadow:none"
-                            >
-                                <el-table-column :label="'Name'" align="left" min-width="100px">
-                                <template  slot-scope="{row}">
-                                    <el-input v-model="row.Name" class="edit-input" size="small" />  
-                                </template>
-                                </el-table-column>
-                                <el-table-column :label="'Type'" align="right" min-width="60px">
-                                <template  slot-scope="{row}">
-                                    <el-select size="small" v-model="row.Type" class="filter-item w-100" placeholder="Please select">
-                                      <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
-                                    </el-select>
-                                </template>
-                                </el-table-column>
-                                <el-table-column :label="'Default'" align="right" min-width="60px">
-                                <template  slot-scope="{row}">
-                                    <el-input v-model="row.Default" class="edit-input" size="small" /> 
-                                </template>
-                                </el-table-column>
-                                <el-table-column :label="''"  align="right" width="70px">
-                                <template  slot-scope="{row,$index}"> 
-                                    <el-button size="mini" type="danger" @click="handleDeleteParam(row,$index)">
-                                    <i class="el-dialog__close el-icon el-icon-close"></i>
-                                    </el-button>
-                                </template>
-                                </el-table-column>
-                            </el-table>
+                    <el-col  :title="'Parameters'" :xs="24" :sm="24">
+                      <div class="display-flex justify-content-between border-bottom">
+                          <div class="buttons-row">
+                          </div>
+                          <div class="buttons-row white-space-nowrap">
+                          <el-button v-if="manageType=='list'" class="filter-item button-custom blue-btn mt-10" type="primary" @click="handleCreateParam">
+                              <item :icon="'create-white'"/> 
+                          </el-button>
+                          </div>
+                      </div>
+                                        
+                      <el-table
+                          v-loading="isListLoading"
+                          :data="paramList"
+                          :default-sort = "{prop: 'Name', order: 'ascending'}"                                
+                          fit
+                          style="width: 100%;box-shadow:none"
+                      >
+                          <el-table-column :label="'№'" align="left" min-width="50px">   
+                            <template  slot-scope="{row,$index}">
+                              <span>{{$index}}</span>                             
+                            </template>
+                          </el-table-column>
+                          <el-table-column :label="'Name'" align="left" min-width="100px">                          
+                          <template  slot-scope="{row}">
+                              <el-input v-model="row.Name" class="edit-input" size="small" />  
+                          </template>
+                          </el-table-column>
+                          <el-table-column :label="'Type'" align="right" min-width="60px">
+                          <template  slot-scope="{row}">
+                              <el-select size="small" v-model="row.Type" class="filter-item w-100" placeholder="Please select">
+                                <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
+                              </el-select>
+                          </template>
+                          </el-table-column>
+                          <el-table-column :label="'Default'" align="right" min-width="60px">
+                          <template  slot-scope="{row}">
+                              <el-input v-model="row.Default" class="edit-input" size="small" /> 
+                          </template>
+                          </el-table-column>
+                          <el-table-column :label="''"  align="right" width="70px">
+                          <template  slot-scope="{row,$index}"> 
+                              <el-button size="mini" type="danger" @click="handleDeleteParam(row,$index)">
+                              <i class="el-dialog__close el-icon el-icon-close"></i>
+                              </el-button>
+                          </template>
+                          </el-table-column>
+                      </el-table>
                     </el-col>
                 </el-row>
             </el-form>
@@ -179,20 +172,15 @@
           <div class="padding-horizontal-x2 pb-3">
                 
                 <input type="submit" class="display-none">
-                <el-row :gutter="16">
+                <!--<el-row :gutter="16">
                 <el-col :xs="100" class="px-0">
                     <el-form-item label="Name" prop="q" class="no-margin-bottom">
                     <el-input v-model="listQuery.q" placeholder="Name" class="filter-item" />
                     </el-form-item>
-                </el-col><!--
+                </el-col>
                 <el-col :xs="100" class="px-0">
-                    <el-form-item label="Code" prop="code" class="no-margin-bottom">
-                    <el-input v-model="listQuery.Code" placeholder="Organize Code" class="filter-item" />
-                    </el-form-item>
-                </el-col>-->
-                <el-col :xs="100" class="px-0">
-                    <el-form-item label="Format" prop="name" class="no-margin-bottom">
-                    <el-input v-model="listQuery.Name" placeholder="Format" class="filter-item" />
+                    <el-form-item label="Content" prop="name" class="no-margin-bottom">
+                    <el-input v-model="listQuery.Name" placeholder="Content" class="filter-item" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100"  class="px-0">
@@ -200,7 +188,7 @@
                     <el-input v-model="listQuery.Number" placeholder="Product" class="filter-item" />
                     </el-form-item>
                 </el-col>                
-                </el-row>
+                </el-row>-->
             </div>
         </el-form>
       </div>
@@ -215,12 +203,11 @@ import { mapGetters } from 'vuex'
 
 import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
-import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
+import { StatusList, LanguageList, TimeZoneList, DateTimeContentList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
 //import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchTemplatesList, createTemplate, updateTemplate, deleteTemplate, fetchServiceProfileList, changeOrgState } from "@/api/user";
+import { getCommandsTemplatesListAsync, createTemplateAjax, updateTemplateAjax, deleteTemplateAjax } from "@/api/user";
 //import { fetchRoleList } from "@/api/role-managment";
 import Item from '@/layout/components/Sidebar/Item'
-import { getCommandsListAsync } from "@/api/sim";
 
 export default {
   name: 'Templates',
@@ -269,7 +256,7 @@ export default {
       statusTypeOptions: StatusList,
       languageOptions: LanguageList,
       timeZoneOptions: TimeZoneList,
-      dateTimeFormatOptions: DateTimeFormatList,
+      dateTimeContentOptions: DateTimeContentList,
       countyOptions: CountyList,
       distanceUnitOptions: DistanceUnitList,
       economyUnitOptions: EconomyUnitList,
@@ -277,21 +264,10 @@ export default {
       temperatureUnitOptions: TemperatureUnitList,
       pressureUnitOptions: PressureUnitList,
       roleTypeOptions: [],
-      parentOptions: [],
-      countryOptions: [],
-      //provinceOptions: [],
-      //cityOptions: [],
-      serviceProfileOptions: [],
-      webSiteOptions: [],
-      temp: {       
-        Language: LanguageList.find(e=>e.Code==='EN'),
-        TimeZoneCode: TimeZoneList[0],
-        DateTimeFormat: DateTimeFormatList[0],
-        DistanceUnit: DistanceUnitList[0],
-        EconomyUnit: EconomyUnitList[0],
-        VolumeUnit: VolumeUnitList[0],
-        TemperatureUnit: TemperatureUnitList[0],
-        PressureUnit: PressureUnitList[0],
+      temp: { 
+        Name: '',
+        Content: '',
+        Parameters: ''
       },
       isDialogFormVisible: false,
       isFormLoading: false,
@@ -306,7 +282,7 @@ export default {
       //pvData: [],
       rules: {
         Name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
-        Format: [{ required: true, message: 'Format is required', trigger: 'blur' }],
+        Content: [{ required: true, message: 'Content is required', trigger: 'blur' }],
         SubName: [{ required: true, message: 'Last Name is required', trigger: 'blur' }],
         Account: [{ required: true, message: 'Account is required', trigger: 'blur' }],
         Email: [
@@ -328,60 +304,51 @@ export default {
   },
   created() {
     this.getList()
-    //this.getParentsList()
-    //this.getCityOptions()
-    //this.getProvinceOptions()
-    //this.getCountryOptions()
-    //this.getServiceProfileOptions()
-    //this.getWebSiteOptions()
-    //this.getLanguageOptions()
-    //this.getTimeZoneOptions()
-    //this.getDateTimeFormatOptions()
-    //this.getParentRoles()
   },
   computed: {
     ...mapGetters(['userInfo'])
   },
   methods: {
     async manageParams(params) {  
-        console.log(params)
+        
     },
     async getList() {
       /*this.total = 10
       this.list = [{
         Code: '0',
         Name: 'Location',
-        Format: '\r\nSERVER,QUIKTRAK.CO,40500#\r\nAPN,M2MDATA,,#"',
-        Parametrs: [],
+        Content: '\r\nSERVER,QUIKTRAK.CO,40500#\r\nAPN,M2MDATA,,#"',
+        Parameters: [],
         CreateOrganizeCode: ''
       }]
       this.isListLoading = false*/
-      this.total = 20
-      getCommandsListAsync().then(response => {
-      //console.log('8',response)
-      if(response.length)
-      {	
-        const arr = []
-        response.forEach(el => {
-            el.CommandList.forEach(el1 => {
-                arr.push({
-                    Code: el1.Code,
-                    Name: el1.Name,
-                    Format: el1.Format,
-                    Parametrs: el1.Params,
-                    CreateOrganizeCode: '',
-                    Type: el1.Type,
-                    Product: el.ProductName
-                })
+      getCommandsTemplatesListAsync().then(response => {
+        if(response.length)
+        {	
+          const arr = []
+          response.forEach(el => {
+            //el.CommandList.forEach(el1 => {
+            arr.push({
+                Code: el.Code,
+                Name: el.Name,
+                Content: el.Content,
+                Parameters: el.Parameters,
+                OrganizeCode: el.OrganizeCode,
             })
-        })
-        arr.length = 20
-        this.list = arr
-        console.log(this.list)
-        this.$nextTick(()=>{
+            //})
+          })
+
+          this.total = 20
+          this.list = arr
+          this.$nextTick(()=>{
+            this.isListLoading = false
+          })
+        }else{          
+            this.isListLoading = false
+        }
+      }).catch(e=>{        
           this.isListLoading = false
-        })
-      }
+          console.error(e)
       })
     },
     /*async getParentRoles(token){
@@ -400,79 +367,15 @@ export default {
         Code: this.userInfo.OrganizeCode
       }]
     },*/
-    async getCountryOptions(){
-      this.countryOptions = CountyList
-    },
-    /*async getProvinceOptions(){
-      this.provinceOptions = [{
-        Name: 'Kyv',
-        Code: 'Kyv'
-      }]
-    },
-    async getCityOptions(){
-      this.cityOptions = [{
-        Name: 'Kyiv',
-        Code: '000'
-      }]
-    },*/
-    async getWebSiteOptions(){
-      this.webSiteOptions = [{
-        Name: 'new.m2mdata.co',
-        Code: '1'
-      }]
-    },
-    async getServiceProfileOptions(){
-      const response = await fetchServiceProfileList()
-      if(!response){
-        return
-      }
-      this.serviceProfileOptions = response/*
-      this.serviceProfileOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }]*/
-    },    
-    async getLanguageOptions(){      
-      this.languageOptions = LanguageList
-    },
-    async getTimeZoneOptions(){      
-      this.timeZoneOptions = TimeZoneList
-    },
-    async getDateTimeFormatOptions(){      
-      this.dateTimeFormatOptions = DateTimeFormatList
-    },
     handleFilter() {
       this.listQuery.Page = 1
       this.getList()
     },
-    sortChange(data) {
-      const { prop, order } = data
-      this.listQuery.Order = order === 'ascending' ? 'ASC' : (order === 'descending') ? 'DESC' : ''
-      //this.listQuery.Order = order === 'ascending' ? 'ASC' : 'DESC'
-      this.listQuery.Sort = prop
-      this.getList()
-      /*if (prop === 'id') {
-        this.sortByID(order)
-      }*/
-    },
-    /*sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },*/
     resetTemp() {
       this.temp = {        
-        Language: LanguageList.find(e=>e.Code==='EN'),
-        TimeZoneCode: TimeZoneList[0],
-        DateTimeFormat: DateTimeFormatList[0],
-        DistanceUnit: DistanceUnitList[0],
-        EconomyUnit: EconomyUnitList[0],
-        VolumeUnit: VolumeUnitList[0],
-        TemperatureUnit: TemperatureUnitList[0],
-        PressureUnit: PressureUnitList[0],
+        Name: '',
+        Content: '',
+        Parameters: ''
       }
     },    
     handleCreateParam() {
@@ -492,11 +395,12 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.dialogStatus = 'update'
+      //console.log('get',this.temp)
 
-      this.paramList = [
+      /*this.paramList = [
         {'Name':'Test Param1','Type':'TEXT', 'Default':'400'},
         {'Name':'Test Param2','Type':'NUMBER', 'Default':'600'}
-      ],
+      ],*/
       
       this.isDialogFormVisible = true
       this.$nextTick(() => {
@@ -507,53 +411,110 @@ export default {
         this.paramList.splice(index, 1)
     },
     async handleDelete(row, index) {
-    this.$notify({
-        title: 'Success',
-        message: 'Deleted Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-      /*let response = await deleteTemplate({ Code: row.Code })
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'Deleted Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-
-      this.parentOptions = [{
-        Name: this.userInfo.OrganizeName,
-        Code: this.userInfo.OrganizeCode
-      }].concat(this.list)*/
-    },
-    onEditFormSubmit(){
-        this.$refs['dataForm'].validate(async (valid) => {
-        if (!valid){
-          return false
-        }
-        this.isDialogFormVisible = false
+      deleteTemplateAjax({ Code: row.Code }).then(response => {        
         this.$notify({
           title: 'Success',
-          message: this.dialogStatus === 'create' ? 'Created Successfully' : 'Updated Successfully',
+          message: 'Deleted Successfully',
           type: 'success',
           duration: 2000
         })
-        })
-      /*let tempData = Object.assign({}, this.temp)
+        this.list.splice(index, 1)
+      })
+    },
+    onEditFormSubmit(){
+      //Params: '[{"Name":"ACC ON INTERVAL","Prams":"600","DataType":"number"},{"Name":"ACC OFF INTERVAL","Prams":"60","DataType":"number"},{"Name":"TURNING","Prams":"20","DataType":"number"}]'
+      let str = ''
+      this.paramList.forEach((element, index) => {
+        if(element.Name.length){
+          str += '{"Name":' + element.Name + '","Prams":' + element.Default + '","DataType":"' + element.Type + '"}'
+          index < this.paramList.length - 1 ? str += ',':''
+         }
+      });
+      if(str.length) this.temp.Parameters = `[${str}]`
+
+      this.temp.Content = this.temp.Content.replace(/↵/g, '\\n')
+
+      let tempData = Object.assign({}, this.temp)
       this.$refs['dataForm'].validate(async (valid) => {
         if (!valid){
           return false
-        }
+        }      
+
+        console.log(tempData)
         
         this.isFormLoading = true
-        let response = this.dialogStatus === 'create' ? await createTemplate(tempData) : await updateTemplate(tempData)
+        //let response = this.dialogStatus === 'create' ? await createTemplate(tempData) : await updateTemplate(tempData)
        
+        if(this.dialogStatus === 'create'){ 
+          
+          /*this.total = 10
+          this.list = [{
+            Code: '0',
+            Name: 'Location',
+            Content: '\r\nSERVER,QUIKTRAK.CO,40500#\r\nAPN,M2MDATA,,#"',
+            Parameters: [],
+            CreateOrganizeCode: ''
+          }]
+          this.isListLoading = false*/
+          
+          createTemplateAjax(tempData).then(response => {  
+            if(response.MajorCode == '000') {
+              this.resetTemp()
+              this.getList()
+              this.$notify({
+                title: 'Success',
+                message: 'Created Successfully',
+                type: 'success',
+                duration: 2000
+              })            
+              
+              this.isDialogFormVisible = false
+            }else{
+              this.$notify({
+                title: 'Error',
+                message: 'Incorrect data format',
+                type: 'error',
+                duration: 2000
+              })
+            }      
+          })
+        }else{
+          updateTemplateAjax(tempData).then(response => {  
+            if(response.MajorCode == '000') {
+              this.resetTemp()
+              this.getList()
+              this.$notify({
+                title: 'Success',
+                message: 'Updated Successfully',
+                type: 'success',
+                duration: 2000
+              })             
+              
+              this.isDialogFormVisible = false
+            }else{
+              this.$notify({
+                title: 'Error',
+                message: 'Incorrect data format',
+                type: 'error',
+                duration: 2000
+              })
+            }      
+          })
+          
+          /*updateCustomerAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Updated Successfully',
+              type: 'success',
+              duration: 2000
+            })          
+          })*/
+        }
+
         this.isFormLoading = false
+        /*this.isFormLoading = false
         if(!response){
           return
         }
@@ -566,53 +527,15 @@ export default {
           message: this.dialogStatus === 'create' ? 'Created Successfully' : 'Updated Successfully',
           type: 'success',
           duration: 2000
-        })
-      })*/
-    },
-    async onChangeState(state){
-      this.isChangeStateLoading = true;
-      let response = await changeOrgState({ Code: this.temp.Code, State: state })
-      this.isChangeStateLoading = false;
-      if(!response){
-        return
-      }
-      this.$notify({
-        title: 'Success',
-        message: 'State Changed Successfully',
-        type: 'success',
-        duration: 2000
+        })*/
       })
+    },    
+    sortChange(data) {
+      const { prop, order } = data
+      this.listQuery.Order = this.listQuery.Order === 'ASC' ? 'DESC' : this.listQuery.Order === 'DESC' ? 'ASC' : 'ASC' //order === 'ascending' ? 'ASC' : (order === 'descending') ? 'DESC' : 'ASC'
+      this.listQuery.Sort = prop
+      this.getList()
     },
-    /*onParentCodeChange(value){
-      this.getParentRoles(value)
-      //console.log(event)
-    },
-    onServiceProfileChange(value){ 
-    },
-    
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['key', 'type', 'zn', 'en', 'fr', 'pt', 'description']
-        const filterVal = ['key', 'type', 'zn', 'en', 'fr', 'pt', 'description']
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
-      })
-    },*/
-    /*formatJson(filterVal) {
-      return this.list.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
-          return parseTime(v[j])
-        } else {
-          return v[j]
-        }
-      }))
-    },*/
     getSortClass: function(key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'

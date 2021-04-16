@@ -783,8 +783,8 @@ export default {
       listQuery: {
         Page: 1,
         Rows: 10,
-        Order: 'ASC',
-        Sort: 'IMSI',
+        Order: 'DESC',
+        Sort: 'DataDay',
         //ServiceprofileCodes: ['M2M Data High CSP Z1-3', 'M2M Data']
       },
       //searchedStates: {

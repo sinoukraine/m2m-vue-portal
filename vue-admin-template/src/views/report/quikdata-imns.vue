@@ -67,11 +67,6 @@
                     <div class="font-12" style="padding: 0 15px;color:#606268">Limit (MB/day)</div>
                 </div> 
               </div>
-            <!--<line-chart
-              :chart-data="lineCollection"
-              :options="lineOptions"
-              max-height="250px"
-            ></line-chart>-->
             <div id="chart" class="sim-container">
               <apexchart type="line" :height="350" :options="chartOptions" :series="series" />
             </div>
@@ -101,133 +96,102 @@
             </div>
           </div>
         </div>
-
-        <!--<el-row style="background:#fff;margin:16px 16px 0;padding:16px 16px 0;margin-bottom:32px;" class="bar-chart-container">
-          !--<line-chart :chart-data="lineChartData" />
-          <apexchart type="bar" height="350" :options="chartOptions" :series="series"></apexchart>
-          <line-chart :chart-data="datacollection" horizontal :styles="barStyles" :options="barOptions" />--
-
-          <div v-if="isChartShown" id="chart">
-            <apexchart type="bar" :height="350" :options="chartOptions" :series="series" />
-          </div>
-        </el-row>-->
-
+<!--:data="displayData"
+            -->
         <div class="table-wrapper">
           <el-table
             :key="tableKey"
             v-loading="listLoading"
-            :data="displayData"
-
+            :data="list"
             fit
             highlight-current-row
             style="width: 100%;border-radius:5px"
             @sort-change="sortChange"
           >
-            <!--<el-table-column label="ID" prop="id" align="center" width="180px">
-          <template slot-scope="{row}">
-            <span>{{ row.code }}</span>
-          </template>
-        </el-table-column>-->
 
-            <el-table-column label="IMSI" fixed="left"  :class-name="getSortClass('imsi')" align="center" min-width="180px">
+            <el-table-column fixed="left" :label="$t('IMSI')"  sortable :class-name="getSortClass('IMSI')" prop="IMSI" align="center" width="130px">
               <template slot-scope="{row}">
                 <span class="sim-table-icon" @click="showSIMDetails(row)">{{ row.imsi }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Customer" :class-name="getSortClass('customer')" width="180px" align="center">
+            <el-table-column sortable :class-name="getSortClass('OrganizeName')" prop="OrganizeName" :label="$t('CUSTOMER')" align="left" min-width="100px">
               <template slot-scope="{row}">
                 <span>{{ row.customer }}</span>
               </template>
             </el-table-column>            
-            <el-table-column label="Service Profile" width="160px" align="center">
+            <el-table-column sortable :label="$t('SERVICEPROFILE')" :class-name="getSortClass('ServiceProfileCode')" prop="ServiceProfileCode" align="left" min-width="130px">
               <template slot-scope="{row}">
                 <span>{{ row.csp }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Data Usage(Daily)" width="160px" align="center">
+            <el-table-column label="Data Usage(Daily)" sortable :class-name="getSortClass('DataDay')" prop="DataDay" align="center" min-width="90px">
               <template slot-scope="{row}">
                 <span>{{ row.totald }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Data Usage(Weekly)" width="160px" align="center">
+            <el-table-column label="Data Usage(Weekly)"  sortable :class-name="getSortClass('DataWeek')" prop="DataWeek" align="center" min-width="100px">
               <template slot-scope="{row}">
                 <span>{{ row.totalw }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Data Usage(Monthly)" width="160px" align="center">
+            <el-table-column label="Data Usage(Monthly)"   sortable :class-name="getSortClass('DataMonth')" prop="DataMonth" align="center" min-width="99px">
               <template slot-scope="{row}">
                 <span>{{ row.totalm }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Data Usage(Yearly)" width="160px" align="center">
+            <el-table-column label="Data Usage(Yearly)"   sortable :class-name="getSortClass('DataYear')" prop="DataYear" align="center" min-width="90px">
               <template slot-scope="{row}">
                 <span>{{ row.totaly }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="SMS Usage(Daily)" width="160px" align="center">
+            <el-table-column label="SMS Usage(Daily)"  sortable :class-name="getSortClass('SMSMtDay')" prop="SMSMtDay" align="center" min-width="90px">
               <template slot-scope="{row}">
                 <span>{{ row.smsd }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="SMS Usage(Weekly)" width="160px" align="center">
+            <el-table-column label="SMS Usage(Weekly)" sortable :class-name="getSortClass('SMSMtWeek')" prop="SMSMtWeek" align="center" min-width="99px">
               <template slot-scope="{row}">
                 <span>{{ row.smsw }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="SMS Usage(Monthly)" width="160px" align="center">
+            <el-table-column label="SMS Usage(Monthly)" sortable :class-name="getSortClass('SMSMtMonth')" prop="SMSMtMonth" align="center" min-width="99px">
               <template slot-scope="{row}">
                 <span>{{ row.smsm }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="SMS Usage(Yearly)" width="160px" align="center">
+            <el-table-column label="SMS Usage(Yearly)"  sortable :class-name="getSortClass('SMSMtYear')" prop="SMSMtYear" align="center" min-width="90px">
               <template slot-scope="{row}">
                 <span>{{ row.smsy }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Sessions (Daily)" width="160px" align="center">
+            <el-table-column label="Sessions (Daily)" sortable :class-name="getSortClass('SessionDay')" prop="SessionDay" align="center" min-width="85px">
               <template slot-scope="{row}">
                 <span>{{ row.sessionsd }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Sessions (Weekly)" width="160px" align="center">
+            <el-table-column label="Sessions (Weekly)" sortable :class-name="getSortClass('SessionWeek')" prop="SessionWeek" align="center" min-width="92px">
               <template slot-scope="{row}">
                 <span>{{ row.sessionsw }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Sessions (Monthly)" width="160px" align="center">
+            <el-table-column label="Sessions (Monthly)" sortable :class-name="getSortClass('SessionMonth')" prop="SessionMonth" align="center" min-width="91px">
               <template slot-scope="{row}">
                 <span>{{ row.sessionsm }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="Sessions (Yearly)" width="160px" align="center">
+            <el-table-column label="Sessions (Yearly)" sortable :class-name="getSortClass('SessionYear')" prop="SessionYear" align="center" min-width="88px">
               <template slot-scope="{row}">
                 <span>{{ row.sessionsy }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="LastUpdate" width="160px" align="center">
+            <el-table-column label="LastUpdate(UTC)" sortable :class-name="getSortClass('DataUpdateTime')" prop="DataUpdateTime" align="left" min-width="90px">
               <template slot-scope="{row}">
                 <span>{{ row.lastUpdate }}</span>
               </template>
             </el-table-column>
-            <!--<el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width">
-              <template slot-scope="{row,$index}">
-                <el-button type="primary" size="mini" @click="handleUpdate(row)">
-                  Edit
-                </el-button>
-                <el-button v-if="row.Status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-                  Delete
-                </el-button>
-              </template>
-            </el-table-column> @current-change="handleCurrentChange"-->
-          </el-table>
+          </el-table>          
+          <pagination v-show="total>0" :total="total" :page.sync="listQuery.Page" :limit.sync="listQuery.Rows" @pagination="getList" />
         </div>
-
-        <!--<pagination v-show="total>0" 
-          :total="total" 
-          :page.sync="page"           
-        :page-size="limit"
-        />-->
-
       </el-main>
 
     </el-container>
@@ -246,31 +210,41 @@
         <el-form ref="listQuery" :model="listQuery" label-position="top" class="form-padding" @submit.native.prevent="handleFilter">
           <input :id="filterSubmitId" type="submit" class="display-none">
           <el-row :gutter="16" style="border-bottom: 0px solid #e3e3e3">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="" prop="title">                
-                <span class="label-span">Customer</span>
-                <el-select v-model="selectedCustomer" placeholder="Report"  class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in customerListOption" :key="item.code" :label="item.name" :value="item.code" />
+            <el-col :xs="100">
+                <el-form-item label="Organize" prop="OrganizeCode">
+                
+                <el-select
+                  ref="organizeSearchSelect2"
+                  v-model="searchedFilterOrganizeName"
+                  :remote-method="querySearchOrganize"
+                  filterable
+                  default-first-option
+                  clearable
+                  remote
+                  placeholder="Organize Name"
+                  class="organize-search-select"
+                  @change="changeFilterOrganize"
+                >
+                  <el-option v-for="item in organizeArr" :key="item.Code" :value="item" :label="item.Name" />
                 </el-select>
-              </el-form-item>
+                </el-form-item>
             </el-col>
           </el-row>
-          <!--<el-row :gutter="16" style="border-bottom: 1px solid #e3e3e3">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="" prop="title">
-                <span class="label-span">Start date</span>
-                <el-date-picker v-model="listQuery.date1" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-                <span class="label-span">End date</span>
-                <el-date-picker v-model="listQuery.date2" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-              </el-form-item>
-            </el-col>
-          </el-row>-->
           <el-row :gutter="16" style="">
             <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <!--<el-form-item label="" prop="title">
-                
-              </el-form-item>-->
+
               <el-form-item label="" prop="title">
+                <span class="label-span">Period</span>
+                <el-select v-model="selectedPeriod" placeholder="Period" clearable class="filter-item w-100" style="width: 100%;">
+                  <el-option v-for="item in periodOptions" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
+                <span class="label-span">Ordering by</span>
+                <el-select v-model="selectedType" placeholder="Order"  class="filter-item w-100" style="width: 100%;">
+                  <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
+              </el-form-item>
+
+              <!--<el-form-item label="" prop="title">
                 <span class="label-span">Sorting type</span>
                 <el-select v-model="selectedOrder" placeholder="SIM"  class="filter-item w-100" style="width: 100%;">
                   <el-option v-for="item in orderOptions" :key="item.code" :label="item.name" :value="item.code" />
@@ -283,7 +257,7 @@
                 <el-select v-model="selectedType" placeholder="Order"  class="filter-item w-100" style="width: 100%;">
                   <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>
-              </el-form-item>
+              </el-form-item>-->
             </el-col>
           </el-row>
         </el-form>
@@ -301,7 +275,7 @@
 
 <script>
 import { getCDRSListAsync, getSIMAsync, getCDRSAsync, getCustomerList, fetchPv, createArticle, updateArticle, deleteArticle } from '@/api/sim'
-import { fetchSIMListAjax } from '@/api/user'
+import { fetchSIMListAjax, fetchCustomersListAjax } from '@/api/user'
 
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
@@ -309,7 +283,6 @@ import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.css'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import LineChart from './components/LineChart.js'
-//import LineChart from '../dashboard/admin/components/LineChart.js'
 import Item from '@/layout/components/Sidebar/Item'
 import VueApexCharts from 'vue-apexcharts'
 import moment from 'moment'
@@ -322,7 +295,7 @@ const periodOptions = [
   { code: 'D', name: 'Today' },
   { code: 'W', name: 'Week' },
   { code: 'M', name: 'Month' },
-  { code: 'Y', name: 'Year' }
+  /*{ code: 'Y', name: 'Year' }*/
 ]
 const limitOptions = [
   { code: '10', name: 'TOP 10' },
@@ -411,6 +384,9 @@ export default {
   },
   data() {
     return {      
+      organizeArr: [],
+      //searchedOrganizeName: '',
+      searchedFilterOrganizeName: '',
       Permission,
         tablePeriod: 'Today',
         tableData: 'data',
@@ -445,19 +421,16 @@ export default {
       },
       simDetailslistLeft: [],
       simDetailslistRight: [],
+      filterSubmitId: Date.now(),
       tableKey: 0,
       list: null,
-      page: 1,
       total: 0,
-      limit: 10,
       listLoading: true,
       listQuery: {
-        page: 1,
-        limit: 10,
-        date1: moment(today, 'YYYY-MM-DD').add(-10, 'days').format('YYYY-MM-DD'),
-        date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
-        customer: undefined,
-        sort: '+code'
+        Page: 1,
+        Rows: 10,
+        Order: 'DESC',
+        Sort: 'DataDay',
       },
       categoryTypeOptions,
       typeOptions,
@@ -468,22 +441,7 @@ export default {
       // sortOptions: [{ label: 'ID Ascending', code: '+code' }, { label: 'ID Descending', code: '-code' }],
       // statusOptions: ['A', 'V'],
       showAdditionalInfo: false,
-      temp: {
-        Code: undefined,
-        Key: undefined,
-        En: undefined,
-        UK: undefined,
-        ES: undefined,
-        RU: undefined,
-        PL: undefined,
-        PT: undefined,
-        FR: undefined,
-        DE: undefined,
-        BE: undefined,
-        AR: undefined,
-        Status: 'A',
-        Category: 'Event'
-      },
+      
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
@@ -501,7 +459,7 @@ export default {
     }
   },
   computed: {    
-    lineStyles() {
+    /*lineStyles() {
       return {
         position: 'relative',
         height: '200px',
@@ -524,7 +482,7 @@ export default {
         position: 'relative',
         height: '30vh'
       }
-    }
+    }*/
   },
   created() {
     this.getList()
@@ -533,9 +491,39 @@ export default {
  
   },
   methods: {      
+    querySearchOrganize(query) {
+      if (query !== '') {        
+        if(query.length > 1) {
+          this.searchOrganize(query)
+        }      
+      } else {
+        this.organizeArr = []
+      }
+    },
+    async searchOrganize(query) {
+      const arr = []      
+      this.organizeArr = []
+      let listQuery = {
+        q: query,
+        IncludeSelf: true
+      }
+      fetchCustomersListAjax(listQuery).then(response => {   
+        response.rows.forEach(element => {
+          arr.push({
+            Code: element.Code,
+            Name: element.Name
+          })
+        })
+        this.organizeArr = arr
+      })
+    },
+    changeFilterOrganize(val) {
+      this.organizeArr = []
+      this.searchedFilterOrganizeName = val.Name
+      this.listQuery.OrganizeCode = val.Code
+    }, 
     async showSIMDetails(data){        
         this.isLoading = true 
-        console.log('d', data)
         this.simDetailslistLeft = [{
               title: 'IMSI',
               value: data.imsi,
@@ -676,10 +664,21 @@ export default {
             self.simFormVisible = true  
             self.isLoading = false 
             
-          }
-        })
+          }else{
 
-        
+            self.series = [{
+              data: []
+            }]
+            self.chartOptions = {
+            }
+
+            self.simFormVisible = true  
+            self.isLoading = false 
+
+          }
+        }).catch(e=>{
+            self.isLoading = false           
+        })      
     },
     closeSIMDetails(){      
         this.simFormVisible = false  
@@ -702,55 +701,62 @@ export default {
             backgroundColor: '#f87979',
             data: [100, 120, 161, 134, 105, 160, 165, 105, 100, 181, 114, 115, 169, 165]
           }
-          /*, {
-              label: 'Data Volume',
-              backgroundColor: '#f87979',
-              data: [this.getRandomInt(), this.getRandomInt()]
-            }*/
         ]
       }
     },
-    getRandomInt() {
-      return Math.floor(Math.random() * (50 - 5 + 1)) + 5
-    },
     async getList() {
       this.listLoading = true
-
-
-      /*~~getCustomerList().then(response => {
-        this.customerListOption.length = 0
-        this.customerListOption.push({ code: '0', name: 'All' })
-        response.data.forEach(element => {
-          this.customerListOption.push({ code: element._id, name: element.info.name })
-        })
-      })*/
-
       this.list = []
+
       let pref_1 = this.selectedType
-      let sort = this.selectedOrder
-      let pref_2 = this.selectedPeriod    
-      this.listLoading = true
-      //const today = new Date()
+      let sort = 'DataDay'
+      let pref_2 = this.selectedPeriod 
+
+      console.log('sw', pref_1 + pref_2)
       
+      switch (pref_1 + pref_2){
+        case 'DD':
+            sort = 'DataDay'
+            break
+        case 'DW':
+            sort = 'DataWeek'
+            break
+        case 'DM':
+            sort = 'DataMonth'
+            break
+        case 'SD':
+            sort = 'SMSMODay'
+            break
+        case 'SW':
+            sort = 'SMSMOWeek'
+            break
+        case 'SM':
+            sort = 'SMSMOMonth'
+            break
+      }
+
       const current = moment()          
 
+     
+      /*let pref_1 = this.selectedType
+      let sort = this.selectedOrder
+      let pref_2 = this.selectedPeriod*/
+
+      //const current = moment()     
       let self = this
+      
+      this.listQuery.Status = []
+      this.listQuery.Status.push('Suspended')
+      this.listQuery.Status.push('Productive')
+      this.listQuery.Status.push('EuiccControl')
+      this.listQuery.ReportType = pref_1 + pref_2
+      this.listQuery.sort = sort
 
-      fetchSIMListAjax({
-          'ReportType': pref_1 + pref_2,
-          'sort': sort,
-          'order': 'desc' 
-        }).then(response => {
-
-      //$.ajax(settings).done(function (response) { 
-          let rows = response.rows   
-          
+      fetchSIMListAjax(this.listQuery).then(response => {
+          let rows = response.rows            
           const arrTable = []
 
           rows.forEach((element, index) => {
-            //const tableDataUsageTotal = (+element.totalDataUsage / 1000000)
-            //const tableSMSUsageTotal = element.totalSmsUsage == 'undefined' ? 0 : (+element.totalSmsUsage)
-            //const tableFlowUsageTotal = element.totalFlowUsage == 'undefined' ? 0 : (+element.totalFlowUsage)
             arrTable.push({
               imsi: element.IMSI.toString(),
               iccid: element.ICCID.toString(),
@@ -775,146 +781,22 @@ export default {
               lastUpdate: element.DataUpdateTime!==null?element.DataUpdateTime.slice(0, 10):''
           })
         })
-
+console.log(response.total)
+        self.total = response.total
         self.list = arrTable
         self.listLoading = false
       })
-      /*~~const response = await getCDRSListAsync(this.listQuery)
-      if(!response){
-        return
-      }
-      //.then(response => {
-        this.total = response.data.length
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
-
-        this.list = response.data
-      //})
-      */
     },
     handleFilter() {
-      this.listQuery.page = 1
-      this.listQuery.customer = this.selectedCustomer==='0'?undefined:this.selectedCustomer
-      this.listQuery.limit = this.selectedSIMLimit==='all'?undefined:this.selectedSIMLimit     
-      console.log(this.selectedType) 
-      this.listQuery.sms = this.selectedType === 'sms'?'sms':undefined
+      this.listQuery.Page = 1
+
       this.getList()
-    },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: 'Success',
-        type: 'success'
-      })
-      row.status = status
-    },
+    }, 
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'code') {
-        this.sortByID(order)
-      }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+code'
-      } else {
-        this.listQuery.sort = '-code'
-      }
-      this.handleFilter()
-    },
-    resetTemp() {
-      this.temp = {
-        Code: undefined,
-        Key: undefined,
-        EN: undefined,
-        UK: undefined,
-        ES: undefined,
-        RU: undefined,
-        PL: undefined,
-        PT: undefined,
-        FR: undefined,
-        DE: undefined,
-        BE: undefined,
-        AR: undefined,
-        Status: 'A',
-        Category: 'Event'
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      const tempData = Object.assign({}, this.temp)
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          delete tempData.Code
-          tempData.token = '00000000-0000-0000-0000-000000000000'
-          createArticle(tempData).then((response) => {
-            // console.log(response)
-            this.temp.Code = response.Data.Code
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      // this.temp.timestamp = new Date(this.temp.timestamp)
-      this.temp.token = '00000000-0000-0000-0000-000000000000'
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.code === this.temp.code)
-            this.list.splice(index, 1, this.temp)
-
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      row.token = '00000000-0000-0000-0000-000000000000'
-      deleteArticle(row).then(() => {
-        this.$notify({
-          title: 'Success',
-          message: 'Delete Successfully',
-          type: 'success',
-          duration: 2000
-        })
-        this.list.splice(index, 1)
-      })
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
+      this.listQuery.Order = this.listQuery.Order === 'ASC' ? 'DESC' : this.listQuery.Order === 'DESC' ? 'ASC' : 'ASC' //order === 'ascending' ? 'ASC' : (order === 'descending') ? 'DESC' : 'ASC'
+      this.listQuery.Sort = prop
+      this.getList()
     },
     handleDownload() {
       this.downloadLoading = true
