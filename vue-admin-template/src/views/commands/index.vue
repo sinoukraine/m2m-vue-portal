@@ -246,7 +246,7 @@ export default {
       typeOptions: [
         {'code':'TEXT','name':'TEXT'},
         {'code':'NUMBER','name':'NUMBER'},
-        {'code':'LIST','name':'LIST'}
+        /*{'code':'LIST','name':'LIST'}*/
       ],
       //importanceOptions: ['Event'],
       //calendarTypeOptions,
@@ -395,12 +395,24 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.dialogStatus = 'update'
-      //console.log('get',this.temp)
+      console.log('get',this.temp.Parameters)
 
-      /*this.paramList = [
-        {'Name':'Test Param1','Type':'TEXT', 'Default':'400'},
-        {'Name':'Test Param2','Type':'NUMBER', 'Default':'600'}
-      ],*/
+      this.paramList = []
+      this.temp.Parameters.forEach((element, index) => {
+        let obj = {
+          Index: element.Index,
+          Name: element.Name,
+          Default: element.DefaultValue,
+          Type: element.Type === 1 ? 'TEXT' : 'NUMBER'
+        }
+        this.paramList.push(obj)   
+      })
+
+      console.log(this.paramList)
+      //this.temp.Content = this.temp.Content.replace(/↵/g, '\\n')
+      
+      //{'Name':'Test Param1','Type':'TEXT', 'Default':'400'},
+      //{'Name':'Test Param2','Type':'NUMBER', 'Default':'600'}
       
       this.isDialogFormVisible = true
       this.$nextTick(() => {
@@ -422,16 +434,30 @@ export default {
       })
     },
     onEditFormSubmit(){
-      //Params: '[{"Name":"ACC ON INTERVAL","Prams":"600","DataType":"number"},{"Name":"ACC OFF INTERVAL","Prams":"60","DataType":"number"},{"Name":"TURNING","Prams":"20","DataType":"number"}]'
       let str = ''
+      let isEmpty = false
       this.paramList.forEach((element, index) => {
         if(element.Name.length){
-          str += '{"Name":' + element.Name + '","Prams":' + element.Default + '","DataType":"' + element.Type + '"}'
+          let dflt = element.Type == 'NUMBER' ? +element.Default : '"' + element.Default + '"'
+          str += '{"Index":' + index + ',"Name":"' + element.Name + '","DefaultValue":' + dflt + ',"Type":"' + element.Type + '"}'
           index < this.paramList.length - 1 ? str += ',':''
-         }
-      });
-      if(str.length) this.temp.Parameters = `[${str}]`
+        }else{
+          isEmpty = true
+        }
+      })
+        
+      if(isEmpty){
+        this.$notify({
+          title: 'Error',
+          message: 'Please remove empty parameters',
+          type: 'error',
+          duration: 2000
+        })
+        return
+      }
 
+      if(str.length) this.temp.Parameters = `[${str}]`
+      
       this.temp.Content = this.temp.Content.replace(/↵/g, '\\n')
 
       let tempData = Object.assign({}, this.temp)
@@ -440,11 +466,8 @@ export default {
           return false
         }      
 
-        console.log(tempData)
-        
         this.isFormLoading = true
-        //let response = this.dialogStatus === 'create' ? await createTemplate(tempData) : await updateTemplate(tempData)
-       
+        
         if(this.dialogStatus === 'create'){ 
           
           /*this.total = 10
@@ -501,33 +524,9 @@ export default {
             }      
           })
           
-          /*updateCustomerAjax(tempData).then(response => {            
-            this.resetTemp()
-            this.getList()
-            this.$notify({
-              title: 'Success',
-              message: 'Updated Successfully',
-              type: 'success',
-              duration: 2000
-            })          
-          })*/
         }
 
         this.isFormLoading = false
-        /*this.isFormLoading = false
-        if(!response){
-          return
-        }
-
-        this.resetTemp()
-        this.getList()
-        this.isDialogFormVisible = false
-        this.$notify({
-          title: 'Success',
-          message: this.dialogStatus === 'create' ? 'Created Successfully' : 'Updated Successfully',
-          type: 'success',
-          duration: 2000
-        })*/
       })
     },    
     sortChange(data) {

@@ -644,6 +644,9 @@ div:focus {
 .el-aside {
   overflow: hidden;
 }
+.sms-page .el-aside {
+  overflow: auto;
+}
 
 .pointer{
   cursor: pointer;
