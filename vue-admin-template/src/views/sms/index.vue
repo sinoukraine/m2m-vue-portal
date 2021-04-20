@@ -55,7 +55,7 @@
 
       <el-footer class="messagebar-container">
         <div class="display-flex justify-content-between">
-          <el-input :disabled="Permission['SMS_SEND_CUSTOM']<2||Permission['SMS']<2" placeholder="Command" v-model="newMessage" class="input-with-select">
+          <el-input type="textarea" :disabled="Permission['SMS_SEND_CUSTOM']<2||Permission['SMS']<2" placeholder="Command" v-model="newMessage" class="input-with-select">
           </el-input>
           <div class="buttons-row white-space-nowrap">
             <el-button :disabled="Permission['SMS']<2" v-waves slot="append" class="button-custom blue-btn" type="primary" @click="sendMessage"><item :icon="'send-white'" /> Send</el-button>
@@ -189,6 +189,31 @@
           </el-scrollbar>
       </div>
     </el-aside>
+    <el-dialog :title="'Add Template'" :visible.sync="isDialogFormVisible"  width="50%">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="top" label-width="70px" @submit.native.prevent="onEditFormSubmit">
+          <input type="submit" class="display-none" >
+
+          <el-row :gutter="16">
+              <el-col :xs="24" :sm="24">
+                  <el-form-item label="Name" prop="Name">
+                      <el-input v-model="temp.Name" />
+                  </el-form-item>
+              </el-col>   
+              
+              <el-col :xs="24" :sm="24">            
+                  <el-form-item :label="'Format'" prop="Content">                
+                      <el-input type="textarea" v-model="temp.Content" placeholder="Format" class="filter-item" />
+                  </el-form-item>
+              </el-col>
+
+          </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+          <el-button :loading="isFormLoading" type="primary" class="blue-btn" @click="onEditFormSubmit()">
+          {{ $t('TEXT_COMMON_SAVE') }}
+          </el-button>
+      </div>
+      </el-dialog>
   </el-container>
   <div v-else class="no-data-info">    
     <div class="py-20">
@@ -212,7 +237,7 @@ import Confirm from './message-box/confirm'
 import { create } from 'vue-modal-dialogs'
 import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync, sendCommandAsync } from '@/api/sim'
 
-import { fetchSIMListAjax, getHistoryAjax } from "@/api/user";
+import { fetchSIMListAjax, getHistoryAjax, createTemplateAjax } from "@/api/user";
 import { Permission } from '@/utils/role-permissions'
 const confirm = create(Confirm, 'title', 'content')
 
@@ -220,6 +245,17 @@ export default {
   name: 'App',
   data() {
     return {     
+      isDialogFormVisible: false,
+      isFormLoading: false,
+      temp: {        
+        Name: '',
+        Content: '',
+        Parameters: ''
+      },
+      rules: {
+        Name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+        Content: [{ required: true, message: 'Content is required', trigger: 'blur' }],
+      },
       page: 1,
       oldHistoryArray: [],
       Permission, 
@@ -309,7 +345,60 @@ export default {
       this.searchSIMList()
     }
   },
-  methods: {
+  methods: {    
+    handleCreate(content) {
+      this.resetTemp()
+      this.temp.Content = content
+      this.isDialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    resetTemp() {
+      this.temp = {        
+        Name: '',
+        Content: '',
+        Parameters: ''
+      }
+    }, 
+    onEditFormSubmit(){
+     
+      this.temp.Content = this.temp.Content.replace(/↵/g, '\\n')
+
+      let tempData = Object.assign({}, this.temp)
+      this.$refs['dataForm'].validate(async (valid) => {
+        if (!valid){
+          return false
+        }      
+
+        this.isFormLoading = true
+        
+        createTemplateAjax(tempData).then(response => {  
+          if(response.MajorCode == '000') {
+            this.resetTemp()
+            this.$notify({
+              title: 'Success',
+              message: 'New template created',
+              type: 'success',
+              duration: 2000
+            })            
+            
+            this.isDialogFormVisible = false
+          }else{
+            this.$notify({
+              title: 'Error',
+              message: 'Incorrect data format',
+              type: 'error',
+              duration: 2000
+            })
+          }      
+        })        
+
+        this.isFormLoading = false
+      })
+    },   
+
+
     clearFilter() {
       this.isLoading = true     
       this.simListQuery.sample = ''      
@@ -427,7 +516,7 @@ export default {
                     }
                     self.messageList.push(obj)
                   
-
+                    
                     self.newMessage = ''
                     self.$nextTick(() => {
                     
@@ -453,8 +542,7 @@ export default {
                 //$.ajax(settings).done(function (result) {
                 console.log(jsonResult)
                 if(jsonResult.MajorCode=='000'){
-                
-
+                      self.handleCreate(obj.text)
                     }else{
                        self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
                  
@@ -1096,7 +1184,7 @@ export default {
   }
  .sms-page .el-footer{
     padding: 20px 10px 20px 20px;
-    height: 80px !important;
+    height: 95px !important;
     position: relative !important;
   }
  .sms-page .scrollbar-loading .collapse-list{

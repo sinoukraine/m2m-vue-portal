@@ -120,6 +120,12 @@ export const constantRoutes = [
         meta: { title: 'Customer List', icon: 'history' },
       },
       {
+        path: 'csp',
+        name: 'Service Profile',
+        component: () => import('@/views/csp/index'),
+        meta: { title: 'Service Profile', icon: 'csp' },
+      },
+      {
         path: 'role permission',
         name: 'Role permission',
         component: () => import('@/views/customer-manage/role'),
@@ -145,7 +151,7 @@ export const constantRoutes = [
       }
     ]
   },*/
-  {
+  /*~~~{
     path: '/history',
     component: Layout,
     children: [
@@ -168,20 +174,46 @@ export const constantRoutes = [
         meta: { title: 'SMS', imsi: '', icon: 'sms' },
       }
     ]
+  },*/
+  {
+    path: '/sms',
+    component: Layout,
+    redirect: '/',
+    name: 'SMS',
+    meta: { title: 'SMS', icon: 'sms' },
+    children: [
+      {
+        path: 'index',
+        name: 'Console',
+        component: () => import('@/views/sms/index'),
+        meta: { title: 'Console', icon: 'sms' },
+      },
+      {
+        path: 'history', 
+        name: 'History',
+        component: () => import('@/views/history/index'),
+        meta: { title: 'History', icon: 'history' },
+      },
+      {
+        path: 'commands',
+        name: 'Template',
+        component: () => import('@/views/commands/index'),
+        meta: { title: 'Template', icon: 'commands' },      
+      }
+    ]
   },
-
   {
     path: '/report',
     component: Layout,
     redirect: '/',
-    name: 'Reports',
-    meta: { title: 'Reports', icon: 'reports' },
+    name: 'QuikData IMNS',
+    meta: { title: 'QuikData IMNS', icon: 'reports' },
     children: [
       {
         path: 'quikdata-imns',
         name: 'QuikData IMNS',
         component: () => import('@/views/report/quikdata-imns'),
-        meta: { title: 'QuikData IMNS', icon: 'reports' }
+        meta: { title: 'Report', icon: 'reports' }
       },
       /*{
         path: 'imns-activity',
@@ -198,7 +230,7 @@ export const constantRoutes = [
     ]
   },
 
-  {
+  /*~~~{
     path: '/commands',
     component: Layout,
     children: [
@@ -209,9 +241,9 @@ export const constantRoutes = [
         meta: { title: 'Commands', icon: 'commands' },
       }
     ]
-  },
+  },*/
 
-  {
+  /*~~~{
     path: '/csp',
     component: Layout,
     children: [
@@ -222,7 +254,7 @@ export const constantRoutes = [
         meta: { title: 'CSP Manage', icon: 'csp' },
       }
     ]
-  },
+  },*/
   {
     path: '/profile',
     component: Layout,

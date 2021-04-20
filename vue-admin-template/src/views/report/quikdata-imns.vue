@@ -211,6 +211,14 @@
           <input :id="filterSubmitId" type="submit" class="display-none">
           <el-row :gutter="16" style="border-bottom: 0px solid #e3e3e3">
             <el-col :xs="100">
+
+              <el-form-item label="" prop="title">      
+                <span class="label-span">Type</span>
+                <el-select v-model="selectedType" placeholder="Choose an item"  class="filter-item w-100" style="width: 100%;">
+                  <el-option :disabled="item.code=='V'" v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
+              </el-form-item>   
+
                 <el-form-item label="Organize" prop="OrganizeCode">
                 
                 <el-select
@@ -234,13 +242,24 @@
             <el-col :xs="100" :sm="100" :md="100" :lg="100">
 
               <el-form-item label="" prop="title">
-                <span class="label-span">Period</span>
-                <el-select v-model="selectedPeriod" placeholder="Period" clearable class="filter-item w-100" style="width: 100%;">
+                <span class="label-span">Period group by</span>
+                <el-select v-model="selectedPeriod" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
                   <el-option v-for="item in periodOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>
-                <span class="label-span">Ordering by</span>
-                <el-select v-model="selectedType" placeholder="Order"  class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
+              </el-form-item>
+
+              <el-form-item label="" prop="title">
+                <span class="label-span">Field group by</span>
+                <el-select v-model="selectedField" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
+                  <el-option :disabled="item.code!='2'" v-for="item in fieldOptions" :key="item.code" :label="item.name" :value="item.code" />
+                </el-select>
+              </el-form-item>
+
+              
+              <el-form-item label="" prop="title">
+                <span class="label-span">Date</span>
+                <el-select v-model="selectedDate" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
+                  <el-option v-for="item in dateOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>
               </el-form-item>
 
@@ -257,9 +276,82 @@
                 <el-select v-model="selectedType" placeholder="Order"  class="filter-item w-100" style="width: 100%;">
                   <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>
-              </el-form-item>-->
+              </el-form-item>-->             
+              
             </el-col>
           </el-row>
+
+          <el-row v-if="selectedDate=='is'" :gutter="16" style="">
+            <el-col :xs="100" :sm="100" :md="100" :lg="100">
+              <el-form-item label="Select date" prop="title" class="mb-0">
+                <el-date-picker v-model="date1" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
+              </el-form-item>          
+            </el-col>
+          </el-row>  
+          <el-row v-if="selectedDate=='between'" :gutter="16" style="">
+            <el-col :xs="100" :sm="100" :md="100" :lg="100">
+              <el-form-item label="Start date" prop="title" class="mb-0">
+                <el-date-picker v-model="date1" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
+              </el-form-item>                  
+              <el-form-item label="End date" prop="title" class="mb-0">
+                <el-date-picker v-model="date2" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
+              </el-form-item>
+            </el-col>
+          </el-row>  
+
+          <el-row>            
+            <el-form-item label="" prop="title">
+              <span class="label-span">SIM type</span>
+              <el-select v-model="selectedSIMType" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
+                <el-option v-for="item in simTypeOptions" :key="item.code" :label="item.name" :value="item.code" />
+              </el-select>
+            </el-form-item>
+          </el-row>
+          <el-row>            
+            <el-form-item label="" prop="title">
+              <span class="label-span">SIM search criteria</span>
+              <el-select v-model="selectedSIMCriteria" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
+                <el-option v-for="item in simCriteriaOptions" :key="item.code" :label="item.name" :value="item.code" />
+              </el-select>
+            </el-form-item>
+          </el-row>
+          
+          <el-row v-if="selectedSIMCriteria=='by specific IMSI'" :gutter="16" style="">
+            <el-col :xs="100" :sm="100" :md="100" :lg="100">
+              <el-form-item label="Enter IMSI" prop="title" class="mb-0">
+                <el-input v-model="selectedSpecIMSI" placeholder="" class="filter-item"/>
+              </el-form-item>          
+            </el-col>
+          </el-row>  
+          <el-row v-if="selectedSIMCriteria=='by IMSI range'" :gutter="16" style="">
+            <el-col :xs="100" :sm="100" :md="100" :lg="100">
+              <el-form-item label="Enter start IMSI" prop="title" class="mb-0">
+                <el-input v-model="selectedStartIMSI" placeholder="" class="filter-item"/>
+              </el-form-item>          
+            </el-col>
+          </el-row>  
+          <el-row v-if="selectedSIMCriteria=='by IMSI range'" :gutter="16" style="">
+            <el-col :xs="100" :sm="100" :md="100" :lg="100">
+              <el-form-item label="Enter end IMSI" prop="title" class="mb-0">
+                <el-input v-model="selectedEndIMSI" placeholder="" class="filter-item"/>
+              </el-form-item>          
+            </el-col>
+          </el-row>  
+          <el-row v-if="selectedSIMCriteria=='by ICCID'" :gutter="16" style="">
+            <el-col :xs="100" :sm="100" :md="100" :lg="100">
+              <el-form-item label="Enter ICCID" prop="title" class="mb-0">
+                <el-input v-model="selectedSpecICCID" placeholder="" class="filter-item"/>
+              </el-form-item>          
+            </el-col>
+          </el-row>  
+          <el-row v-if="selectedSIMCriteria=='by EID'" :gutter="16" style="">
+            <el-col :xs="100" :sm="100" :md="100" :lg="100">
+              <el-form-item label="Enter EID" prop="title" class="mb-0">
+                <el-input v-model="selectedSpecEID" placeholder="" class="filter-item"/>
+              </el-form-item>          
+            </el-col>
+          </el-row>  
+          
         </el-form>
       </div>
 
@@ -297,6 +389,34 @@ const periodOptions = [
   { code: 'M', name: 'Month' },
   /*{ code: 'Y', name: 'Year' }*/
 ]
+const fieldOptions = [
+  { code: '0', name: 'IMSI/ICCID Mobile Subscriber Identity' },
+  { code: '1', name: 'PLMN Public Land Mobile Network' },
+  { code: '2', name: 'All' },
+  /*{ code: 'Y', name: 'Year' }*/
+]
+
+const dateOptions = [
+  { code: 'today', name: 'today' },
+  { code: 'is', name: 'is' },
+  { code: 'last month', name: 'last month' },
+  { code: 'this month', name: 'this month' },
+  { code: 'between', name: 'between' },
+  /*{ code: 'Y', name: 'Year' }*/
+]
+
+
+const simTypeOptions = [
+  { code: 'all', name: 'all' },
+]
+const simCriteriaOptions = [
+  { code: 'all', name: 'all' },
+  { code: 'by specific IMSI', name: 'by specific IMSI' },
+  { code: 'by IMSI range', name: 'by IMSI range' },
+  { code: 'by ICCID', name: 'by ICCID' },
+  { code: 'by EID', name: 'by EID' },
+]
+
 const limitOptions = [
   { code: '10', name: 'TOP 10' },
   { code: '50', name: 'TOP 50' },
@@ -313,7 +433,8 @@ const statusOptions = [
 
 const typeOptions = [
   { code: 'D', name: 'Data' },
-  { code: 'S', name: 'SMS' }
+  { code: 'S', name: 'SMS' },
+  { code: 'V', name: 'Voice' }
 ]
 
 const orderOptions = [
@@ -321,7 +442,7 @@ const orderOptions = [
   { code: 'DataMonth', name: 'Data Monthly' },
   { code: 'DataWeek', name: 'Data Weekly' },
   { code: 'DataYear', name: 'Data Yearly' },
-  { code: 'SMSMODay', name: 'SMS Daily' },
+  { code: 'SMSMtDay', name: 'SMS Daily' },
   { code: 'SessionDay', name: 'Session Daily' },
 ]
 
@@ -384,6 +505,11 @@ export default {
   },
   data() {
     return {      
+      selectedSpecIMSI: '',
+      selectedStartIMSI: '',
+      selectedEndIMSI: '',
+      selectedSpecICCID: '',
+      selectedSpecEID: '',
       organizeArr: [],
       //searchedOrganizeName: '',
       searchedFilterOrganizeName: '',
@@ -396,10 +522,20 @@ export default {
       simFormVisible: false,
       selectedCustomer: '0',
       selectedPeriod: 'D',
+      selectedField: '2',
+      selectedDate: 'this month',
       selectedSIMLimit: '10',
       selectedType: 'D',
       selectedOrder: 'DataDay',
       isChartShown: false,
+      selectedSIMType: 'all',
+      selectedSIMCriteria: 'all',
+      simCriteriaOptions,
+      simTypeOptions,
+
+      date1: moment(today, 'YYYY-MM-DD').add(-90, 'days').format('YYYY-MM-DD'),
+      date2: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
+
       series: [{
         data: []
       }],
@@ -435,7 +571,9 @@ export default {
       categoryTypeOptions,
       typeOptions,
       periodOptions,
+      fieldOptions,
       orderOptions,
+      dateOptions,
       customerListOption,
       statusOptions,
       // sortOptions: [{ label: 'ID Ascending', code: '+code' }, { label: 'ID Descending', code: '-code' }],
@@ -725,13 +863,13 @@ export default {
             sort = 'DataMonth'
             break
         case 'SD':
-            sort = 'SMSMODay'
+            sort = 'SMSMtDay'
             break
         case 'SW':
-            sort = 'SMSMOWeek'
+            sort = 'SMSMtWeek'
             break
         case 'SM':
-            sort = 'SMSMOMonth'
+            sort = 'SMSMtMonth'
             break
       }
 
@@ -1222,6 +1360,10 @@ console.log(response.total)
     cursor: pointer;
     color: #28a5e0;
   }
+
+ .quikdata-imns-page  .el-form-item__content{
+   line-height: 25px;
+ }
   /*.sim-container{
     overflow: hidden;
     width: 100%;

@@ -33,21 +33,21 @@
                     <span></span>  
                 </template>
                 </el-table-column>-->
-                <el-table-column label="Name" min-width="160px" align="center" sortable="custom" prop="Name">
+                <el-table-column label="Name" min-width="120px" align="center" sortable="custom" prop="Name">
                 <template slot-scope="{row}">
                     <span>{{ row.Name }}</span>
                 </template>
                 </el-table-column>
-                <el-table-column label="Content" min-width="120px" align="center" sortable="custom" prop="Content">
+                <el-table-column label="Content" min-width="220px" align="center" sortable="custom" prop="Content">
                 <template slot-scope="{row}">
                     <span>{{ row.Content }}</span>
                 </template>
                 </el-table-column>
-                <el-table-column label="Organize Code" min-width="140px" align="center" sortable="custom" prop="OrganizeCode">
+                <!--<el-table-column label="Organize Code" min-width="140px" align="center" sortable="custom" prop="OrganizeCode">
                 <template slot-scope="{row}">
                     <span>{{ row.OrganizeCode }}</span>
                 </template>
-                </el-table-column>
+                </el-table-column>-->
                 <el-table-column label="Actions" align="center" width="180" class-name="small-padding fixed-width" fixed="right">
                 <template slot-scope="{row,$index}">
                     <el-button type="primary" class="violet-btn" size="mini" @click="handleUpdate(row)">
@@ -333,7 +333,7 @@ export default {
                 Name: el.Name,
                 Content: el.Content,
                 Parameters: el.Parameters,
-                OrganizeCode: el.OrganizeCode,
+                //OrganizeCode: el.OrganizeCode,
             })
             //})
           })
