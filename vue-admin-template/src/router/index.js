@@ -206,21 +206,27 @@ export const constantRoutes = [
     path: '/report',
     component: Layout,
     redirect: '/',
-    name: 'QuikData IMNS',
-    meta: { title: 'QuikData IMNS', icon: 'reports' },
+    name: 'Report',
+    meta: { title: 'Report', icon: 'reports' },
     children: [
       {
         path: 'quikdata-imns',
-        name: 'QuikData IMNS',
+        name: 'Overview',
         component: () => import('@/views/report/quikdata-imns'),
-        meta: { title: 'Report', icon: 'reports' }
+        meta: { title: 'Overview', icon: 'reports' }
       },
-      /*{
-        path: 'imns-activity',
-        name: 'IMNS Activity',
-        component: () => import('@/views/report/imns-activity'),
-        meta: { title: 'IMNS Activity', icon: 'reports' }
+      {
+        path: 'usage',
+        name: 'Usage',
+        component: () => import('@/views/report/usage'),
+        meta: { title: 'Usage', icon: 'reports' }
       },
+      {
+        path: 'subscription',
+        name: 'Subscription',
+        component: () => import('@/views/report/subscription'),
+        meta: { title: 'Subscription', icon: 'reports' }
+      },/*
       {
         path: 'sms-activity',
         name: 'SMS Activity',

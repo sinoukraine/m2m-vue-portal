@@ -212,12 +212,12 @@
           <el-row :gutter="16" style="border-bottom: 0px solid #e3e3e3">
             <el-col :xs="100">
 
-              <el-form-item label="" prop="title">      
+              <!--<el-form-item label="" prop="title">      
                 <span class="label-span">Type</span>
                 <el-select v-model="selectedType" placeholder="Choose an item"  class="filter-item w-100" style="width: 100%;">
                   <el-option :disabled="item.code=='V'" v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
                 </el-select>
-              </el-form-item>   
+              </el-form-item> -->  
 
                 <el-form-item label="Organize" prop="OrganizeCode">
                 
@@ -238,119 +238,29 @@
                 </el-form-item>
             </el-col>
           </el-row>
-          <el-row :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
 
-              <el-form-item label="" prop="title">
-                <span class="label-span">Period group by</span>
-                <el-select v-model="selectedPeriod" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in periodOptions" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-              </el-form-item>
-
-              <el-form-item label="" prop="title">
-                <span class="label-span">Field group by</span>
-                <el-select v-model="selectedField" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
-                  <el-option :disabled="item.code!='2'" v-for="item in fieldOptions" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-              </el-form-item>
-
-              
-              <el-form-item label="" prop="title">
-                <span class="label-span">Date</span>
-                <el-select v-model="selectedDate" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in dateOptions" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-              </el-form-item>
-
-              <!--<el-form-item label="" prop="title">
-                <span class="label-span">Sorting type</span>
-                <el-select v-model="selectedOrder" placeholder="SIM"  class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in orderOptions" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-                <span class="label-span">Period</span>
-                <el-select v-model="selectedPeriod" placeholder="Period" clearable class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in periodOptions" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-                <span class="label-span">Ordering by</span>
-                <el-select v-model="selectedType" placeholder="Order"  class="filter-item w-100" style="width: 100%;">
-                  <el-option v-for="item in typeOptions" :key="item.code" :label="item.name" :value="item.code" />
-                </el-select>
-              </el-form-item>-->             
-              
-            </el-col>
-          </el-row>
-
-          <el-row v-if="selectedDate=='is'" :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="Select date" prop="title" class="mb-0">
-                <el-date-picker v-model="date1" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-              </el-form-item>          
-            </el-col>
-          </el-row>  
-          <el-row v-if="selectedDate=='between'" :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="Start date" prop="title" class="mb-0">
-                <el-date-picker v-model="date1" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-              </el-form-item>                  
-              <el-form-item label="End date" prop="title" class="mb-0">
-                <el-date-picker v-model="date2" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
-              </el-form-item>
-            </el-col>
-          </el-row>  
-
-          <el-row>            
-            <el-form-item label="" prop="title">
-              <span class="label-span">SIM type</span>
-              <el-select v-model="selectedSIMType" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
-                <el-option v-for="item in simTypeOptions" :key="item.code" :label="item.name" :value="item.code" />
-              </el-select>
-            </el-form-item>
-          </el-row>
-          <el-row>            
-            <el-form-item label="" prop="title">
-              <span class="label-span">SIM search criteria</span>
-              <el-select v-model="selectedSIMCriteria" placeholder="Choose an item" clearable class="filter-item w-100" style="width: 100%;">
-                <el-option v-for="item in simCriteriaOptions" :key="item.code" :label="item.name" :value="item.code" />
-              </el-select>
-            </el-form-item>
-          </el-row>
           
-          <el-row v-if="selectedSIMCriteria=='by specific IMSI'" :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="Enter IMSI" prop="title" class="mb-0">
-                <el-input v-model="selectedSpecIMSI" placeholder="" class="filter-item"/>
-              </el-form-item>          
-            </el-col>
-          </el-row>  
-          <el-row v-if="selectedSIMCriteria=='by IMSI range'" :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="Enter start IMSI" prop="title" class="mb-0">
-                <el-input v-model="selectedStartIMSI" placeholder="" class="filter-item"/>
-              </el-form-item>          
-            </el-col>
-          </el-row>  
-          <el-row v-if="selectedSIMCriteria=='by IMSI range'" :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="Enter end IMSI" prop="title" class="mb-0">
-                <el-input v-model="selectedEndIMSI" placeholder="" class="filter-item"/>
-              </el-form-item>          
-            </el-col>
-          </el-row>  
-          <el-row v-if="selectedSIMCriteria=='by ICCID'" :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="Enter ICCID" prop="title" class="mb-0">
-                <el-input v-model="selectedSpecICCID" placeholder="" class="filter-item"/>
-              </el-form-item>          
-            </el-col>
-          </el-row>  
-          <el-row v-if="selectedSIMCriteria=='by EID'" :gutter="16" style="">
-            <el-col :xs="100" :sm="100" :md="100" :lg="100">
-              <el-form-item label="Enter EID" prop="title" class="mb-0">
-                <el-input v-model="selectedSpecEID" placeholder="" class="filter-item"/>
-              </el-form-item>          
-            </el-col>
-          </el-row>  
+            <div class="padding-horizontal-x2 pt-10 px-0">
+              <el-form-item :label="$t('CSP')" prop="title" class="">
+                <el-row :gutter="16" style="">
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MData" >M2M Data</el-checkbox>
+                  </el-col>
+                   <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataHigh" >M2M Data High</el-checkbox>
+                  </el-col> 
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataNormal" >M2M Data Normal</el-checkbox>
+                  </el-col>
+                 <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataEmergency">M2M Data Emergency</el-checkbox>
+                  </el-col>    
+                  <el-col :span="24">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataVodafoneAustralia" >M2M Data Vodafone Australia</el-checkbox>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+            </div>
           
         </el-form>
       </div>
@@ -505,6 +415,12 @@ export default {
   },
   data() {
     return {      
+      
+      checkboxSearchCSPM2MData: false,
+      checkboxSearchCSPM2MDataEmergency: false,
+      checkboxSearchCSPM2MDataNormal: false,
+      checkboxSearchCSPM2MDataHigh: false,
+      checkboxSearchCSPM2MDataVodafoneAustralia: false,      
       selectedSpecIMSI: '',
       selectedStartIMSI: '',
       selectedEndIMSI: '',
@@ -927,6 +843,14 @@ console.log(response.total)
     },
     handleFilter() {
       this.listQuery.Page = 1
+      this.listQuery.ServiceprofileCodes = []
+
+      this.checkboxSearchCSPM2MData?this.listQuery.ServiceprofileCodes.push('M2M Data'):null
+      this.checkboxSearchCSPM2MDataEmergency?this.listQuery.ServiceprofileCodes.push('M2M Data Emergency CSP Z1- 9'):null
+      this.checkboxSearchCSPM2MDataNormal?this.listQuery.ServiceprofileCodes.push('M2M Data Normal CSP Z1 &2'):null
+      this.checkboxSearchCSPM2MDataHigh?this.listQuery.ServiceprofileCodes.push('M2M Data High CSP Z1-3'):null
+      this.checkboxSearchCSPM2MDataVodafoneAustralia?this.listQuery.ServiceprofileCodes.push('M2M Data Custom Network Profile Australia'):null
+     
 
       this.getList()
     }, 
@@ -1364,6 +1288,13 @@ console.log(response.total)
  .quikdata-imns-page  .el-form-item__content{
    line-height: 25px;
  }
+
+ .quikdata-imns-page .el-checkbox__label {
+    display: inline-block;
+    padding-left: 10px;
+    line-height: 25px;
+    font-size: 12px;
+}
   /*.sim-container{
     overflow: hidden;
     width: 100%;
