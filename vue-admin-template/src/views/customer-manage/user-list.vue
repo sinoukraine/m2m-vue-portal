@@ -483,11 +483,13 @@ export default {
     async getOrganisationRoles(){
       const token = getToken()
       console.log('set roles?')
-      fetchCustomersListAjax({Code:this.temp.OrganizeCode}).then(response => {
+      let self = this
+      fetchCustomersListAjax({Code:self.temp.OrganizeCode, IncludeSelf: true}).then(response => { console.log(response)
         let maxRole = response.rows[0].ServiceProfileCode
-        fetchRoleListAjax({token}).then(response_1 => {  
+       
+        fetchRoleListAjax({token}).then(response_1 => {   console.log(maxRole, response_1)
           let filteredOptions = response_1.filter(el=>el.Code>=maxRole)      
-          this.roleTypeOptions = sortArrayByObjProps(filteredOptions, [{prop:'Name', direction: 1}])
+          self.roleTypeOptions = sortArrayByObjProps(filteredOptions, [{prop:'Name', direction: 1}])
         })
       })      
     },
