@@ -35,16 +35,16 @@ export async function qtLogin(query) {
   //let data = getFormDataFromObject(query)
   /**/
   let data = {}
-
-  if(query.Account == 'Root' || query.Account == 'root' || query.Account == 'M2madmin' || query.Account == 'm2madmin'){
-    const obj = {
+console.log(query)
+  /*if(query.Account == 'Root' || query.Account == 'root' || query.Account == 'M2madmin' || query.Account == 'm2madmin'){
+    /*const obj = {
       account: 'root',
       password: '888888'
-    }    
+    }
     data = getFormDataFromObject(obj)
-  }else{    
+  }else{ */   
     data = getFormDataFromObject(query)
-  }
+  //}
   try {
     const response = await axios.post(API_METHODS.LOGIN, data );
     if(response.data.MajorCode === '000'){
