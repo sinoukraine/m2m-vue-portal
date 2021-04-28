@@ -36,6 +36,7 @@ export const API_METHODS = {
   SIM_GET_SERVICE_PROFILE_OPTIONS: DOMAIN1 + 'JT/ServiceProfile/Query',
   SIM_SET_SERVICE_PROFILE: DOMAIN1 + 'JT/Sim/SetSimServiceProfile',
   SIM_SET_ACTIVATE: DOMAIN2 + 'JT/Sim/Activate',
+  SIM_SET_TEST: DOMAIN2 + 'JT/SIM/SetTestMode',
   SIM_SET_SUSPEND: DOMAIN2 + 'JT/Sim/Suspend',
   SIM_SET_RESUME: DOMAIN2 + 'JT/Sim/Resume',
   SIM_SET_TERMINATE: DOMAIN2 + 'JT/Sim/Terminate',

@@ -162,6 +162,24 @@
       </el-form>
   </el-dialog>
 
+  <el-dialog title="Set Test Mode" :visible.sync="testFormVisible" width="30%" class="bg-white" >
+      <el-row :gutter="16">
+        <el-col :xs="24" :sm="24" class="lg-pr-0">
+            <el-select v-model="selectedServiceProfile" :placeholder="$t('SERVICEPROFILE')" class="">
+              <el-option v-for="item in serviceProfileOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+            </el-select>
+        </el-col>
+      </el-row>      
+      <el-row>
+        <div class="card-flex">
+          <div class="card-inline card-panel-left">
+          </div>
+          <div class="card-inline card-panel-right">
+            <el-button type="info" class="blue-btn mt-25" @click="saveTest">Save</el-button>
+          </div>
+        </div>
+      </el-row>
+  </el-dialog>
 
   <el-dialog title="Set Service Profile" :visible.sync="sspFormVisible" width="30%" class="bg-white" >
       <el-row :gutter="16">
@@ -211,8 +229,9 @@
                       <el-button v-if="Permission['SIM_ACTIVATE']>1" v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATION') }}</el-button>
                       <el-button  v-if="Permission['SIM_SUSPEND_RESUME']>1||Permission['SIM_TERMINATE']>1" v-waves class="button-custom" @click="showStateForm"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
                       <el-button  v-if="Permission['SIM_MOVE']>1" v-waves class="button-custom" @click="showMoveForm"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
-                      <el-button v-if="Permission['SIM_CHANGE_CSP']>1" v-waves class="button-custom" @click="showCSPForm"><item :icon="'csp-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
-                      <!--<el-button v-waves class="button-custom"><item :icon="'profile-blue'"/> {{ $t('CUSTOM') }}</el-button>
+                      <el-button v-waves class="button-custom" @click="showTestForm"><item :icon="'csp-blue'"/> {{ $t('TEST') }}</el-button>
+                      <el-button v-if="Permission['SIM_CHANGE_CSP']>1"  @click="showCSPForm" v-waves class="button-custom"><item :icon="'profile-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
+                      <!--
                       <el-button v-waves class="button-custom"><item :icon="'solution-blue'"/> {{ $t('SOLUTION') }}</el-button>-->
                     </div>
                   </div>
@@ -630,7 +649,7 @@ import { mapGetters } from 'vuex'
 import { qtRemoteLogin } from '@/api/user'
 import Pagination from '@/components/Pagination'
 import { SIMStatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
-import { fetchSIMListAjax, fetchCustomersListAjax, setActivateStateAjax, setSuspendStateAjax, setResumeStateAjax, setTerminateStateAjax, setServiceProfileOptionsAjax, fetchServiceProfileOptionsAjax, createSIMAjax, updateSIMAjax, moveSIMsAjax } from "@/api/user";
+import { setTestAjax, fetchSIMListAjax, fetchCustomersListAjax, setActivateStateAjax, setSuspendStateAjax, setResumeStateAjax, setTerminateStateAjax, setServiceProfileOptionsAjax, fetchServiceProfileOptionsAjax, createSIMAjax, updateSIMAjax, moveSIMsAjax } from "@/api/user";
 import Item from '@/layout/components/Sidebar/Item'
 import { getSIMListAsync, getSIM, getSIMAsync, getCustomerList, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
 import moment from 'moment'
@@ -733,6 +752,7 @@ export default {
       moveFormVisible: false,
       stateFormVisible: false,
       sspFormVisible: false,
+      testFormVisible: false,
       checkboxICCID: false,
       checkboxMSISDN: false,
       checkboxServiceProfile: true,
@@ -1029,12 +1049,53 @@ export default {
       this.moveFormVisible = true
       this.isLoading = false     
     },
+    showTestForm(){
+      this.isLoading = true    
+      
+      this.testFormVisible = true
+      this.isLoading = false 
+    },
     showCSPForm(){
       this.isLoading = true    
       
       this.sspFormVisible = true
       this.isLoading = false 
     },    
+    
+    async saveTest(){
+      let checkSIM = true
+      const arr = []
+      for (let i = 0; i < this.multipleSIMSelection.length; i++) {
+        if(this.multipleSIMSelection[i].State == 'OnStock'){
+          arr.push(this.multipleSIMSelection[i].IMSI)
+        }else{
+          checkSIM = false
+        }
+      }
+
+      if(!checkSIM || this.multipleSIMSelection.length == 0){
+        this.$alert('Only support the sim state in OnStock', 'M2M Data Message', {type: 'message'})            
+      }else{
+        
+        const query = {
+          IMSIs: arr,
+          ServiceProfileCode: this.selectedServiceProfile
+        }   
+        console.log('test', query)
+        setTestAjax(query).then(r=>{
+          if(r.MajorCode == '000'){            
+            this.$alert('Set Test mode', 'M2M Data Message', {type: 'message'})
+            this.getList()
+          }else{
+            this.$alert('Test mode was not submitted', 'M2M Data Message', {type: 'message'})
+          }
+        }).catch(e=>{
+          this.$alert('SIM/s can not be set on test mode', 'M2M Data Message', {type: 'message'})
+        })
+
+
+      }
+    },
     async acctivateSIM(){
       let checkSIM = true
       const arr = []

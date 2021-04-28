@@ -35,7 +35,6 @@ export async function qtLogin(query) {
   //let data = getFormDataFromObject(query)
   /**/
   let data = {}
-console.log(query)
   /*if(query.Account == 'Root' || query.Account == 'root' || query.Account == 'M2madmin' || query.Account == 'm2madmin'){
     /*const obj = {
       account: 'root',
@@ -460,6 +459,21 @@ export async function fetchSIMPosition(query) {
   }
 }
 
+
+export function setTestAjax(query) {
+  var options = {
+    "url": API_METHODS.SIM_SET_TEST,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
 
 export function setActivateStateAjax(query) {
   var options = {
