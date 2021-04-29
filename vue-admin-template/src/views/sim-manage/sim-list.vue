@@ -229,7 +229,7 @@
                       <el-button v-if="Permission['SIM_ACTIVATE']>1" v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATION') }}</el-button>
                       <el-button  v-if="Permission['SIM_SUSPEND_RESUME']>1||Permission['SIM_TERMINATE']>1" v-waves class="button-custom" @click="showStateForm"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
                       <el-button  v-if="Permission['SIM_MOVE']>1" v-waves class="button-custom" @click="showMoveForm"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
-                      <el-button v-waves class="button-custom" @click="showTestForm"><item :icon="'csp-blue'"/> {{ $t('TEST') }}</el-button>
+                      <el-button  v-if="Permission['SIM_TEST']>1" v-waves class="button-custom" @click="showTestForm"><item :icon="'csp-blue'"/> {{ $t('TEST') }}</el-button>
                       <el-button v-if="Permission['SIM_CHANGE_CSP']>1"  @click="showCSPForm" v-waves class="button-custom"><item :icon="'profile-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
                       <!--
                       <el-button v-waves class="button-custom"><item :icon="'solution-blue'"/> {{ $t('SOLUTION') }}</el-button>-->
