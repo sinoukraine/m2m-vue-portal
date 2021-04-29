@@ -162,12 +162,22 @@
       </el-form>
   </el-dialog>
 
-  <el-dialog title="Set Test Mode" :visible.sync="testFormVisible" width="30%" class="bg-white" >
-      <el-row :gutter="16">
-        <el-col :xs="24" :sm="24" class="lg-pr-0">
-            <el-select v-model="selectedServiceProfile" :placeholder="$t('SERVICEPROFILE')" class="">
+  <el-dialog title="Activate" :visible.sync="testFormVisible" width="30%" class="bg-white" >
+      <el-form :model="tempActivate" label-position="top" label-width="70px">
+           <el-row :gutter="16">        
+             <el-col :xs="24" :sm="24">            
+           <el-form-item :label="'Activate to'" prop="ActivateTo">
+         <el-select v-model="selectedActivateMode" :placeholder="'Activate to'" class="">
+              <el-option v-for="item in activateModeOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
+            </el-select>
+           </el-form-item>
+        </el-col>       
+        <el-col :xs="24" :sm="24" >
+             <el-form-item :label="$t('SERVICEPROFILE')" prop="ServiceProfile">
+         <el-select v-model="selectedServiceProfile" :placeholder="$t('SERVICEPROFILE')" class="">
               <el-option v-for="item in serviceProfileOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
             </el-select>
+             </el-form-item>
         </el-col>
       </el-row>      
       <el-row>
@@ -179,6 +189,7 @@
           </div>
         </div>
       </el-row>
+      </el-form>
   </el-dialog>
 
   <el-dialog title="Set Service Profile" :visible.sync="sspFormVisible" width="30%" class="bg-white" >
@@ -226,11 +237,12 @@
                 <div class="display-flex justify-content-between">                    
                   <div class="buttons-row">
                     <div v-if="Permission['SIM_LIST']>1">
-                      <el-button v-if="Permission['SIM_ACTIVATE']>1" v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATION') }}</el-button>
+                      <el-button v-if="Permission['SIM_TEST']>1" v-waves class="button-custom" @click="showTestForm"><item :icon="'activation'"/>  {{ $t('ACTIVATE') }}</el-button>
+                      <!--<el-button v-if="Permission['SIM_ACTIVATE']>1" v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATE') }}</el-button>-->
                       <el-button  v-if="Permission['SIM_SUSPEND_RESUME']>1||Permission['SIM_TERMINATE']>1" v-waves class="button-custom" @click="showStateForm"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
                       <el-button  v-if="Permission['SIM_MOVE']>1" v-waves class="button-custom" @click="showMoveForm"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
-                      <el-button  v-if="Permission['SIM_TEST']>1" v-waves class="button-custom" @click="showTestForm"><item :icon="'csp-blue'"/> {{ $t('TEST') }}</el-button>
-                      <el-button v-if="Permission['SIM_CHANGE_CSP']>1"  @click="showCSPForm" v-waves class="button-custom"><item :icon="'profile-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
+                      <el-button v-if="Permission['SIM_CHANGE_CSP']>1"  @click="showCSPForm" v-waves class="button-custom"><item :icon="'csp-blue'"/> {{ $t('SERVICEPROFILE') }}</el-button>
+                      
                       <!--
                       <el-button v-waves class="button-custom"><item :icon="'solution-blue'"/> {{ $t('SOLUTION') }}</el-button>-->
                     </div>
@@ -703,7 +715,20 @@ export default {
         }
       ))
 
+    const activateModeOptions = [
+    ]
+
+    if(Permission['SIM_TEST']>1){
+      activateModeOptions.push({Code: 'TestProductive', Name: 'TestProductive'})
+    }
+    if(Permission['SIM_ACTIVATE']>1){
+      
+      activateModeOptions.push({Code: 'Productive', Name: 'Productive'})
+    }
+
     return {
+      selectedActivateMode: 'TestProductive',
+      activateModeOptions,
       checkboxSearchRAGg: false,
       checkboxSearchRAGy: false,
       checkboxSearchRAGr: false,
@@ -775,6 +800,8 @@ export default {
       selectedNumber: '',
       selectedRemark: '',
       organizeOptions: [],
+      tempActivate: {
+      },
       tempMove: { 
         sendWay: '0',       
         searchedOrganize: null,
@@ -1060,44 +1087,79 @@ export default {
       
       this.sspFormVisible = true
       this.isLoading = false 
-    },    
-    
+    },        
     async saveTest(){
       let checkSIM = true
       const arr = []
-      for (let i = 0; i < this.multipleSIMSelection.length; i++) {
-        if(this.multipleSIMSelection[i].State == 'OnStock'){
-          arr.push(this.multipleSIMSelection[i].IMSI)
-        }else{
-          checkSIM = false
-        }
-      }
 
-      if(!checkSIM || this.multipleSIMSelection.length == 0){
-        this.$alert('Only support the sim state in OnStock', 'M2M Data Message', {type: 'message'})            
-      }else{
-        
-        const query = {
-          IMSIs: arr,
-          ServiceProfileCode: this.selectedServiceProfile
-        }   
-        console.log('test', query)
-        setTestAjax(query).then(r=>{
-          if(r.MajorCode == '000'){            
-            this.$alert('Set Test mode', 'M2M Data Message', {type: 'message'})
-            this.getList()
+      if(this.selectedActivateMode=='Productive'){
+        for (let i = 0; i < this.multipleSIMSelection.length; i++) {
+          if(this.multipleSIMSelection[i].State == 'OnStock' || this.multipleSIMSelection[i].State == 'TestProductive'){
+            arr.push(this.multipleSIMSelection[i].IMSI)
           }else{
-            this.$alert('Test mode was not submitted', 'M2M Data Message', {type: 'message'})
+            checkSIM = false
           }
-        }).catch(e=>{
-          this.$alert('SIM/s can not be set on test mode', 'M2M Data Message', {type: 'message'})
-        })
+        }
+
+        if(!checkSIM || this.multipleSIMSelection.length == 0){
+          this.$alert('Only support the sim state in OnStock / TestProductive', 'M2M Data Message', {type: 'message'}) 
+              
+        }else{
+          
+          const query = {
+            IMSIs: arr,
+            ServiceProfileCode: this.selectedServiceProfile
+          }   
+          setActivateStateAjax(query).then(r=>{
+            if(r.MajorCode == '000'){   
+             this.testFormVisible = false         
+              this.$alert('Activated', 'M2M Data Message', {type: 'message'})
+              this.getList()
+            }else{
+              this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+            }
+          }).catch(e=>{
+            this.$alert('SIM/s can not be activated', 'M2M Data Message', {type: 'message'})
+          })
 
 
-      }
+        }
+      }else{
+        for (let i = 0; i < this.multipleSIMSelection.length; i++) {
+          if(this.multipleSIMSelection[i].State == 'OnStock'){
+            arr.push(this.multipleSIMSelection[i].IMSI)
+          }else{
+            checkSIM = false
+          }
+        }
+
+        if(!checkSIM || this.multipleSIMSelection.length == 0){
+          this.$alert('Only support the sim state in OnStock', 'M2M Data Message', {type: 'message'})            
+        }else{
+          
+          const query = {
+            IMSIs: arr,
+            ServiceProfileCode: this.selectedServiceProfile
+          }   
+           setTestAjax(query).then(r=>{
+             
+            if(r.MajorCode == '000'){   
+             this.testFormVisible = false         
+              this.$alert('Set TestProductive was submitted', 'M2M Data Message', {type: 'message'})
+              this.getList()
+            }else{
+              this.$alert('TestProductive was not submitted', 'M2M Data Message', {type: 'message'})
+            }
+          }).catch(e=>{
+            this.$alert('SIM/s can not be set on TestProductive', 'M2M Data Message', {type: 'message'})
+          })
+
+
+        }
+      }      
     },
     async acctivateSIM(){
-      let checkSIM = true
+     /* let checkSIM = true
       const arr = []
       for (let i = 0; i < this.multipleSIMSelection.length; i++) {
         if(this.multipleSIMSelection[i].State == 'OnStock' || this.multipleSIMSelection[i].State == 'TestProductive'){
@@ -1129,7 +1191,7 @@ export default {
         })
 
 
-      }
+      }*/
     },
     async saveState(){
       let checkSIM = true
