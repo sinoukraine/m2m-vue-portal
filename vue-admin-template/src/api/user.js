@@ -659,5 +659,22 @@ export function deleteTemplateAjax(query) {
 }
 
 
+export function getUsageReportAjax(query) {
+  var options = {
+    "url": API_METHODS.REPORT_USAGE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) { 
+      console.log('response',response)   
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
 
 

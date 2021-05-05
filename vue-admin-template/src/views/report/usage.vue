@@ -13,8 +13,8 @@
                     </div>
                   <div class="buttons-row white-space-nowrap">
                     <el-button v-waves class="button-custom blue-btn" type="primary" @click="getList"><item :icon="'update-white'"/></el-button>
-                    <el-button v-waves :loading="downloadLoading" class="button-custom blue-btn" type="primary" @click="getList"><item :icon="'save-white'"/></el-button>
-                  </div>
+                   <!-- <el-button v-waves :loading="downloadLoading" class="button-custom blue-btn" type="primary" @click="getList"><item :icon="'save-white'"/></el-button>
+                  --></div>
                  </div>
                  <div class="buttons-row">
                 </div>
@@ -24,7 +24,7 @@
             <el-table
                 :key="tableKey"
                 v-loading="isListLoading"
-                :data="list"
+                :data="displayData"
                 :default-sort = "{prop: 'IMSI', order: 'ascending'}"
                 border
                 fit
@@ -37,51 +37,59 @@
                   {{$index+1}}         
                 </template>
               </el-table-column>
-                <el-table-column :label="$t('IMSI')"  sortable :class-name="getSortClass('IMSI')" prop="IMSI" align="left" width="130px">
+                <el-table-column v-if="listQueryGroupBy=='IMSI'" :label="$t('IMSI')"  sortable :class-name="getSortClass('IMSI')" prop="IMSI" align="left" width="130px">
                   <template slot-scope="{row}">
                     <router-link class="link" :to="{ path: `/sim-list/${row.IMSI}` }">
                       {{ row.IMSI }}
                     </router-link>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="listQuery.Type=='All'&&listQuery.GroupBy=='IMSI/ICCID'" sortable :label="$t('ICCID')"  :class-name="getSortClass('ICCID')" prop="ICCID" align="left" width="160px">
+                <el-table-column v-if="listQueryGroupBy=='IMSI'" sortable :label="$t('ICCID')"  :class-name="getSortClass('ICCID')" prop="ICCID" align="left" width="160px">
                   <template slot-scope="{row}">
                     <span>{{ row.ICCID }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column  sortable :class-name="getSortClass('OrganizeName')" prop="OrganizeName" :label="$t('CUSTOMER')" align="left" min-width="100px">
+                <el-table-column v-if="listQueryGroupBy=='ORG'||listQueryGroupBy=='IMSI'" sortable :class-name="getSortClass('OrganizeName')" prop="OrganizeName" :label="$t('CUSTOMER')" align="left" min-width="100px">
                   <template slot-scope="{row}">
                     <span>{{ row.OrganizeName }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column  v-if="(listQuery.Type=='All'||listQuery.Type=='Data')&&listQuery.GroupBy=='IMSI/ICCID'" sortable :class-name="getSortClass('SessionDay')" prop="SessionDay" :label="'Session'" align="left" min-width="70px">
+                <el-table-column v-if="listQueryGroupBy=='SERVICE_PROFILE'" sortable :class-name="getSortClass('OrganizeName')" prop="OrganizeName" :label="'Service Profile'" align="left" min-width="100px">
+                  <template slot-scope="{row}">
+                    <span>{{ row.ServiceProfile }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column  v-if="(listQueryType=='ALL'||listQueryType=='DATA')&&(listQueryGroupBy=='IMSI'||listQueryGroupBy=='SERVICE_PROFILE'||listQueryGroupBy=='ORG')" sortable :class-name="getSortClass('SessionDay')" prop="SessionDay" :label="'Session'" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.dataSession }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column  v-if="(listQuery.Type=='All'||listQuery.Type=='Data')&&listQuery.GroupBy=='IMSI/ICCID'" :label="'Data'" sortable :class-name="getSortClass('DataDay')" prop="DataDay" align="left" min-width="70px">
+                <el-table-column  v-if="(listQueryType=='ALL'||listQueryType=='DATA')&&(listQueryGroupBy=='IMSI'||listQueryGroupBy=='SERVICE_PROFILE'||listQueryGroupBy=='ORG')" :label="'Data'" sortable :class-name="getSortClass('DataDay')" prop="DataDay" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.DataUsage }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column  v-if="(listQuery.Type=='All'||listQuery.Type=='SMS')&&listQuery.GroupBy=='IMSI/ICCID'" :label="'SMS MO'" sortable  :class-name="getSortClass('SMSMO')" prop="SMSMO" align="left" min-width="70px">
+                <el-table-column  v-if="(listQueryType=='ALL'||listQueryType=='SMS')&&listQueryGroupBy=='IMSI'" :label="'SMS MO'" sortable  :class-name="getSortClass('SMSMO')" prop="SMSMO" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.smsMoUsage }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column  v-if="(listQuery.Type=='All'||listQuery.Type=='SMS')&&listQuery.GroupBy=='IMSI/ICCID'" :label="'SMS MT'" sortable  :class-name="getSortClass('SMSMT')" prop="SMSMT" align="left" min-width="70px">
+                <el-table-column  v-if="(listQueryType=='ALL'||listQueryType=='SMS')&&listQueryGroupBy=='IMSI'" :label="'SMS MT'" sortable  :class-name="getSortClass('SMSMT')" prop="SMSMT" align="left" min-width="70px">
                   <template slot-scope="{row}">
                     <span>{{ row.smsMtUsage }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column v-if="listQuery.Type=='All'&&listQuery.GroupBy=='IMSI/ICCID'" :label="'Month'" sortable :class-name="getSortClass('DataUpdateTime')" prop="DataUpdateTime" align="left" min-width="90px">
+                <el-table-column :label="'Update'" sortable :class-name="getSortClass('DataUpdateTime')" prop="DataUpdateTime" align="left" min-width="90px">
                   <template slot-scope="{row}">
                     <span>{{ row.update }}</span>
                   </template>
                 </el-table-column>
             </el-table>
-            <pagination v-show="total>0" :total="total" :page.sync="listQuery.Page" :limit.sync="listQuery.Rows" @pagination="getList" />
-            
+            <pagination v-show="total>0" 
+              :total="total" 
+              :page.sync="page"           
+              :page-size="limit"
+            />
             </div>
 
         </el-main>
@@ -141,7 +149,7 @@
                    </el-form-item>
                 </el-col>
 
-                <el-col v-if="listQuery.Date=='between'" :xs="100" :sm="100" :md="100" :lg="100" class="px-0">
+                <el-col v-if="listQuery.Date=='BETWEEN'||listQuery.Date=='THIS_MONTH'||listQuery.Date=='LAST_MONTH'" :xs="100" :sm="100" :md="100" :lg="100" class="px-0">
                     <el-form-item label="Start date" prop="title" class="mb-0">
                         <el-date-picker v-model="listQuery.startDate" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
                     </el-form-item>                  
@@ -149,7 +157,7 @@
                         <el-date-picker v-model="listQuery.endDate" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
                     </el-form-item>
                 </el-col>
-                <el-col v-if="listQuery.Date=='date'" :xs="100" :sm="100" :md="100" :lg="100" class="px-0">
+                <el-col v-if="listQuery.Date=='DATE'" :xs="100" :sm="100" :md="100" :lg="100" class="px-0">
                     <el-form-item label="Date" prop="title" class="mb-0">
                         <el-date-picker v-model="listQuery.selectedDate" value-format="yyyy-MM-dd" type="date" placeholder="Pick a date" style="width: 100%;" />
                     </el-form-item>   
@@ -163,7 +171,7 @@
                    </el-form-item>
                 </el-col>
 
-                <el-col v-if="listQuery.SearchBy=='Customer'" :xs="100" class="px-0">
+                <el-col v-if="listQuery.SearchBy=='CUSTOMER'" :xs="100" class="px-0">
                    <el-form-item label="Customer" prop="OrganizeCode">
                     <el-select
                       ref="organizeSearchSelect2"
@@ -181,7 +189,7 @@
                     </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col v-else :xs="100" class="px-0">
+                <el-col  v-if="listQuery.SearchBy=='SERVICE_PROFILE'" :xs="100" class="px-0">
                     <el-form-item label="Service Profile" prop="ServiceProfile">
                     <el-select v-model="listQuery.ServiceProfile">
                         <el-option v-for="item in serviceProfileOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
@@ -222,13 +230,14 @@ import waves from '@/directive/waves' // waves directive
 import { mapGetters } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { SIMStatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList, DistanceUnitList, EconomyUnitList, VolumeUnitList, TemperatureUnitList, PressureUnitList } from "@/utils/dictionaries";
-import { fetchSIMListAjax, fetchCustomersListAjax, setActivateStateAjax, setSuspendStateAjax, setResumeStateAjax, setTerminateStateAjax, setServiceProfileOptionsAjax, fetchServiceProfileOptionsAjax, createSIMAjax, updateSIMAjax, moveSIMsAjax } from "@/api/user";
+import { getUsageReportAjax, fetchSIMListAjax, fetchCustomersListAjax, setActivateStateAjax, setSuspendStateAjax, setResumeStateAjax, setTerminateStateAjax, setServiceProfileOptionsAjax, fetchServiceProfileOptionsAjax, createSIMAjax, updateSIMAjax, moveSIMsAjax } from "@/api/user";
 import Item from '@/layout/components/Sidebar/Item'
 import { getSIMListAsync, getSIM, getSIMAsync, getCustomerList, getSIMCoordinates, getSIMCountry, forceReconnectAsync } from '@/api/sim'
 import moment from 'moment'
 import { Permission } from '@/utils/role-permissions'
 
 const today = new Date()
+const current = moment() 
 
 export default {
   name: 'Customers',
@@ -242,6 +251,7 @@ export default {
     
   data() {
     return {     
+      isFiltered: true,
       Permission,
       isLoading: false,
       fullPage: true,      
@@ -249,14 +259,16 @@ export default {
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       tableKey: 0,
+      page: 1,
       list: null,
       total: 0,
+      limit: 10,
       isListLoading: true,
-      typeOptions: [{Name: 'All', Code: 'All'}, {Name: 'Data', Code: 'Data'}, {Name: 'SMS', Code: 'SMS'}],
-      groupByOptions: [{Name: 'IMSI/ICCID', Code: 'IMSI/ICCID'}, {Name: 'Service Profile', Code: 'Service Profile'}, {Name: 'Customer', Code: 'Customer'}],
-      groupByPeriodOptions: [{Name: 'Day', Code: 'Day'}, {Name: 'Month', Code: 'Month'}, {Name: 'Year', Code: 'Year'}],
-      dateOptions: [{Name: 'between', Code: 'between'}, {Name: 'date', Code: 'date'}, {Name: 'today', Code: 'today'}, {Name: 'yesterday', Code: 'yesterday'}, {Name: 'this month', Code: 'this month'}, {Name: 'last month', Code: 'last month'}, {Name: 'this year', Code: 'this year'}, {Name: 'last year', Code: 'last year'}],
-      searchByOptions: [{Name: 'Customer', Code: 'Customer'}, {Name: 'Service Profile', Code: 'Service Profile'}],
+      typeOptions: [{Name: 'ALL', Code: 'ALL'}, {Name: 'DATA', Code: 'DATA'}, {Name: 'SMS', Code: 'SMS'}],
+      groupByOptions: [{Name: 'IMSI', Code: 'IMSI'}, {Name: 'SERVICE_PROFILE', Code: 'SERVICE_PROFILE'}, {Name: 'ORG', Code: 'ORG'}],
+      groupByPeriodOptions: [{Name: 'DAY', Code: 'DAY'}, {Name: 'MONTH', Code: 'MONTH'}, {Name: 'YEAR', Code: 'YEAR'}],
+      dateOptions: [ {Name: 'DATE', Code: 'DATE'}, {Name: 'TODAY', Code: 'TODAY'}, {Name: 'YESTERDAY', Code: 'YESTERDAY'}, {Name: 'BETWEEN', Code: 'BETWEEN'}],//, {Name: 'THIS_MONTH', Code: 'THIS_MONTH'}, {Name: 'LAST_MONTH', Code: 'LAST_MONTH'}, {Name: 'THIS_YEAR', Code: 'THIS_YEAR'}, {Name: 'LAST_YEAR', Code: 'LAST_YEAR'}
+      searchByOptions: [{Name: 'ALL', Code: 'ALL'}, {Name: 'CUSTOMER', Code: 'CUSTOMER'}, {Name: 'SERVICE_PROFILE', Code: 'SERVICE_PROFILE'}],
       serviceProfileOptions: [
           {Name: 'M2M Data', Code: 'M2M Data'},
           {Name: 'M2M Data Emergency CSP Z1- 9', Code: 'M2M Data Emergency CSP Z1- 9'},
@@ -264,33 +276,42 @@ export default {
           {Name: 'M2M Data High CSP Z1-3', Code: 'M2M Data High CSP Z1-3'},
           {Name: 'M2M Data Custom Network Profile Australia', Code: 'M2M Data Custom Network Profile Australia'},
       ],
+      listQueryGroupBy: 'IMSI',
+      listQueryType: 'DATA',
       listQuery: {
-        Page: 1,
-        Rows: 10,
-        Order: 'DESC',
-        Sort: 'DataDay',
-        Type: 'Data',
-        GroupBy: 'IMSI/ICCID',
-        GroupByPeriod: 'Day',
-        Date: 'today',
-        startDate: moment(today, 'YYYY-MM-DD').add(-90, 'days').format('YYYY-MM-DD'),
+        //Page: 1,
+        //Rows: 10,
+        //Order: 'DESC',
+        //Sort: 'DataDay',
+        Type: 'DATA',
+        GroupBy: 'IMSI',
+        GroupByPeriod: 'DAY',
+        Date: 'TODAY',
+        startDate: moment(today, 'YYYY-MM-DD').add(-7, 'days').format('YYYY-MM-DD'),
         endDate: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
         selectedDate: moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD'),
-        SearchBy: 'Customer',
-        ServiceProfile: 'M2M Data'
+        SearchBy: 'ALL',
+        ServiceProfile: '',
+        searchedOrganize: ''
       },
       isDialogFormVisible: false,
       isFormLoading: false,
       downloadLoading: false,
       organizeArr: [],
       searchedFilterOrganizeName: '',
-      searchedOrganizeName: ''
+      searchedOrganizeName: '',
+      month_names_short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      
     }
   },
   created() {
     this.getList()
   },
   computed: {
+    displayData() {
+        if (!this.list || this.list.length === 0) return []
+        return this.list.slice(this.limit * this.page - this.limit, this.limit * this.page)
+    },
     //...mapGetters(['userInfo'])
   },
   methods: {         
@@ -325,29 +346,89 @@ export default {
         this.organizeArr = arr
       })
     },
-    changeOrganize(val) {
+    changeFilterOrganize(val) {
       this.organizeArr = []
       this.searchedOrganizeName = val.Name
-      this.tempMove.searchedOrganize = val
+      console.log('so',val)
+      this.listQuery.searchedOrganize = val.Code
     },
     async getList() {
-        let self = this
-        this.isListLoading = true      
+      let self = this
+      this.list = []
+      this.isListLoading = true      
         
-        const arr = [{
-            IMSI: '234500010301469',
-            ICCID: '8944501008183014693',
-            update: '2021-04',
-            OrganizeName: 'Boatfix',          
-            dataSession: '5',         
-            smsMoUsage: '0',    
-            smsMtUsage: '5',    
-            DataUsage: '1.042', 
-        }]     
-                  
-        self.isListLoading = false
-        self.total = 20
-        self.list = arr
+      const query = {
+          Type: this.listQuery.Type,
+          GroupBy: this.listQuery.GroupBy,
+          GroupByTime: this.listQuery.GroupByPeriod,
+          DataRange: this.listQuery.Date,
+          SearchType: this.listQuery.SearchBy,
+        }
+console.log('s', this.listQuery.SearchBy, this.listQuery?.ServiceProfile)
+        if(this.listQuery.SearchBy == 'SERVICE_PROFILE' && this.listQuery?.ServiceProfile?.length){
+          query.SearchValue = this.listQuery.ServiceProfile
+        }else if(this.listQuery.SearchBy == 'CUSTOMER' && this.listQuery?.searchedOrganize?.length){
+          query.SearchValue = this.listQuery.searchedOrganize
+        }else{
+          query.SearchType = 'ALL'
+        }
+
+        if(this.listQuery.Date == 'TODAY'){
+          query.Date = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+        }else if(this.listQuery.Date == 'DATE'){
+          query.Date = this.listQuery.selectedDate
+        }else if(this.listQuery.Date == 'BETWEEN'){
+          query.From = this.listQuery.startDate
+          query.To = this.listQuery.endDate
+        }else if(this.listQuery.Date == 'YESTERDAY'){          
+          query.Date = moment(today, 'YYYY-MM-DD').add(-1, 'days').format('YYYY-MM-DD')
+        }/*else if(this.listQuery.Date == 'THIS_MONTH'){                    
+          query.From = current.clone().startOf('month').format('YYYY-MM-DD') 
+          query.To = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+        }else if(this.listQuery.Date == 'LAST_MONTH'){          
+          query.From = moment(today, 'YYYY-MM-DD').add(-30, 'days').format('YYYY-MM-DD')
+          query.To = moment(today, 'YYYY-MM-DD').format('YYYY-MM-DD')
+        }*/
+
+        console.log(query, this.listQuery)
+
+        getUsageReportAjax(query).then(response => { 
+          let rows = response.Data.Rows
+          let columns = response.Data.Columns
+          const arrTable = []
+
+          let paramUsage = columns.indexOf('Usage')
+          let paramIMSI = columns.indexOf('IMSI')
+          let paramICCID = columns.indexOf('ICCID')
+          let paramUpdate = columns.indexOf('Day')!=-1?columns.indexOf('Day'):columns.indexOf('Month')!=-1?columns.indexOf('Month'):columns.indexOf('Year')
+          let paramOrg = columns.indexOf('Organize')
+          let paramSession = columns.indexOf('Session')
+          let paramSMSMo = columns.indexOf('SMSMO')
+          let paramSMSMt = columns.indexOf('SMSMT')
+          let paramServiceProfile = columns.indexOf('ServiceProfile')
+
+          rows.forEach((element, index) => {
+            arrTable.push({
+              IMSI: element[paramIMSI],
+              ICCID: element[paramICCID],
+              update: element[paramUpdate],
+              OrganizeName: element[paramOrg],
+              ServiceProfile: element[paramServiceProfile],                    
+              dataSession: element[paramSession],         
+              smsMoUsage: element[paramSMSMo],    
+              smsMtUsage: element[paramSMSMt],    
+              DataUsage: element[paramUsage], 
+            })     
+          })       
+          this.total = response.Data.Rows.length
+          setTimeout(() => {
+            this.isListLoading = false
+          }, 1.5 * 1000)
+
+          this.list = arrTable          
+        }).catch(e=>{
+          console.log(e)
+        })
     },
     async getServiceProfileOptions(){      
       fetchServiceProfileOptionsAjax().then(response => {        
@@ -357,7 +438,9 @@ export default {
     },    
     handleFilter() {
       this.listQuery.Page = 1
-
+      this.listQueryGroupBy = this.listQuery.GroupBy
+      this.listQueryType = this.listQuery.Type
+      
       this.getList()
     },
     sortChange(data) {console.log(data)

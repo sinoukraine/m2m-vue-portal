@@ -61,6 +61,8 @@ export const API_METHODS = {
   PERMISSIONS_CREATE: DOMAIN2 + 'service/Permission/Add',
   PERMISSIONS_EDIT: DOMAIN2 + 'service/Permission/Edit',
   PERMISSIONS_DELETE: DOMAIN2 + 'service/Permission/Remove',
+
+  REPORT_USAGE: DOMAIN2 + 'JT/Report/HistoryUsage'
 }
 
 
