@@ -150,15 +150,15 @@
 
                 <el-row :gutter="16">
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Name" prop="Name">
+                    <el-form-item label="Customer Name" prop="Name">
                     <el-input v-model="temp.Name" placeholder="Name"/>
                     </el-form-item>
                 </el-col>                
                 <el-col :xs="24" :sm="12">
-                    <el-form-item v-if="dialogStatus === 'update'" label="Parent" prop="ParentName">   
-                      <el-input :value="temp.ParentName" disabled placeholder="Parent"/>
+                    <el-form-item v-if="dialogStatus === 'update'" label="Parent Name" prop="ParentName">   
+                      <el-input :value="temp.ParentName" disabled placeholder="Parent Customer Name"/>
                     </el-form-item>
-                      <el-form-item v-else :label="'Parent'" prop="ParentCode" class="w-100">
+                      <el-form-item v-else :label="'Parent Name'" prop="ParentCode" class="w-100">
                         <input type="hidden" :value="temp.ParentCode" >
                         <el-select
                           ref="parentSearchSelect"
@@ -168,7 +168,7 @@
                           default-first-option
                           clearable
                           remote
-                          placeholder="Parent"
+                          placeholder="Parent Customer Name"
                           class="parent-search-select w-100"
                           @change="changeParentCreate"
                         >
@@ -183,12 +183,12 @@
 
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="First Name" prop="FirstName"  >
+                    <el-form-item label="First Account Name" prop="FirstName"  >
                     <el-input v-model="temp.FirstName" placeholder="First Name" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Sub Name" prop="SubName">
+                    <el-form-item label="Sub Account Name" prop="SubName">
                     <el-input v-model="temp.SubName"  placeholder="Sub Name" />
                     </el-form-item>
                 </el-col>
@@ -208,8 +208,8 @@
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
-                    <el-form-item label="Account" prop="Account" >
-                    <el-input v-model="temp.Account" placeholder="Account" />
+                    <el-form-item label="Login" prop="Account" >
+                    <el-input v-model="temp.Account" placeholder="Account Login" />
                     </el-form-item>
                 </el-col>
                 <el-col :xs="24" :sm="12">
