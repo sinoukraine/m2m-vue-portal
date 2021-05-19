@@ -237,7 +237,7 @@
                 <div class="display-flex justify-content-between">                    
                   <div class="buttons-row">
                     <div v-if="Permission['SIM_LIST']>1">
-                      <el-button v-if="Permission['SIM_TEST']>1" v-waves class="button-custom" @click="showTestForm"><item :icon="'activation'"/>  {{ $t('ACTIVATE') }}</el-button>
+                      <el-button v-if="Permission['SIM_TEST']>1" v-waves class="button-custom" @click="showTestForm"><item :icon="'activation'"/>  Activate</el-button>
                       <!--<el-button v-if="Permission['SIM_ACTIVATE']>1" v-waves class="button-custom" @click="acctivateSIM"><item :icon="'activation'"/> {{ $t('ACTIVATE') }}</el-button>-->
                       <el-button  v-if="Permission['SIM_SUSPEND_RESUME']>1||Permission['SIM_TERMINATE']>1" v-waves class="button-custom" @click="showStateForm"><item :icon="'state'"/> {{ $t('STATE') }}</el-button>
                       <el-button  v-if="Permission['SIM_MOVE']>1" v-waves class="button-custom" @click="showMoveForm"><item :icon="'sim-blue'"/> {{ $t('MOVE_SIM') }}</el-button>
