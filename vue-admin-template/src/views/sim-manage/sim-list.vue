@@ -486,7 +486,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :xs="100" class="px-0">
-                   <el-form-item label="Organize" prop="OrganizeCode">
+                   <el-form-item label="Organize" prop="OrganizeCode" class="mb-0">
                     <!--<el-select v-model="listQuery.OrganizeCode">
                         <el-option v-for="item in organizeOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
                     </el-select>-->
@@ -504,8 +504,13 @@
                     >
                       <el-option v-for="item in organizeArr" :key="item.Code" :value="item" :label="item.Name" />
                     </el-select>
+                    
+                    <el-checkbox v-model="checkboxSearchUniqueOrganize" >View selected customers only</el-checkbox>
+                      
                     </el-form-item>
                 </el-col>
+                
+
                 <el-col :xs="100" class="px-0">
                     <el-form-item label="From IMSI" prop="fromimsi" class="">
                     <el-input v-model="listQuery.FromIMSI" placeholder="From IMSI" class="filter-item" />
@@ -729,6 +734,7 @@ export default {
     return {
       selectedActivateMode: 'TestProductive',
       activateModeOptions,
+      checkboxSearchUniqueOrganize: false,
       checkboxSearchRAGg: false,
       checkboxSearchRAGy: false,
       checkboxSearchRAGr: false,
@@ -1583,6 +1589,8 @@ export default {
       this.listQuery.Status = []
       this.listQuery.ServiceprofileCodes = []
       
+      this.listQuery.UniqueOrganize = this.checkboxSearchUniqueOrganize
+
       this.checkboxSearchRAGg?this.listQuery.RAGs.push('GREEN'):null
       this.checkboxSearchRAGr?this.listQuery.RAGs.push('RED'):null
       this.checkboxSearchRAGy?this.listQuery.RAGs.push('YELLOW'):null
