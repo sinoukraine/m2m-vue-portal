@@ -1122,7 +1122,7 @@ export default {
               this.$alert('Activated', 'M2M Data Message', {type: 'message'})
               this.getList()
             }else{
-              this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+              this.$alert('Error, Current sim state not available. Refresh page and try again.', 'M2M Data Message', {type: 'message'})
             }
           }).catch(e=>{
             this.$alert('SIM/s can not be activated', 'M2M Data Message', {type: 'message'})
@@ -1154,7 +1154,7 @@ export default {
               this.$alert('Set TestProductive was submitted', 'M2M Data Message', {type: 'message'})
               this.getList()
             }else{
-              this.$alert('TestProductive was not submitted', 'M2M Data Message', {type: 'message'})
+              this.$alert('Error, Current sim state not available. Refresh page and try again.', 'M2M Data Message', {type: 'message'})
             }
           }).catch(e=>{
             this.$alert('SIM/s can not be set on TestProductive', 'M2M Data Message', {type: 'message'})
@@ -1256,7 +1256,7 @@ export default {
               this.stateFormVisible = false
               this.getList()
               }else{
-                this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+                this.$alert('Error, Current sim state not available. Refresh page and try again.', 'M2M Data Message', {type: 'message'})
               }
             }).catch(e=>{
               this.$alert('SIM/s can not be suspended', 'M2M Data Message', {type: 'message'})
@@ -1269,7 +1269,7 @@ export default {
               this.stateFormVisible = false
               this.getList()
               }else{
-              this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+              this.$alert('Error, Current sim state not available. Refresh page and try again.', 'M2M Data Message', {type: 'message'})
             }
             }).catch(e=>{
               this.$alert('SIM/s can not resume', 'M2M Data Message', {type: 'message'})
@@ -1282,7 +1282,7 @@ export default {
               this.stateFormVisible = false
               this.getList()
               }else{
-              this.$alert('State was not submitted', 'M2M Data Message', {type: 'message'})
+              this.$alert('Error, Current sim state not available. Refresh page and try again.', 'M2M Data Message', {type: 'message'})
             }
             }).catch(e=>{
               this.$alert('SIM/s can not be terminated', 'M2M Data Message', {type: 'message'})
@@ -1312,7 +1312,7 @@ export default {
             this.sspFormVisible = false
             this.getList()
           }else{
-            this.$alert('CSP was not submitted', 'M2M Data Message', {type: 'message'})
+            this.$alert('Error, Current csp state not available. Refresh page and try again.', 'M2M Data Message', {type: 'message'})
           }
         }).catch(e=>{
           this.$alert('Something wrong...', 'M2M Data Message', {type: 'message'})
