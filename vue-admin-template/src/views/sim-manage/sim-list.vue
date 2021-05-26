@@ -1220,7 +1220,7 @@ export default {
             }  
             break;
           case '2':
-            if(this.multipleSIMSelection[i].State == 'Productive' || this.multipleSIMSelection[i].State == 'TestProductive'  || this.multipleSIMSelection[i].State == 'Suspended'){
+            if(this.multipleSIMSelection[i].State == 'Productive'  || this.multipleSIMSelection[i].State == 'Suspended'){ //removed  || this.multipleSIMSelection[i].State == 'TestProductive'
               arr.push(this.multipleSIMSelection[i].IMSI)
              }else{
               checkSIM = false 
@@ -1238,7 +1238,7 @@ export default {
             
             break;
           case '2':
-             this.$alert('Only support the sim state in Productive / TestProductive / Suspended', 'M2M Data Message', {type: 'message'})
+             this.$alert('Only support the sim state in Productive / Suspended', 'M2M Data Message', {type: 'message'}) //removed  / TestProductive
             
             break;
         }
