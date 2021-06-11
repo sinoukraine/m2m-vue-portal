@@ -258,6 +258,9 @@
                   <el-col :span="24">
                     <el-checkbox v-model="checkboxSearchCSPM2MDataVodafoneAustralia" >M2M Data Vodafone Australia</el-checkbox>
                   </el-col>
+                  <el-col :span="24">
+                    <el-checkbox v-model="checkboxSearchCSPM2MdataTelstraOnly" >M2M data Telstra Only</el-checkbox>
+                  </el-col>
                 </el-row>
               </el-form-item>
             </div>
@@ -420,7 +423,8 @@ export default {
       checkboxSearchCSPM2MDataEmergency: false,
       checkboxSearchCSPM2MDataNormal: false,
       checkboxSearchCSPM2MDataHigh: false,
-      checkboxSearchCSPM2MDataVodafoneAustralia: false,      
+      checkboxSearchCSPM2MDataVodafoneAustralia: false,            
+      checkboxSearchCSPM2MdataTelstraOnly: false, 
       selectedSpecIMSI: '',
       selectedStartIMSI: '',
       selectedEndIMSI: '',
@@ -850,7 +854,8 @@ console.log(response.total)
       this.checkboxSearchCSPM2MDataNormal?this.listQuery.ServiceprofileCodes.push('M2M Data Normal CSP Z1 &2'):null
       this.checkboxSearchCSPM2MDataHigh?this.listQuery.ServiceprofileCodes.push('M2M Data High CSP Z1-3'):null
       this.checkboxSearchCSPM2MDataVodafoneAustralia?this.listQuery.ServiceprofileCodes.push('M2M Data Custom Network Profile Australia'):null
-     
+     this.checkboxSearchCSPM2MdataTelstraOnly?this.listQuery.ServiceprofileCodes.push('M2M data Telstra Only'):null
+
 
       this.getList()
     }, 
