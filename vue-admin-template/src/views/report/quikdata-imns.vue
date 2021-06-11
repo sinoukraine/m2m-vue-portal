@@ -244,23 +244,23 @@
               <el-form-item :label="$t('CSP')" prop="title" class="">
                 <el-row :gutter="16" style="">
                   <el-col :span="12">
-                    <el-checkbox v-model="checkboxSearchCSPM2MData" >M2M Data</el-checkbox>
+                    <el-checkbox v-model="checkboxSearchCSPM2MData" >M2M Low</el-checkbox>
                   </el-col>
                    <el-col :span="12">
-                    <el-checkbox v-model="checkboxSearchCSPM2MDataHigh" >M2M Data High</el-checkbox>
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataHigh" >M2M High</el-checkbox>
                   </el-col> 
                   <el-col :span="12">
-                    <el-checkbox v-model="checkboxSearchCSPM2MDataNormal" >M2M Data Normal</el-checkbox>
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataNormal" >M2M Normal</el-checkbox>
                   </el-col>
                  <el-col :span="12">
-                    <el-checkbox v-model="checkboxSearchCSPM2MDataEmergency">M2M Data Emergency</el-checkbox>
-                  </el-col>    
-                  <el-col :span="24">
-                    <el-checkbox v-model="checkboxSearchCSPM2MDataVodafoneAustralia" >M2M Data Vodafone Australia</el-checkbox>
-                  </el-col>
-                  <el-col :span="24">
-                    <el-checkbox v-model="checkboxSearchCSPM2MdataTelstraOnly" >M2M Data Telstra Only</el-checkbox>
-                  </el-col>
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataEmergency">M2M Emergency</el-checkbox>
+                  </el-col>   
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MdataTelstraOnly" >Aus Telstra Only</el-checkbox>
+                  </el-col> 
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchCSPM2MDataVodafoneAustralia" >Aus VF Only</el-checkbox>
+                  </el-col> 
                 </el-row>
               </el-form-item>
             </div>
