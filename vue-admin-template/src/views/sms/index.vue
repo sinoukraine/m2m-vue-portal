@@ -1,119 +1,124 @@
 <template>
   <el-container v-if="Permission['SMS']>0" class=" sms-page">
-    <loading :active.sync="isLoading" 
-        :can-cancel="true" 
-        :is-full-page="fullPage">
-    </loading>    
-    <confirm></confirm>
-    <dialogs-wrapper transition-name="fade"></dialogs-wrapper>
+    <loading
+      :active.sync="isLoading"
+      :can-cancel="true"
+      :is-full-page="fullPage"
+    />
+    <confirm />
+    <dialogs-wrapper transition-name="fade" />
     <el-container class="p-20">
-      <el-main class="messages-container"
-              >
-        <div class="messages" id="messages">
+      <el-main
+        class="messages-container"
+      >
+        <div id="messages" class="messages">
           <div
             v-for="(message, index) in messageList"
             :key="index"
             :class="messageClass(message)"
           >
             <slot v-if="message.type === 'title'">
-                <span class="time-border">                    
-                    {{message.text}}
-                </span>
+              <span class="time-border">
+                {{ message.text }}
+              </span>
             </slot>
             <slot v-else>
               <div class="message-content">
                 <div class="message-header">
-                    <div v-show="message.type === 'received'">
-                        <img :src="'avatar-sim.png?imageView2/1/w/80/h/80'" class="user-avatar">
-                    </div>
-                    <div v-if="!message.new" class="message-status">{{message.status}}</div>
-                    <div v-else class="message-status-new">Pending...</div>
-                    <div class="message-time">{{message.timestamp}}</div>
-                    <div v-show="message.type === 'sent'">
-                        <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
-                    </div>
+                  <div v-show="message.type === 'received'">
+                    <img :src="'avatar-sim.png?imageView2/1/w/80/h/80'" class="user-avatar">
+                  </div>
+                  <div v-if="!message.new" class="message-status">{{ message.status }}</div>
+                  <div v-else class="message-status-new">Pending...</div>
+                  <div class="message-time">{{ message.timestamp }}</div>
+                  <div v-show="message.type === 'sent'">
+                    <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+                  </div>
                 </div>
                 <div class="message-bubble">
                   <div class="message-text">
-                    <b>                      
-                      {{message.from === 'me'?'me':message.from}}
+                    <b>
+                      {{ message.from === 'me'?'me':message.from }}
                     </b>
-                    <br>                    
-                    <i v-show="message.to">to: {{message.to}}
                     <br>
+                    <i v-show="message.to">to: {{ message.to }}
+                      <br>
                     </i>
-                    {{message.text}}
+                    {{ message.text }}
                   </div>
                 </div>
               </div>
             </slot>
           </div>
-        </div>     
-        <div class="unreaded">
         </div>
-      </el-main>   
+        <div class="unreaded" />
+      </el-main>
 
       <el-footer class="messagebar-container">
         <div class="display-flex justify-content-between">
-          <el-input type="textarea" :disabled="Permission['SMS_SEND_CUSTOM']<2||Permission['SMS']<2" placeholder="Command" v-model="newMessage" class="input-with-select">
-          </el-input>
+          <el-input v-model="newMessage" type="textarea" :disabled="Permission['SMS_SEND_CUSTOM']<2||Permission['SMS']<2" placeholder="Command" class="input-with-select" />
           <div class="buttons-row white-space-nowrap">
-            <el-button :disabled="Permission['SMS']<2" v-waves slot="append" class="button-custom blue-btn" type="primary" @click="sendMessage"><item :icon="'send-white'" /> Send</el-button>
+            <el-button slot="append" v-waves :disabled="Permission['SMS']<2" class="button-custom blue-btn" type="primary" @click="sendMessage"><item :icon="'send-white'" /> Send</el-button>
           </div>
         </div>
       </el-footer>
     </el-container>
 
-    
     <el-aside width="250px" style="" class="chat-sidebar">
       <div v-if="isCommandsPanelVisible">
         <div class="right-column-header panel-right  padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="closeCommandsPanel">
           <p class="">Commands</p>
           <i class="el-icon-close" />
         </div>
-        <el-scrollbar wrap-class="scrollbar-wrapper" 
-          :class="listLoading?'scrollbar-loading':''">   
-            <el-collapse v-model="activeCommandGroups"   
-               v-loading="listLoading"
-               class="collapse-list">
-              <el-collapse-item           
-                v-for="group in commandGroupList" 
-                :key="group.ProductName"
-                :title="group.ProductName + ' (' + group.CommandList.length + ')'" 
-                :name="group.ProductName"
-                class="collapse-item">
-                <div>
-                  <ul 
-                       class="list">
-                    <li v-for="command in group.CommandList" :key="command.Code" @click="chooseCommand(command)">
-                      <div class="item-content" >
-                        <div class="item-inner">
-                          <div class="item-title">
-                            {{command.Name}}
-                          </div>
-                          
+        <el-scrollbar
+          wrap-class="scrollbar-wrapper"
+          :class="listLoading?'scrollbar-loading':''"
+        >
+          <el-collapse
+            v-model="activeCommandGroups"
+            v-loading="listLoading"
+            class="collapse-list"
+          >
+            <el-collapse-item
+              v-for="group in commandGroupList"
+              :key="group.ProductName"
+              :title="group.ProductName + ' (' + group.CommandList.length + ')'"
+              :name="group.ProductName"
+              class="collapse-item"
+            >
+              <div>
+                <ul
+                  class="list"
+                >
+                  <li v-for="command in group.CommandList" :key="command.Code" @click="chooseCommand(command)">
+                    <div class="item-content">
+                      <div class="item-inner">
+                        <div class="item-title">
+                          {{ command.Name }}
                         </div>
+
                       </div>
-                    </li>
-                  </ul>
-                </div>
-              </el-collapse-item>            
-            </el-collapse>    
-            <!--<div v-show="commandsList.length" class="sidebar-header">
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+          <!--<div v-show="commandsList.length" class="sidebar-header">
               <el-checkbox v-model="checkedCommandsAll">All</el-checkbox>
             </div>
             -->
-          </el-scrollbar>
+        </el-scrollbar>
       </div>
       <div v-else>
-        <div  v-if="Permission['SMS_SEND_SYSTEM']>1" class="right-column-header panel-right padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="showCommandsPanel">
+        <div v-if="Permission['SMS_SEND_SYSTEM']>1" class="right-column-header panel-right padding-horizontal-x2 display-flex justify-content-between align-items-center" @click="showCommandsPanel">
           <item :icon="'commands-grey'" />
           <p class="">Select command</p>
           <i class="el-icon-arrow-right" />
         </div>
-        <el-form class="commands-form" ref="simListQuery" :model="simListQuery" label-position="top" @submit.native.prevent="handleFilter">
+        <el-form ref="simListQuery" class="commands-form" :model="simListQuery" label-position="top" @submit.native.prevent="handleFilter">
           <input :id="filterSubmitId" type="submit" class="display-none">
-            <!--<div class="padding-horizontal-x2">
+          <!--<div class="padding-horizontal-x2">
               <el-row :gutter="16" style="">
                 <el-col :xs="100">
                     <el-form-item :label="$t('AGENT')" prop="title" class="no-margin-bottom">
@@ -125,142 +130,149 @@
                     <el-select v-model="selectedCustomer" :placeholder="$t('CUSTOMER')">
                       <el-option v-for="item in customersArr" :key="item.code" :label="item.name" :value="item.code" />
                     </el-select>
-                  </el-form-item>                
-                </el-col>
-              </el-row>
-            </div>
-            <div class="content-divider"></div>-->       
-            <div class="padding-horizontal-x2 pb-20">
-              <el-row :gutter="16" style="">
-                <el-col :xs="100">
-                  <el-form-item :label="$t('IMSI')" prop="title" class="no-margin-bottom">
-                    <el-input  v-model="simListQuery.sample" placeholder="" class="filter-item" />
                   </el-form-item>
                 </el-col>
-              </el-row>     
-            </div>        
-            <div class="content-divider"></div>
-            <div class="padding-horizontal-x2 py-20"> 
-              <el-row :gutter="16">
-                <el-col :xs="12" :sm="12" :md="12" :lg="12">
-                  <label @click="clearFilter" class="el-button el-button--primary width-100 dark-btn group-btn">
-                    <span>{{ $t('CLEAR') }}</span>
-                  </label>
-                </el-col>
-                <el-col :xs="12" :sm="12" :md="12" :lg="12">
-                  <label v-waves :for="filterSubmitId" class="el-button el-button--primary width-100 blue-btn group-btn">
-                    <item :icon="'search-white'"/> <span>{{ $t('SEARCH') }}</span>
-                  </label>
-                </el-col>
               </el-row>
-            </div>        
-            <div class="content-divider"></div>    
-          </el-form>
-          <el-scrollbar wrap-class="scrollbar-wrapper">     
-            <p v-show="!deviceList.length" class="no-sim-info">You can find the device by IMSI</p>   
-            <div v-show="deviceList.length" class="sidebar-header">
-              <el-checkbox v-model="checkedAll">All</el-checkbox>
             </div>
-            <ul 
-                v-show="deviceList.length" class="list">
-              <li v-for="device in deviceList" :key="device.id">
-                <div class="item-content" >
-                  <div class="item-append">
-                    <el-checkbox v-model="device.state" @input="handleChecked(device)"></el-checkbox>
+            <div class="content-divider"></div>-->
+          <div class="padding-horizontal-x2 pb-20">
+            <el-row :gutter="16" style="">
+              <el-col :xs="100">
+                <el-form-item :label="$t('IMSI')" prop="title" class="no-margin-bottom">
+                  <el-input v-model="simListQuery.sample" placeholder="" class="filter-item" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </div>
+          <div class="content-divider" />
+          <div class="padding-horizontal-x2 py-20">
+            <el-row :gutter="16">
+              <el-col :xs="12" :sm="12" :md="12" :lg="12">
+                <label class="el-button el-button--primary width-100 dark-btn group-btn" @click="clearFilter">
+                  <span>{{ $t('CLEAR') }}</span>
+                </label>
+              </el-col>
+              <el-col :xs="12" :sm="12" :md="12" :lg="12">
+                <label v-waves :for="filterSubmitId" class="el-button el-button--primary width-100 blue-btn group-btn">
+                  <item :icon="'search-white'" /> <span>{{ $t('SEARCH') }}</span>
+                </label>
+              </el-col>
+            </el-row>
+          </div>
+          <div class="content-divider" />
+        </el-form>
+        <el-scrollbar wrap-class="scrollbar-wrapper">
+          <p v-show="!deviceList.length" class="no-sim-info">You can find the device by IMSI</p>
+          <div v-show="deviceList.length" class="sidebar-header">
+            <el-checkbox v-model="checkedAll">All</el-checkbox>
+          </div>
+          <ul
+            v-show="deviceList.length"
+            class="list"
+          >
+            <li v-for="device in deviceList" :key="device.id">
+              <div class="item-content">
+                <div class="item-append">
+                  <el-checkbox v-model="device.state" @input="handleChecked(device)" />
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">
+                    {{ device.name }}
                   </div>
-                  <div class="item-inner">
-                    <div class="item-title">
-                      {{device.name}}
-                    </div>
-                    <div class="item-after">
-                      <el-dropdown slot="prepend" trigger="click">
-                        <i  class="el-icon-more rotate-90" style=""></i>
-                        <el-dropdown-menu slot="dropdown">
-                          <el-dropdown-item>Option 1</el-dropdown-item>
-                          <el-dropdown-item>Option 2</el-dropdown-item>
-                          <el-dropdown-item>Option 3</el-dropdown-item>
-                        </el-dropdown-menu>
-                      </el-dropdown>
-                    </div>
+                  <div class="item-after">
+                    <el-dropdown slot="prepend" trigger="click">
+                      <i class="el-icon-more rotate-90" style="" />
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item>Option 1</el-dropdown-item>
+                        <el-dropdown-item>Option 2</el-dropdown-item>
+                        <el-dropdown-item>Option 3</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
                   </div>
                 </div>
-              </li>
-            </ul>
-          </el-scrollbar>
+              </div>
+            </li>
+          </ul>
+        </el-scrollbar>
       </div>
     </el-aside>
-    <el-dialog :title="'Add Template'" :visible.sync="isDialogFormVisible"  width="50%">
+    <el-dialog :title="'Add Template'" :visible.sync="isDialogFormVisible" width="50%">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="top" label-width="70px" @submit.native.prevent="onEditFormSubmit">
-          <input type="submit" class="display-none" >
+        <input type="submit" class="display-none">
 
-          <el-row :gutter="16">
-              <el-col :xs="24" :sm="24">
-                  <el-form-item label="Name" prop="Name">
-                      <el-input v-model="temp.Name" />
-                  </el-form-item>
-              </el-col>   
-              
-              <el-col :xs="24" :sm="24">            
-                  <el-form-item :label="'Format'" prop="Content">                
-                      <el-input type="textarea" v-model="temp.Content" placeholder="Format" class="filter-item" />
-                  </el-form-item>
-              </el-col>
+        <el-row :gutter="16">
+          <el-col :xs="24" :sm="24">
+            <el-form-item label="Name" prop="Name">
+              <el-input v-model="temp.Name" />
+            </el-form-item>
+          </el-col>
 
-          </el-row>
+          <el-col :xs="24" :sm="24">
+            <el-form-item :label="'Format'" prop="Content">
+              <el-input v-model="temp.Content" type="textarea" placeholder="Format" class="filter-item" />
+            </el-form-item>
+          </el-col>
+
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-          <el-button :loading="isFormLoading" type="primary" class="blue-btn" @click="onEditFormSubmit()">
+        <el-button :loading="isFormLoading" type="primary" class="blue-btn" @click="onEditFormSubmit()">
           {{ $t('TEXT_COMMON_SAVE') }}
-          </el-button>
+        </el-button>
       </div>
-      </el-dialog>
+    </el-dialog>
   </el-container>
-  <div v-else class="no-data-info">    
+  <div v-else class="no-data-info">
     <div class="py-20">
       Permission denied
     </div>
-  </div>   
+  </div>
 </template>
 
 <script>
 
-String.prototype.format = function (e) { var t = this; if($.isArray(e)) {for (var i = 0; i < e.length; i++) if (e[i] != undefined) { var r = new RegExp("({)" + i + "(})", "g"); t = t.replace(r, e[i]) } return t }else if (arguments.length == 1 && typeof e == "object") { for (var n in e) if (e[n] != undefined) { var r = new RegExp("({" + n + "})", "g"); t = t.replace(r, e[n]) } } else for (var i = 0; i < arguments.length; i++) if (arguments[i] != undefined) { var r = new RegExp("({)" + i + "(})", "g"); t = t.replace(r, arguments[i]) } return t };
+String.prototype.format = function(e) { var t = this; if ($.isArray(e)) { for (var i = 0; i < e.length; i++) if (e[i] != undefined) { var r = new RegExp('({)' + i + '(})', 'g'); t = t.replace(r, e[i]) } return t } else if (arguments.length == 1 && typeof e === 'object') { for (var n in e) if (e[n] != undefined) { var r = new RegExp('({' + n + '})', 'g'); t = t.replace(r, e[n]) } } else for (var i = 0; i < arguments.length; i++) if (arguments[i] != undefined) { var r = new RegExp('({)' + i + '(})', 'g'); t = t.replace(r, arguments[i]) } return t }
 
 import { mapGetters } from 'vuex'
 import Item from '@/layout/components/Sidebar/Item'
-import waves from '@/directive/waves' 
+import waves from '@/directive/waves'
 import moment from 'moment'
 import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.css'
 import Confirm from './message-box/confirm'
-//import MessageBox from '/message-box/message'
+// import MessageBox from '/message-box/message'
 import { create } from 'vue-modal-dialogs'
 import { getSIMList, getSMSHistoryAsync, getCommandsListAsync, getCommandParamsAsync, sendCommandAsync } from '@/api/sim'
 
-import { fetchSIMListAjax, getHistoryAjax, createTemplateAjax } from "@/api/user";
+import { fetchSIMListAjax, getHistoryAjax, createTemplateAjax } from '@/api/user'
 import { Permission } from '@/utils/role-permissions'
 const confirm = create(Confirm, 'title', 'content')
 
 export default {
   name: 'App',
+  directives: { waves },
+  components: {
+      Item,
+      Loading
+  },
   data() {
-    return {     
+    return {
       isDialogFormVisible: false,
       isFormLoading: false,
-      temp: {        
+      temp: {
         Name: '',
         Content: '',
         Parameters: ''
       },
       rules: {
         Name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
-        Content: [{ required: true, message: 'Content is required', trigger: 'blur' }],
+        Content: [{ required: true, message: 'Content is required', trigger: 'blur' }]
       },
       page: 1,
       oldHistoryArray: [],
-      Permission, 
+      Permission,
       isLoading: false,
-      fullPage: true,      
+      fullPage: true,
       listLoading: true,
       isRightPanelVisible: true,
       isCommandsPanelVisible: false,
@@ -273,15 +285,15 @@ export default {
       messageList: [
         {
           type: 'title',
-          text: 'Today',
-        },
+          text: 'Today'
+        }
       ],
       agentsArr: [
         { code: '1', name: 'Agent' }
       ],
       customersArr: [
         { code: '1', name: 'Customer' }
-      ],    
+      ],
       simListQuery: {
         limit: 1,
         sample: ''
@@ -290,62 +302,57 @@ export default {
       intervalForReply: null,
       smsQuery: {
       },
-      loadedSMS: [],      
-			monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      loadedSMS: [],
+			monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     }
   },
-  directives: { waves },
-  components: {
-      Item,
-      Loading
+  watch: {
+    /* '$route.params.newimsi': {
+        handler: function(search) {
+
+        },
+        deep: true,
+        immediate: true
+      },*/
+    checkedAll(state) {
+      for (let i = 0; i < this.deviceList.length; i++) {
+        this.deviceList[i].state = state
+      }
+      this.loadedSMS = []
+      this.messageList = []
+      this.getHistory()
+    }
   },
-  //props : ['imsi'],
+  // props : ['imsi'],
   created() {
-    /*this.$store.watch(
+    /* this.$store.watch(
       (state) => {
         return this.$store.state.dashboard.imsi // could also put a Getter here
       },
       (newValue, oldValue) => {
         console.log('new',newValue)
-        
+
       },
       {
         deep: true
       }
     )*/
   },
-  watch: {
-    /*'$route.params.newimsi': {
-        handler: function(search) {           
-          
-        },
-        deep: true,
-        immediate: true
-      },*/
-    checkedAll(state){
-      for (let i = 0; i < this.deviceList.length; i++) {
-        this.deviceList[i].state = state
-      }      
-      this.loadedSMS = []
-      this.messageList = [] 
-      this.getHistory()
-    },
-  },
   computed: {
     ...mapGetters([
       'avatar'
     ])
   },
-  mounted(){
-    console.log('eee',this.$store.state.dashboard.imsi)
-    if(this.$store.state.dashboard.imsi){
-      this.simListQuery.sample = this.$store.state.dashboard.imsi    
-      this.$store.dispatch('dashboard/setIMSI', '')      
-      this.isLoading = true     
+  mounted() {
+    console.log('eee', this.$store.state.dashboard.imsi)
+    if (this.$store.state.dashboard.imsi) {
+      this.simListQuery.sample = this.$store.state.dashboard.imsi
+      this.$store.dispatch('dashboard/setIMSI', '')
+      this.isLoading = true
       this.searchSIMList()
     }
   },
-  methods: {    
+  methods: {
     handleCreate(content) {
       this.resetTemp()
       this.temp.Content = content
@@ -355,57 +362,55 @@ export default {
       })
     },
     resetTemp() {
-      this.temp = {        
+      this.temp = {
         Name: '',
         Content: '',
         Parameters: ''
       }
-    }, 
-    onEditFormSubmit(){
-     
+    },
+    onEditFormSubmit() {
       this.temp.Content = this.temp.Content.replace(/↵/g, '\\n')
 
-      let tempData = Object.assign({}, this.temp)
-      this.$refs['dataForm'].validate(async (valid) => {
-        if (!valid){
+      const tempData = Object.assign({}, this.temp)
+      this.$refs['dataForm'].validate(async(valid) => {
+        if (!valid) {
           return false
-        }      
+        }
 
         this.isFormLoading = true
-        
-        createTemplateAjax(tempData).then(response => {  
-          if(response.MajorCode == '000') {
+
+        createTemplateAjax(tempData).then(response => {
+          if (response.MajorCode == '000') {
             this.resetTemp()
             this.$notify({
               title: 'Success',
               message: 'New template created',
               type: 'success',
               duration: 2000
-            })            
-            
+            })
+
             this.isDialogFormVisible = false
-          }else{
+          } else {
             this.$notify({
               title: 'Error',
               message: 'Incorrect data format',
               type: 'error',
               duration: 2000
             })
-          }      
-        })        
+          }
+        })
 
         this.isFormLoading = false
       })
-    },   
-
+    },
 
     clearFilter() {
-      this.isLoading = true     
-      this.simListQuery.sample = ''      
-      this.isLoading = false     
+      this.isLoading = true
+      this.simListQuery.sample = ''
+      this.isLoading = false
     },
     handleFilter() {
-      this.isLoading = true     
+      this.isLoading = true
       this.deviceList = []
       this.searchSIMList()
     },
@@ -414,73 +419,66 @@ export default {
 
       for (let i = 0; i < this.deviceList.length; i++) {
         this.deviceList[i].state = false
-      }      
+      }
       this.loadedSMS = []
-      this.messageList = [] 
+      this.messageList = []
 
-      //console.log(this.simListQuery)
-      if(this.simListQuery.sample!=undefined){
-       
+      // console.log(this.simListQuery)
+      if (this.simListQuery.sample != undefined) {
        this.simListQuery = {
           Rows: 5,
-          IMSIs: [this.simListQuery.sample],
+          IMSIs: [this.simListQuery.sample]
         }
         fetchSIMListAjax(this.simListQuery).then(response => {
-           if(response.rows.length){
-
-              console.log('all',response.rows)
+           if (response.rows.length) {
+              console.log('all', response.rows)
               response.rows.forEach(element => {
                 arr.push({
                   id: element.IMSI,
                   name: element.IMSI,
-                  state: false,
+                  state: false
                 })
-              })     
-              this.isLoading = false     
+              })
+              this.isLoading = false
               this.deviceList = arr
-              
+
               this.deviceList[0].state = true
               this.getHistory()
-            }else{
-              this.isLoading = false 
-              this.$alert('Can not find this SIM number', 'M2M Data Message', {type: 'message'})
-
+            } else {
+              this.isLoading = false
+              this.$alert('Can not find this SIM number', 'M2M Data Message', { type: 'message' })
             }
         }).catch(e => {
-          this.isLoading = false 
-          this.$alert('Can not find this SIM number', 'M2M Data Message', {type: 'message'})
-      
-        }) 
-        
-       } else{
-         this.isLoading = false    
-      }     
+          this.isLoading = false
+          this.$alert('Can not find this SIM number', 'M2M Data Message', { type: 'message' })
+        })
+       } else {
+         this.isLoading = false
+      }
     },
-    handleChecked({name, state}){
+    handleChecked({ name, state }) {
       this.loadedSMS = []
-      this.messageList = [] 
+      this.messageList = []
       this.getHistory()
     },
-    async sendMessage(){   
-      let self = this 
-      if(this.newMessage){
-        if(this.deviceList.length) {
-          const someArr = this.deviceList.some(el => el.state === true)   
-          if(someArr) {
-            //this.isLoading = true 
-            const datetime = moment.utc().toDate()						
+    async sendMessage() {
+      const self = this
+      if (this.newMessage) {
+        if (this.deviceList.length) {
+          const someArr = this.deviceList.some(el => el.state === true)
+          if (someArr) {
+            // this.isLoading = true
+            const datetime = moment.utc().toDate()
             const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + datetime.getFullYear() + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
- 
+
             for (let i = 0; i < this.deviceList.length; i++) {
-              if(this.deviceList[i].state) {
-                
-                
+              if (this.deviceList[i].state) {
                 var query = {
                   IMSI: this.deviceList[i].name,
                   SMS: this.newMessage
                 }
 
-              /*- const obj = {
+              /* - const obj = {
                       new: true,
                       timestamp: '4 Feb 00:55:12',
                       from: 'me',
@@ -489,91 +487,85 @@ export default {
                       type: 'sent',
                     }
                     self.messageList.push(obj)
-                  
 
                   this.newMessage = ''
                   this.$nextTick(() => {
                     const el = this.$el.getElementsByClassName('unreaded')[0];
-                  
+
                     if (el) {
                       el.scrollIntoView({behavior: 'smooth'});
                     }
-                      
+
                   })
-                    
+
                      if(!self.intervalForReply){
-                    self.intervalForReply = setInterval(function () {          
+                    self.intervalForReply = setInterval(function () {
                       self.getHistory()
                     }, 30000)
                   }-*/
                   const obj = {
-                      new: true,
-                      timestamp: time,
-                      from: 'me',
-                      to: self.deviceList[i].name,
-                      text: self.newMessage,
-                      type: 'sent',
+                    new: true,
+                    timestamp: time,
+                    from: 'me',
+                    to: self.deviceList[i].name,
+                    text: self.newMessage,
+                    type: 'sent'
+                  }
+                  self.messageList.push(obj)
+
+                  self.newMessage = ''
+                  self.$nextTick(() => {
+                    const ele = self.$el.getElementsByClassName('unreaded')[0]
+                    if (ele) {
+                      ele.scrollIntoView({ behavior: 'smooth' })
                     }
-                    self.messageList.push(obj)
-                  
-                    
-                    self.newMessage = ''
-                    self.$nextTick(() => {
-                    
-                      const ele = self.$el.getElementsByClassName('unreaded')[0];  
-                      if (ele) {
-                        ele.scrollIntoView({behavior: 'smooth'});
-                      }
-                        
-                    })
-                      
-                    if(!self.intervalForReply){
-                      self.intervalForReply = setInterval(function () {          
-                        self.getHistory()
-                      }, 30000)
-                    }
-                  
-              const result = await fetch("https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId="+query.IMSI+"&message="+encodeURIComponent(query.SMS)).catch(e=>{
-                console.log(e)
-                   self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
-                 return
-              })
-                let jsonResult = await result.json()
-                //$.ajax(settings).done(function (result) {
-                console.log(jsonResult)
-                if(jsonResult.MajorCode=='000'){
-                      self.handleCreate(obj.text)
-                    }else{
-                       self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', {type: 'message'})
-                 
-                    }
+                  })
+
+                  if (!self.intervalForReply) {
+                    self.intervalForReply = setInterval(function() {
+                      self.getHistory()
+                    }, 30000)
+                  }
+
+                //~~to test var CMDToSend = 'VERSION?\r\nPARAM?<br>gpio?'
+                var arrCMDToSend = query.SMS.split('\r\n').join('@@@separator@@@').split('\n').join('@@@separator@@@').split('<br>').join('@@@separator@@@').split('@@@separator@@@')
+                //console.log(query.SMS, arrCMDToSend)
+                arrCMDToSend.forEach(async element => {
+                  //console.log(element)
+                  const result = await fetch('https://api.m2mglobaltech.com/QuikData/v1/SMS/SendSMS?deviceId=' + query.IMSI + '&message=' + encodeURIComponent(element)).catch(e => {
+                    console.log(e)
+                      self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', { type: 'message' })
+                    return
+                  })
+
+                  const jsonResult = await result.json()
+                  if (jsonResult.MajorCode == '000') {
+                    self.handleCreate(obj.text)
+                  } else {
+                    self.$alert('Command was not sent to IMSI ' + self.deviceList[i].name, 'M2M Data Message', { type: 'message' })
+                  }
+                })
               }
-            }      
-           
-            
-          }else{
-            this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})
-        
+            }
+          } else {
+            this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', { type: 'message' })
           }
-        }else{
-          this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', {type: 'message'})      
+        } else {
+          this.$alert('Please choose a SIM for sending command.', 'M2M Data Message', { type: 'message' })
         }
-      }      
+      }
     },
-    getHistory(){     
-      let i = 0
+    getHistory() {
+      const i = 0
       this.oldHistoryArray = []
-      
-      let concatArr = []
-      this.deviceList.forEach(async (element, index, arr) => {
-        
+
+      const concatArr = []
+      this.deviceList.forEach(async(element, index, arr) => {
         this.page = 1
 
-        if(this.deviceList[index].state) {
-          
-          
+        if (this.deviceList[index].state) {
           this.getFullHistory(this.deviceList[index].name)
-          /*let self = this
+          /* let self = this
           getHistoryAjax({
 						"IMSI":  query.imsi,
 						"PAGE": "1",
@@ -588,183 +580,175 @@ export default {
                 var d = new Date(b.CreateTime)
                 return d-c
               })
-              self.setHistory(sortedArr.reverse())       
+              self.setHistory(sortedArr.reverse())
             }
           })*/
-
         }
       })
     },
-    getFullHistory(imsi){
-      let self = this
+    getFullHistory(imsi) {
+      const self = this
 
       const query = {
         imsi
-      } 
-      
+      }
+
       getHistoryAjax({
-						"IMSI": imsi,
-						"PAGE": this.page,
-						"pagesize": "100",
-					  }).then(response => {   
+						'IMSI': imsi,
+						'PAGE': this.page,
+						'pagesize': '100'
+					  }).then(response => {
               if (response.MajorCode == '000') {
                 if (response.Data.length) {
-                  let historyArray = response.Data
-                  
-                  if(self.page > 1){
-                      self.oldHistoryArray= self.oldHistoryArray.concat(historyArray);
-                    }else{
-                      //self.isLoading = true
-                      self.oldHistoryArray= historyArray;													
-                    }
-                      let incr = self.page + 1;
-                      
-                      self.page = incr
-                      
-                      self.getFullHistory(imsi)
-                  }else{
-                    if(self.oldHistoryArray.length > 0){
-                      self.oldHistoryArray.sort(function(a,b){
-                        var c = new Date(a.CreateTime);
-                        var d = new Date(b.CreateTime);
-                        return d-c;
-                      });
-                      //self.setHistory(self.oldHistoryArray)
+                  const historyArray = response.Data
 
-                      //let renderArr = self.oldHistoryArray.map(el => ({...el, CreateTime: el.CreateTime.slice(0,19).replace('T', ' '), CenterNumber: el.CenterNumber.toString(), Direction: el.Direction==2?'Outbound':'Inbound', State: el.State==0?'Error':el.State==1?'Sent':el.State==2?'Submitted':el.State==3?'Delivered':'Received'}))
-            
-                      //self.smsUsageList = renderArr 
-                      //self.isLoading = true
-                      /*let sortedArr = concatArr.sort(function(a,b){
+                  if (self.page > 1) {
+                      self.oldHistoryArray = self.oldHistoryArray.concat(historyArray)
+                    } else {
+                      // self.isLoading = true
+                      self.oldHistoryArray = historyArray
+                    }
+                      const incr = self.page + 1
+
+                      self.page = incr
+
+                      self.getFullHistory(imsi)
+                  } else {
+                    if (self.oldHistoryArray.length > 0) {
+                      self.oldHistoryArray.sort(function(a, b) {
+                        var c = new Date(a.CreateTime)
+                        var d = new Date(b.CreateTime)
+                        return d - c
+                      })
+                      // self.setHistory(self.oldHistoryArray)
+
+                      // let renderArr = self.oldHistoryArray.map(el => ({...el, CreateTime: el.CreateTime.slice(0,19).replace('T', ' '), CenterNumber: el.CenterNumber.toString(), Direction: el.Direction==2?'Outbound':'Inbound', State: el.State==0?'Error':el.State==1?'Sent':el.State==2?'Submitted':el.State==3?'Delivered':'Received'}))
+
+                      // self.smsUsageList = renderArr
+                      // self.isLoading = true
+                      /* let sortedArr = concatArr.sort(function(a,b){
                         var c = new Date(a.CreateTime)
                         var d = new Date(b.CreateTime)
                         return d-c
                       })*/
-                      self.setHistory(self.oldHistoryArray.reverse()) 
+                      self.setHistory(self.oldHistoryArray.reverse())
 
-                      console.log('OKKK-his',self.oldHistoryArray) 
-                     
-
-                    }else{
+                      console.log('OKKK-his', self.oldHistoryArray)
+                    } else {
                       self.isLoading = false
                     }
                   }
-              }else{     
-                      self.isLoading = false           
+              } else {
+                      self.isLoading = false
               }
 
-              /*let sortedArr = concatArr.sort(function(a,b){
+              /* let sortedArr = concatArr.sort(function(a,b){
                 var c = new Date(a.CreateTime)
                 var d = new Date(b.CreateTime)
                 return d-c
               })
-              self.setHistory(sortedArr) */      
-              
-          }).catch(e=>{     
-                      self.isLoading = false     
+              self.setHistory(sortedArr) */
+          }).catch(e => {
+                      self.isLoading = false
           })
-              
     },
-    setHistory(arr){
+    setHistory(arr) {
       arr.forEach(value => {
-        let obj = {}
+        const obj = {}
 
-        if (this.loadedSMS.indexOf( value.CenterNumber + ' ' + value.CreateTime + value.Message[0] ) == -1){
-          
+        if (this.loadedSMS.indexOf(value.CenterNumber + ' ' + value.CreateTime + value.Message[0]) == -1) {
           this.loadedSMS.push(value.CenterNumber + ' ' + value.CreateTime + value.Message[0])
-          const datetime = moment.utc(value.CreateTime).toDate()						
+          const datetime = moment.utc(value.CreateTime).toDate()
 					const time = datetime.getDate() + ' ' + this.monthNames[datetime.getMonth()] + ' ' + ('0' + datetime.getHours()).slice(-2) + ':' + ('0' + datetime.getMinutes()).slice(-2) + ':' + ('0' + datetime.getSeconds()).slice(-2)
-                 
-          obj.timestamp = time   
+
+          obj.timestamp = time
           obj.from = value.CenterNumber
           obj.to = this.deviceList[0].name
-          obj.status = value.State==0?'Error':value.State==1?'Sent':value.State==2?'Submitted':value.State==3?'Delivered':'Received'
+          obj.status = value.State == 0 ? 'Error' : value.State == 1 ? 'Sent' : value.State == 2 ? 'Submitted' : value.State == 3 ? 'Delivered' : 'Received'
 
           if (value.Message) {
-            obj.text = value.Message.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            obj.text = value.Message.replace(/</g, '&lt;').replace(/>/g, '&gt;')
           }
-							
-          if (value.Direction == 2) {      
+
+          if (value.Direction == 2) {
             obj.type = 'sent'
-            if(value.State == 3 || value.State == 2 || value.State == 1 || value.State == 0){
+            if (value.State == 3 || value.State == 2 || value.State == 1 || value.State == 0) {
               const elToRemove = []
               this.messageList.map((el, i) => {
-                if(el.text === obj.text && el.hasOwnProperty('new')){
+                if (el.text === obj.text && el.hasOwnProperty('new')) {
                   elToRemove.push(i)
                 }
               })
-             
+
               elToRemove.forEach(element => {
-                this.messageList.splice(element, 1)                
+                this.messageList.splice(element, 1)
               })
 
-              /*$('.message-sent').each(function(i, ele) {
+              /* $('.message-sent').each(function(i, ele) {
                 if(replySMS === $(this).find('.message-text').text() && $(this).find('.message-bubble').find('.msg-status').text() != 'Delivered'){
                   $(this).remove();
                 }
               })*/
             }
-          }else if(value.Direction == 1){
+          } else if (value.Direction == 1) {
             obj.type = 'received'
           }
 
           this.messageList.push(obj)
-          
         }
       })
-      
+
       this.$nextTick(() => {
-        const el = this.$el.getElementsByClassName('unreaded')[0];
-      
+        const el = this.$el.getElementsByClassName('unreaded')[0]
+
         if (el) {
-          el.scrollIntoView({behavior: 'smooth'});
+          el.scrollIntoView({ behavior: 'smooth' })
         }
-        
-        this.isLoading = false     
+
+        this.isLoading = false
       })
     },
-    async chooseCommand(val){console.log(val)
-      let smsFormat = val.Format
+    async chooseCommand(val) {
+ console.log(val)
+      const smsFormat = val.Format
       let arr = []
-      if(val.Params[0]==='['){
+      if (val.Params[0] === '[') {
         arr = eval(val.Params)
       }
-      let params = []							
-      let count=arr.length
-      if(count){        
-        for(var i=0; i<arr.length; i++) {		
-          let curPar = await confirm(arr[i].Name, arr[i].Prams).transition()//self.$app.dialog.prompt(arr[i].Name, function (name) {
+      const params = []
+      const count = arr.length
+      if (count) {
+        for (var i = 0; i < arr.length; i++) {
+          const curPar = await confirm(arr[i].Name, arr[i].Prams).transition()// self.$app.dialog.prompt(arr[i].Name, function (name) {
           params.push(curPar)
           this.newMessage = smsFormat.format(params)
         }
-      }else{
+      } else {
         this.newMessage = val.Format
       }
-      
     },
-    closeCommandsPanel(){
+    closeCommandsPanel() {
       this.isCommandsPanelVisible = false
     },
-    async showCommandsPanel(){      
+    async showCommandsPanel() {
       this.isCommandsPanelVisible = true
       const response = await getCommandsListAsync()
-      if(response)
-      {	
-        this.commandGroupList = response        
-        this.$nextTick(()=>{
+      if (response) {
+        this.commandGroupList = response
+        this.$nextTick(() => {
           this.listLoading = false
         })
       }
     },
-    messageClass: function (message) {
+    messageClass: function(message) {
       return {
         'messages-title': message.type === 'title',
         'message': message.type !== 'title',
         'message-sent': message.type === 'sent',
-        'message-received': message.type === 'received',
+        'message-received': message.type === 'received'
       }
     }
-  },
+  }
 }
 </script>
 
@@ -793,7 +777,7 @@ export default {
     padding-left: 16px;
     padding-right: 16px;
   }
- 
+
     .sms-page .list{
     list-style: none;
     position: relative;
@@ -904,9 +888,7 @@ export default {
       }
     }
   }
-  
 
-  
   .sms-page .messages{
     display: -webkit-box;
     display: -webkit-flex;
@@ -1101,14 +1083,10 @@ export default {
             text-align: left;
           }
 
-        
-          
         }
       }
     }
   }
-
-
 
  .sms-page .panel-right p{
     padding-right: 25px;
@@ -1259,7 +1237,6 @@ export default {
 .sms-page .el-aside {
     overflow-x: hidden !important;
 }
-
 
 .sms-page .app-main{
   overflow: inherit !important;

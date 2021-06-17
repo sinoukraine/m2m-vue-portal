@@ -19,7 +19,7 @@ const USER_LIST = API_DOMIAN + 'people'
 const SIM_STATES = API_DOMIAN + 'sims/states'
 const CDRS_LIST = API_DOMIAN + 'cdrs'
 const CUSTOMER_LIST = API_DOMIAN + 'counterparties'
-const COMMAND_LIST = API_IMNS_DOMIAN + "Command/GetLIst"
+const COMMAND_LIST = API_IMNS_DOMIAN + "Command/GetLIst2"
 const COMMAND_TYPES = API_IMNS_DOMIAN + 'Command/GetTypes'
 const OLD_CDRS = OLD_API_DOMAIN + 'cdrs/'
 
@@ -257,7 +257,7 @@ export async function getCommandsListAsync(query) {
   const token = getToken()
 
   try {
-    const response = await fetch(`https://api.m2mglobaltech.com/QuikData/V1/Command/GetLIst?MajorToken=${token}`)
+    const response = await fetch(`https://api.m2mglobaltech.com/QuikData/V1/Command/GetLIst2?MajorToken=${token}`)
     
     return await response.json()
     //const response = await axios.request(getRequestIMNSOptions(options))
