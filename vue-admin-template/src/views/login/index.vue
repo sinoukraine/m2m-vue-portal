@@ -23,7 +23,7 @@
         <el-input
           :key="passwordType"
           ref="password"
-          v-model="loginForm.password"
+          v-model="loginForm.Password"
           :type="passwordType"
           placeholder="Password"
           name="password"
