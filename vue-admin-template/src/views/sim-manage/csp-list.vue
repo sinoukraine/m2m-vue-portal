@@ -5,9 +5,9 @@
           <div class="buttons-row">
           </div>
           <div class="buttons-row white-space-nowrap">
-          <el-button v-if="Permission['CSP_ADD']>1" class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
+          <!--<el-button v-if="Permission['CSP_ADD']>1" class="filter-item button-custom blue-btn" type="primary" @click="handleCreate">
           <item :icon="'create-white'"/> 
-          </el-button>
+          </el-button>-->
           </div>
       </div>
       <!--<div class="buttons-row">
@@ -58,36 +58,31 @@
         highlight-current-row
         style="width: 100%;"
       >
-        <el-table-column label="Name" prop="Name" fixed="left" align="center" min-width="180px" sortable>
+        
+        
+        <el-table-column label="Name" prop="Name"  align="center" min-width="180px" sortable>
           <template slot-scope="{row}">
             <span>{{ row.Name }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Role" prop="Role" width="180px" align="center" sortable>
+        <el-table-column label="Code" prop="Code" min-width="180px" align="center" sortable>
           <template slot-scope="{row}">
-            <span>{{ getRoleName(row.RoleCode) }}</span>
+            <span>{{row.Code }}</span>
           </template>
-        </el-table-column>
+        </el-table-column><!--
         <el-table-column label="Number" width="160px" align="center">
           <template slot-scope="{row}">
             <span>{{ row.Number }}</span>
           </template>
-        </el-table-column>
-        <el-table-column label="Status" prop="Status" class-name="status-col" width="100" sortable>
-          <template slot-scope="{row}">
-            <el-tag :type="row.Status | statusFilter">
-              {{ getStatusText(row.Status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="Actions" align="center" width="200" class-name="small-padding fixed-width" fixed="right">
+        </el-table-column>-->
+        <el-table-column label="Actions" align="center" width="100" class-name="small-padding fixed-width" >
           <template slot-scope="{row,$index}">
             <el-button  v-if="Permission['CSP_EDIT']>1" type="primary" size="mini" class="blue-btn" @click="handleUpdate(row)">
               {{ $t('TEXT_COMMON_EDIT') }}
             </el-button>
-          <!--v-if="row.Status!='deleted'"-->  <el-button  v-if="Permission['CSP_REMOVE']>1" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <!--<el-button  v-if="Permission['CSP_REMOVE']>1" size="mini" type="danger" @click="handleDelete(row,$index)">
               {{ $t('TEXT_COMMON_DELETE') }}
-            </el-button>
+            </el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -105,43 +100,8 @@
             </el-form-item>
           </el-col>
           <el-col :xs="24" :sm="12">
-            <el-form-item label="Role" prop="RoleCode">
-              <el-select v-model="temp.RoleCode" class="filter-item w-100" placeholder="Please select">
-                <el-option v-for="item in roleTypeOptions" :key="item.Code" :label="item.Name" :value="item.Code" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :xs="24" :sm="12">
-            <el-form-item label="Number" prop="Number">
-              <el-input v-model="temp.Number" />
-            </el-form-item>
-          </el-col>
-          <el-col :xs="24" :sm="12">
-            <el-form-item label="Status" prop="Status">
-              <el-select v-model="temp.Status" class="filter-item w-100" placeholder="Please select">
-                <el-option v-for="item in statusTypeOptions" :key="item.Code" :label="$t(item.Translation)" :value="item.Code" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-
-          <el-col :xs="24" :sm="12">
-            <el-form-item label="Sub Organize Service Profiles" prop="SubOrganizeServiceProfileCodes">
-              <el-checkbox-group v-model="temp.SubOrganizeServiceProfileCodes">
-                <el-checkbox v-for="item in subOrganizeServiceProfileOptions" :label="item.Code" :key="item.Code">{{item.Name}}</el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-          </el-col>
-          <el-col :xs="24" :sm="12">
-            <el-form-item label="Sub Roles" prop="SubRoleCodes">
-              <el-checkbox-group v-model="temp.SubRoleCodes">
-                <el-checkbox v-for="item in subRoleTypeOptions" :label="item.Code" :key="item.Code">{{item.Name}}</el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-          </el-col>
-
-          <el-col :xs="24" >
-            <el-form-item label="Remark" prop="Remark">
-              <el-input v-model="temp.Remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
+            <el-form-item label="Code" prop="Code">
+              <el-input disabled v-model="temp.Code" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -173,6 +133,9 @@ import { StatusList } from '@/utils/dictionaries'
 import { sortArrayByObjProps, toLowerCaseObjectKeys } from '@/utils/helpers'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { Permission } from '@/utils/role-permissions'
+
+
+import { fetchServiceProfileOptionsAjax, updateSSPAjax } from "@/api/user";
 
 import Item from '@/layout/components/Sidebar/Item'
 export default {
@@ -214,15 +177,7 @@ export default {
       temp: {
         Code: undefined,
         Name: undefined,
-        Number: undefined,
-        //Order: 100,
-        Remark: undefined,
-        RoleCode: undefined,
-        Status: undefined,
-        SubOrganizeServiceProfileCodes: [],
-        SubRolesCodes: [],
-        SubSimServiceProfiles: null,
-        SubTerminalServiceProfiles: null
+        Number: null,
       },
       isDialogFormVisible: false,
       dialogStatus: '',
@@ -232,10 +187,7 @@ export default {
       },
       rules: {
         Name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
-        Number: [{ required: true, message: 'Number is required', trigger: 'blur' }],
-        //Remark: [{ required: true, message: 'Number is required', trigger: 'blur' }],
-        Status: [{ required: true, message: 'Status is required', trigger: 'change' }],
-        RoleCode: [{ required: true, message: 'Role is required', trigger: 'change' }],
+        Code: [{ required: true, message: 'Code is required', trigger: 'blur' }],
       },
       downloadLoading: false
     }
@@ -254,23 +206,14 @@ export default {
     async getList() {
       this.isListLoading = true
 
-      let query = {
-        //token: this.$store.state.user.token
-        //token: '00000000-0000-0000-0000-000000000000'
-      }
-      let response = await fetchOSPList(query)
+      fetchServiceProfileOptionsAjax().then(response => {        
+        console.log('csp', response)
+        
+        this.isListLoading = false
 
-      console.log(response)
-
-      await this.$nextTick()
-      this.isListLoading = false
-      //console.log(response)
-      if(!response){
-        return
-      }
-
-      this.total = response.length
-      this.list = response
+        this.total = response.Data.length
+        this.list = response.Data
+      })
     },
     async getOSPAdditionalInfo(){
       let additionalInfo = await fetchOSPAdditionalInfo()
@@ -295,15 +238,8 @@ export default {
     resetTemp() {
       this.temp = {
         Name: undefined,
-        Number: undefined,
-        //Order: 100,
-        Remark: undefined,
-        RoleCode: undefined,
-        Status: undefined,
-        SubOrganizeServiceProfileCodes: [],
-        SubRoleCodes: [],
-        SubSimServiceProfiles: null,
-        SubTerminalServiceProfiles: null
+        Number: null,
+        Code: undefined,
       }
     },
     handleCreate() {
@@ -340,7 +276,7 @@ export default {
         duration: 2000
       })
     },
-    onEditFormSubmit(){
+    /*onEditFormSubmit(){
       //this.dialogStatus === 'create' ? this.createData() : this.updateData()
       let tempData = Object.assign({}, this.temp)
       this.$refs['dataForm'].validate(async (valid) => {
@@ -363,6 +299,46 @@ export default {
           type: 'success',
           duration: 2000
         })
+      })
+    },*/
+
+    onEditFormSubmit(){
+      let tempData = Object.assign({}, this.temp)
+      this.$refs['dataForm'].validate(async (valid) => {
+        if (!valid){
+          return false
+        }
+        
+        this.isFormLoading = true
+        //let response = this.dialogStatus === 'create' ? await createCustomer(tempData) : await updateCustomer(tempData)
+       
+        
+        if(this.dialogStatus === 'create'){ 
+         /* createCustomerAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Created Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          }) */
+        }else{
+          updateSSPAjax(tempData).then(response => {            
+            this.resetTemp()
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: 'Updated Successfully',
+              type: 'success',
+              duration: 2000
+            })          
+          })
+        }
+        
+        this.isFormLoading = false
+        this.isDialogFormVisible = false  
       })
     },
 

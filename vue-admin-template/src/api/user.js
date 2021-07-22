@@ -338,6 +338,23 @@ export function createCustomerAjax(query) {
 }
 
 
+export function updateSSPAjax(query) {
+  var options = {
+    "url": "https://test4.m2mdata.co/JT/ServiceProfile/Edit",
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
+
 export function updateCustomerAjax(query) {
   var options = {
     "url": "https://test4.m2mdata.co/Service/Organize/Edit",
