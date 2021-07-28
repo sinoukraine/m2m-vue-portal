@@ -320,10 +320,10 @@
             </el-form>
             <div slot="footer" class="dialog-footer">                
                 
-                <el-button v-show="dialogStatus !== 'create'" v-if="temp.State==2" class="green-btn" :loading="isChangeStateLoading" @click="onChangeState(1)">
+                <el-button v-show="dialogStatus !== 'create'" v-if="temp.State==0" type="success" class="green-btn" :loading="isChangeStateLoading" @click="onChangeState(1)">
                     {{'Enable'}}
                 </el-button>
-                <el-button v-show="dialogStatus !== 'create'" v-else type="danger" :loading="isChangeStateLoading" @click="onChangeState(2)">
+                <el-button v-show="dialogStatus !== 'create'" v-else type="danger" :loading="isChangeStateLoading" @click="onChangeState(0)">
                     {{'Disable'}}
                 </el-button>
 
@@ -924,8 +924,10 @@ export default {
     },
     async onChangeState(state){
       this.isChangeStateLoading = true;
-      changeOrgStateAjax({ Code: this.temp.Code, State: state }).then(response => {
+      changeOrgStateAjax({ Codes: [this.temp.Code], State: state }).then(response => {
         this.isChangeStateLoading = false;
+        this.isDialogFormVisible = false 
+        this.getList();
         this.$notify({
           title: 'Success',
           message: 'State Changed Successfully',
