@@ -582,12 +582,9 @@
                   </el-col>
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusTest">{{ $t('TEST') }}</el-checkbox>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-checkbox v-model="checkboxSearchStatusTestEnd">{{ $t('TEST_END') }}</el-checkbox>
                   </el-col>-->
                   <el-col :span="12">
-                    <el-checkbox v-model="checkboxSearchStatusTestProductive">{{ $t('TEST_PRODUCTIVE') }}</el-checkbox>
+                    <el-checkbox v-model="checkboxSearchStatusTestEnd">{{ $t('TEST_END') }}</el-checkbox>
                   </el-col>
                   <!--<el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusAutoSuspended">AutoSuspended</el-checkbox>
@@ -613,6 +610,10 @@
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchStatusPassive">Passive</el-checkbox>
                   </el-col>-->
+                  
+                  <el-col :span="12">
+                    <el-checkbox v-model="checkboxSearchStatusTestProductive">{{ $t('TEST_PRODUCTIVE') }}</el-checkbox>
+                  </el-col>
                 </el-row>
                 
               </el-form-item>
