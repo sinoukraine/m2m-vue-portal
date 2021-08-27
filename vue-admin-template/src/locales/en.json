@@ -64,5 +64,6 @@
   "TEXT_COMMON_CANCEL": "Cancel",
   "TEXT_COMMON_SAVE": "Save",
   "TEXT_COMMON_ENABLED": "Enabled",
+  "TEXT_COMMON_DISABLED": "Disabled",
   "TEXT_COMMON_NA": "NA"
 }

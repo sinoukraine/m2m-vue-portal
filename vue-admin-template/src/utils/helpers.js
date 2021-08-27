@@ -1,4 +1,5 @@
 //const DOMAIN = 'https://test.m2mdata.co/'
+const DOMAIN1_ = 'http://test4.m2mdata.co/'
 const DOMAIN1 = 'https://test4.m2mdata.co/'
 const DOMAIN2 = 'https://test4.m2mdata.co/'
 
@@ -24,7 +25,8 @@ export const API_METHODS = {
 
   USER_GET_LIST: DOMAIN1 + 'service/User/Query',
   USER_CREATE: DOMAIN1 + 'service/User/Add',
-  USER_EDIT: DOMAIN1 + 'service/User/Edit',
+  USER_EDIT: DOMAIN1 + 'service/User/Edit',  
+  USER_CHANGE_STATE: DOMAIN1 + 'service/User/SetState',
   USER_DELETE: DOMAIN1 + 'service/User/Remove',
   USER_RESET_PASSWORD: DOMAIN1 + 'Service/User/ResetPassword',
   USER_RESET_MY_PASSWORD: DOMAIN1 + 'Service/User/ResetMyPassword',

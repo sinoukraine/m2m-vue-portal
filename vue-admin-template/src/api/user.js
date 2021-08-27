@@ -371,6 +371,22 @@ export function updateCustomerAjax(query) {
 }
 
 
+export function changeUserStateAjax(query) {
+  var options = {
+    "url": API_METHODS.USER_CHANGE_STATE,
+    "method": "POST",
+    "data": query
+  }
+  return new Promise((resolve) => {
+    $.ajax(getRequestOptions(options)).done(function (response) {    
+      resolve(response)
+    }).fail(function (e){
+      store.commit('app/SET_ERROR', e)
+    })
+  })
+}
+
+
 export function changeOrgStateAjax(query) {
   var options = {
     "url": API_METHODS.CUSTOMER_CHANGE_STATE,

@@ -188,7 +188,7 @@
 
                 <el-col v-if="dialogStatus !== 'create'" :xs="24" :sm="12">
                     <el-form-item label="Status" prop="Status">
-                    <el-select v-model="temp.State" class="filter-item w-100" placeholder="Please select">
+                    <el-select v-model="temp.State" disabled class="filter-item w-100" placeholder="Please select">
                         <el-option v-for="item in statusTypeOptions" :key="item.Code" :label="$t(item.Translation)" :value="item.Code" />
                     </el-select>
                     </el-form-item>
@@ -203,7 +203,13 @@
 
             </el-form>
             <div slot="footer" class="dialog-footer">                
-                
+                <el-button v-show="dialogStatus !== 'create'" v-if="temp.State==0" type="success" class="green-btn" :loading="isChangeStateLoading" @click="onChangeState(1)">
+                    {{'Enable'}}
+                </el-button>
+                <el-button v-show="dialogStatus !== 'create'" v-else type="danger" :loading="isChangeStateLoading" @click="onChangeState(0)">
+                    {{'Disable'}}
+                </el-button>
+
                 <el-tooltip v-if="dialogStatus !== 'create'" effect="dark" content="Default password(123456) will be set for user" placement="top-end">
                 <el-button v-if="Permission['USER_RESET_PASSWORD']>1" type="warning" class="orange-btn" :loading="isResetLoading" @click="onResetPassword">
                     Reset Password
@@ -292,7 +298,7 @@ import { mapGetters } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { StatusList, LanguageList, TimeZoneList, DateTimeFormatList, CountyList } from "@/utils/dictionaries";
 import { sortArrayByObjProps } from "@/utils/helpers";
-import { fetchCustomersListAjax, fetchUsersListAjax, createUserAjax, updateUserAjax, deleteUserAjax, resetPasswordAjax } from "@/api/user";
+import { fetchCustomersListAjax, fetchUsersListAjax, createUserAjax, updateUserAjax, deleteUserAjax, resetPasswordAjax,changeUserStateAjax } from "@/api/user";
 import { fetchRoleListAjax } from "@/api/role-managment";
 import { getToken } from '@/utils/auth' // get token from cookie
 import Item from '@/layout/components/Sidebar/Item'
@@ -318,6 +324,7 @@ export default {
       Permission,
       searchedOrganizeName: '',
       searchedOrganizeCreate: null,
+      isChangeStateLoading: false,
       isRightPanelVisible: true,
       filterSubmitId: Date.now(),
       tableKey: 0,
@@ -582,6 +589,20 @@ export default {
       })
       
     },
+    async onChangeState(state){
+      this.isChangeStateLoading = true;
+      changeUserStateAjax({ Codes: [this.temp.Code], State: state }).then(response => {
+        this.isChangeStateLoading = false;
+        this.isDialogFormVisible = false 
+        this.getList();
+        this.$notify({
+          title: 'Success',
+          message: 'State Changed Successfully',
+          type: 'success',
+          duration: 2000
+        })
+      })      
+    },  
     onEditFormSubmit(){
         let tempData = Object.assign({}, this.temp)
         this.$refs['dataForm'].validate(async (valid) => {
