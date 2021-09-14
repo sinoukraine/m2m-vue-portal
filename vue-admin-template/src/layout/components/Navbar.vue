@@ -26,6 +26,9 @@
           <a target="_blank" href="https://statistic.quiktrak.com.au/top-imsi-usage/">
             <el-dropdown-item>Reports</el-dropdown-item>
           </a>
+          <a target="_blank" href="https://m2mdata.co/home/download/M2M%20Data%20Software%20User%20Guide.pdf">
+            <el-dropdown-item>User Manual</el-dropdown-item>
+          </a>
           <!--<el-dropdown-item divided @click.native="accessAdmin()">
             Back to Admin
           </el-dropdown-item>-->
