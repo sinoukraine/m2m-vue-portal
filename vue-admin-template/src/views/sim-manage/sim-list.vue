@@ -1105,7 +1105,7 @@ export default {
 
       if(this.selectedActivateMode=='Productive'){
         for (let i = 0; i < this.multipleSIMSelection.length; i++) {
-          if(this.multipleSIMSelection[i].State == 'OnStock' || this.multipleSIMSelection[i].State == 'TestProductive'){
+          if(this.multipleSIMSelection[i].State == 'OnStock' || this.multipleSIMSelection[i].State == 'TestProductive' || this.multipleSIMSelection[i].State == 'TestEnd' ){
             arr.push(this.multipleSIMSelection[i].IMSI)
           }else{
             checkSIM = false
@@ -1113,7 +1113,7 @@ export default {
         }
 
         if(!checkSIM || this.multipleSIMSelection.length == 0){
-          this.$alert('Only support the sim state in OnStock / TestProductive', 'M2M Data Message', {type: 'message'}) 
+          this.$alert('Only support the sim state in OnStock / TestProductive / TestEnd', 'M2M Data Message', {type: 'message'}) 
               
         }else{
           
