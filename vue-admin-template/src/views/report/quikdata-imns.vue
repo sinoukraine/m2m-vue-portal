@@ -256,7 +256,7 @@
                     <el-checkbox v-model="checkboxSearchCSPM2MDataEmergency">M2M Emergency</el-checkbox>
                   </el-col>   
                   <el-col :span="12">
-                    <el-checkbox v-model="checkboxSearchCSPM2MdataTelstraOnly" >Aus Telstra Only</el-checkbox>
+                    <el-checkbox v-model="checkboxSearchCSPM2MdataTelstraOnly" >Telstra/Optus Profile</el-checkbox>
                   </el-col> 
                   <el-col :span="12">
                     <el-checkbox v-model="checkboxSearchCSPM2MDataVodafoneAustralia" >Custom Profile Tier 1</el-checkbox>
